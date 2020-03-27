@@ -2,6 +2,7 @@
 
 %{
 int line_num=1;
+int flag=0;
 %}
 
 INT_NUM 		[0-9]+
@@ -21,14 +22,14 @@ SEMICOLON 		;
 PARENTHESES		[\(\)]
 BRACKETS 		[\[\]]
 CURLY_BRACKETS		[{}]
-COMMENT			\/\*.*\*\/
+COMMENT			\/\*(.|\n)*\*\/
 
 %%
 
-\n 							{
-								line_num++;
-								return 1;
-							}
+\n 								{
+									line_num++;
+									return 1;
+								}
 
 {INT}							{ 	
 								create_and_store_token(INT_tok,  yytext, line_num); 
@@ -142,7 +143,7 @@ COMMENT			\/\*.*\*\/
 [ \t]							{}
 
 .							{ 	
-                   						printf("Line %d : found illegal token , lexeme %s\n", line_num, yytext);  
+                   						printf("Line %d : found illegal token , char: %s\n", line_num, yytext);  
                        						return 1;
  	     						}
 

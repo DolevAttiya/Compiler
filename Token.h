@@ -22,7 +22,13 @@ typedef enum eTOKENS
 	SEMICOLON_tok,
 	PARENTHESES_tok,
 	BRACKETS_tok,
-	COMMENT_tok
+	COMMENT_tok,
+	INT_NUM_tok,
+	FLOAT_NUM_tok,
+	AR_OP_tok,
+	REL_OP_tok,
+	ASSIGNMENT_OP_tok,
+	CURLY_BRACKETS_tok
 }eTOKENS;
 
 typedef struct Token

@@ -2,7 +2,6 @@
 
 %{
 int line_num=1;
-int flag=0;
 %}
 
 INT_NUM 		[0-9]+

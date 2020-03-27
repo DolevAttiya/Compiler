@@ -163,5 +163,5 @@ if ( argc > 1 )
 else
 	yyout = stdout;
 
-ylex();
+yylex();
 }

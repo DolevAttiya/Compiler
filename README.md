@@ -9,9 +9,9 @@ Fix Format Of messages
 
 Upload=
 
-	1.Information.txt 
+1.Information.txt 
 	
-	2.zip	(in the end of the Project)
+2.zip	(in the end of the Project)
 	
 * pary attention to the Instruction
 

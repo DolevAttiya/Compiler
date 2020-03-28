@@ -1,3 +1,5 @@
+#Notes
+
 Rotem does all:
 
 1. Add an EOF token and make the lexical analyzer run in loop until it detects the EOF.

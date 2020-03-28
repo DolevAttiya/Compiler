@@ -1,17 +1,16 @@
-# Compiler
-ROTEM DO ALL
+Rotem does all:
 
-Token EOF => Lyxical runs in loops
+1. Add an EOF token and make the lexical analyzer run in loop until it detects the EOF.
 
-Fix Comment =>
+2. Fix the comment's regex (Waiting for Gila's response)
 
-Fix Format Of messages
+3. Fix the format of the output messages
 
-Upload=
+4. Need to upload:
 
-1.Information.txt 
+      1. Information.txt 
 	
-2.zip	(in the end of the Project)
+      2. Zip to the releases when we finish and test it on everybody's computers
 	
-* pary attention to the Instruction
 
+* Note for all: Pay attention to the assignment's submission instructions 

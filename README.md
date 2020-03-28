@@ -8,9 +8,9 @@ Rotem does all:
 
 4. Need to upload:
 
-      1. Information.txt 
+     1. Information.txt 
 	
-      2. Zip to the releases when we finish and test it on everybody's computers
+     2. Zip to the releases when we finish and test it on everybody's computers
 	
 
 * Note for all: Pay attention to the assignment's submission instructions 

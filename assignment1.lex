@@ -144,7 +144,7 @@ COMMENT			\/\*(.|\n)*\*\/
 [ \t]							{}
 
 .							{ 	
-                   						printf("Character %s in line: %d does not begin any legal token in the language\n", yytext, line_num);  
+                   						printf("Character '%s' in line: %d does not begin any legal token in the language\n", yytext, line_num);  
                        						return 1;
  	     						}
 
@@ -169,5 +169,5 @@ yylex();
 }
 
 void print_message(char* token_type) {
-	printf("Token of type %s, lexeme: '%s', found in line: %d\n", token_type, yytext, line_num);
+	printf("Token of type '%s', lexeme: '%s', found in line: %d\n", token_type, yytext, line_num);
 }

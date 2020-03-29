@@ -28,7 +28,8 @@ typedef enum eTOKENS
 	AR_OP_tok,
 	REL_OP_tok,
 	ASSIGNMENT_OP_tok,
-	CURLY_BRACKETS_tok
+	CURLY_BRACKETS_tok,
+	EOF_tok
 }eTOKENS;
 
 typedef struct Token

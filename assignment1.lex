@@ -32,6 +32,11 @@ COMMENT			\/\*(.|\n)*\*\/
 									return 1;
 								}
 
+<<EOF>>							{ 	
+								create_and_store_token(EOF_tok,  yytext, line_num); 
+                       						return 0;
+ 	     						}
+
 {INT}							{ 	
 								create_and_store_token(INT_tok,  yytext, line_num); 
                    						print_message("INT_tok");  
@@ -165,7 +170,7 @@ if ( argc > 1 )
 else
 	yyout = stdout;
 
-yylex();
+while(yylex());
 }
 
 void print_message(char* token_type) {

@@ -1,7 +1,9 @@
 %option noyywrap
 
 %{
+#include "Token.h"
 int line_num=1;
+void print_message(char*);
 %}
 
 INT_NUM 		[0-9]+
@@ -32,117 +34,117 @@ COMMENT			\/\*(.|\n)*\*\/
 
 {INT}							{ 	
 								create_and_store_token(INT_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type INT_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("INT_tok");  
                        						return 1;
  	     						}
 
 {FLOAT}							{ 	
 								create_and_store_token(FLOAT_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type FLOAT_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("FLOAT_tok");  
                        						return 1;
  	     						}
 
 {VOID}							{ 	
 								create_and_store_token(VOID_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type VOID_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("VOID_tok");  
                        						return 1;
  	     						}
 
 {IF}							{ 	
 								create_and_store_token(IF_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type IF_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("IF_tok");  
                        						return 1;
  	     						}	
 
 {RETURN}						{ 	
 								create_and_store_token(RETURN_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type RETURN_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("RETURN_tok");  
                        						return 1;
  	     						}
 
 {INT_NUM}						{ 	
 								create_and_store_token(INT_NUM_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type INT_NUM_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("INT_NUM_tok");  
                        						return 1;
  	     						}
 
 {FLOAT_NUM}						{ 	
 								create_and_store_token(FLOAT_NUM_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type FLOAT_NUM_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("FLOAT_NUM_tok");  
                        						return 1;
  	     						}
 
 {AR_OP}							{ 
 								create_and_store_token(AR_OP_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type AR_OP_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("AR_OP_tok");  
                        						return 1;
  	     						}
 
 {REL_OP}						{ 	
 								create_and_store_token(REL_OP_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type REL_OP_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("REL_OP_tok");  
                        						return 1;
  	     						}
 
 {ASSIGNMENT_OP}						{ 	
 								create_and_store_token(ASSIGNMENT_OP_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type ASSIGNMENT_OP_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("ASSIGNMENT_OP_tok");  
                        						return 1;
  	     						}
 
 {ID}							{ 	
 								create_and_store_token(ID_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type ID_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("ID_tok");  
                        						return 1;
  	     						}
 
 
 {COMMA}							{ 	
 								create_and_store_token(COMMA_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type COMMA_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("COMMA_tok");  
                        						return 1;
  	     						}
 
 {COLON}							{ 	
 								create_and_store_token(COLON_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type COLON_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("COLON_tok");  
                        						return 1;
  	     						}
 
 {SEMICOLON}						{ 	
 								create_and_store_token(SEMICOLON_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type SEMICOLON_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("SEMICOLON_tok");  
                        						return 1;
  	     						}
 
 {PARENTHESES}						{ 	
 								create_and_store_token(PARENTHESES_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type PARENTHESES_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("PARENTHESES_tok");  
                        						return 1;
  	     						}
 
 {BRACKETS}						{ 	
 								create_and_store_token(BRACKETS_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type BRACKETS_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("BRACKETS_tok");  
                        						return 1;
  	     						}
 
 {COMMENT}						{ 	
 								create_and_store_token(COMMENT_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type COMMENT_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("COMMENT_tok");  
                        						return 1;
  	     						}
 
 {CURLY_BRACKETS}					{ 	
 								create_and_store_token(CURLY_BRACKETS_tok,  yytext, line_num); 
-                   						printf("Line %d : found token of type CURLY_BRACKETS_tok , lexeme %s\n", line_num, yytext);  
+                   						print_message("CURLY_BRACKETS_tok");  
                        						return 1;
  	     						}
 
 [ \t]							{}
 
 .							{ 	
-                   						printf("Line %d : found illegal token , char: %s\n", line_num, yytext);  
+                   						printf("Character %s in line: %d does not begin any legal token in the language\n", yytext, line_num);  
                        						return 1;
  	     						}
 
@@ -164,4 +166,8 @@ else
 	yyout = stdout;
 
 yylex();
+}
+
+void print_message(char* token_type) {
+	printf("Token of type %s, lexeme: '%s', found in line: %d\n", token_type, yytext, line_num);
 }

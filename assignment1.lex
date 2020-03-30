@@ -6,8 +6,8 @@ int line_num=1;
 void print_message(char*);
 %}
 
-INT_NUM 		[0-9]+
-FLOAT_NUM 		[0-9]+(\.[0-9]+)?e[\+-]?[0-9]+
+INT_NUM 		[1-9][0-9]*
+FLOAT_NUM 		[1-9][0-9]*\.[0-9]+[eE][\+-]?[0-9]+
 AR_OP			[+-]
 REL_OP			([<>])|([<>=!]=)
 ASSIGNMENT_OP		=

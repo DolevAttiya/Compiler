@@ -23,7 +23,7 @@ SEMICOLON 		;
 PARENTHESES		[\(\)]
 BRACKETS 		[\[\]]
 CURLY_BRACKETS		[{}]
-COMMENT			\/[*]([^*]|([*][^\/]))*[*]\/
+COMMENT			\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/
 
 %%
 

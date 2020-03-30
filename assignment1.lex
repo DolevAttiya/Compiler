@@ -26,7 +26,7 @@ BRACKET_OPEN 		\[
 BRACKET_CLOSE 		\]
 CURLY_BRACKET_OPEN		\{
 CURLY_BRACKET_CLOSE		\}
-COMMENT			/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/
+COMMENT			\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/
 
 %%
 

@@ -11,7 +11,7 @@ FLOAT_NUM 		[1-9][0-9]*\.[0-9]+[eE][\+-]?[0-9]+
 AR_OP			[+-]
 REL_OP			([<>])|([<>=!]=)
 ASSIGNMENT_OP		=
-ID 			[a-z]([_a-zA-Z0-9][a-zA-Z0-9])*[a-zA-Z0-9]?
+ID 			[a-z]_?(([a-zA-Z0-9])+_?)*[a-zA-Z0-9]
 INT 			int
 FLOAT 			float
 VOID 			void

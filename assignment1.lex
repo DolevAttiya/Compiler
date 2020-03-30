@@ -150,7 +150,6 @@ COMMENT			\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/
  	     						}
 
 {COMMENT}						{ 	
-								create_and_store_token(COMMENT_tok,  yytext, line_num); 
                    						print_message("COMMENT_tok");  
                        						return 1;
  	     						}

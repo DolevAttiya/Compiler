@@ -1,11 +1,11 @@
 1.  Assaf Lerman 313533374
-    Dolev Attiya
+    Dolev Attiya 205811797
     Rotem Hayut
 
 2.  Assaf: Windows 10 64bit
-    Dolev:
+    Dolev: Windows 10 64bit
     Rotem:
 
 3.  Assaf: Visual Studio 2019
-    Dolev:
+    Dolev: Visual Studio 2017
     Rotem:

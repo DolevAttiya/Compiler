@@ -20,10 +20,13 @@ RETURN 			return
 COMMA 			,
 COLON 			:
 SEMICOLON 		;
-PARENTHESES		[\(\)]
-BRACKETS 		[\[\]]
-CURLY_BRACKETS		[{}]
-COMMENT			\/[*]([^*]|([*][^\/]))*[*]\/
+PARENTHES_OPEN	\(
+PARENTHES_CLOSE	\)
+BRACKET_OPEN 		\[
+BRACKET_CLOSE 		\]
+CURLY_BRACKET_OPEN		\{
+CURLY_BRACKET_CLOSE		\}
+COMMENT			\/\*(.|\n)*\*\/
 
 %%
 
@@ -91,7 +94,7 @@ COMMENT			\/[*]([^*]|([*][^\/]))*[*]\/
                        						return 1;
  	     						}
 
-{ASSIGNMENT_OP}						{ 	
+{ASSIGNMENT_OP}					{ 	
 								create_and_store_token(ASSIGNMENT_OP_tok,  yytext, line_num); 
                    						print_message("ASSIGNMENT_OP_tok");  
                        						return 1;
@@ -102,7 +105,6 @@ COMMENT			\/[*]([^*]|([*][^\/]))*[*]\/
                    						print_message("ID_tok");  
                        						return 1;
  	     						}
-
 
 {COMMA}							{ 	
 								create_and_store_token(COMMA_tok,  yytext, line_num); 
@@ -122,33 +124,50 @@ COMMENT			\/[*]([^*]|([*][^\/]))*[*]\/
                        						return 1;
  	     						}
 
-{PARENTHESES}						{ 	
-								create_and_store_token(PARENTHESES_tok,  yytext, line_num); 
-                   						print_message("PARENTHESES_tok");  
+{PARENTHES_OPEN}				{ 	
+								create_and_store_token(PARENTHES_OPEN_tok,  yytext, line_num); 
+                   						print_message("PARENTHES_OPEN_tok");  
+                       						return 1;
+ 	     						}
+															
+{PARENTHES_CLOSE}				{ 	
+								create_and_store_token(PARENTHES_CLOSE_tok,  yytext, line_num); 
+                   						print_message("PARENTHES_CLOSE_tok");  
                        						return 1;
  	     						}
 
-{BRACKETS}						{ 	
-								create_and_store_token(BRACKETS_tok,  yytext, line_num); 
+{BRACKET_OPEN}					{ 	
+								create_and_store_token(BRACKET_OPEN_tok,  yytext, line_num); 
+                   						print_message("BRACKET_OPEN_tok");  
+                       						return 1;
+ 	     						}						
+								
+{BRACKET_CLOSE}					{ 	
+								create_and_store_token(BRACKET_CLOSE_tok,  yytext, line_num); 
                    						print_message("BRACKETS_tok");  
                        						return 1;
  	     						}
-
 {COMMENT}						{ 	
 								create_and_store_token(COMMENT_tok,  yytext, line_num); 
                    						print_message("COMMENT_tok");  
                        						return 1;
  	     						}
 
-{CURLY_BRACKETS}					{ 	
-								create_and_store_token(CURLY_BRACKETS_tok,  yytext, line_num); 
-                   						print_message("CURLY_BRACKETS_tok");  
+{CURLY_BRACKET_OPEN}			{ 	
+								create_and_store_token(CURLY_BRACKET_OPEN_tok,  yytext, line_num); 
+                   						print_message("CURLY_BRACKET_OPEN_tok");  
+                       						return 1;
+ 	     						}
+														
+{CURLY_BRACKET_CLOSE}			{ 	
+								create_and_store_token(CURLY_BRACKET_CLOSE_tok,  yytext, line_num); 
+                   						print_message("CURLY_BRACKET_CLOSE_tok");  
                        						return 1;
  	     						}
 
 [ \t]							{}
 
-.							{ 	
+.								{ 	
                    						printf("Character '%s' in line: %d does not begin any legal token in the language\n", yytext, line_num);  
                        						return 1;
  	     						}

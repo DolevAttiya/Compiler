@@ -20,15 +20,18 @@ typedef enum eTOKENS
 	COMMA_tok,
 	COLON_tok,
 	SEMICOLON_tok,
-	PARENTHESES_tok,
-	BRACKETS_tok,
+	PARENTHES_OPEN_tok,
+	PARENTHES_CLOSE_tok,
+	BRACKET_OPEN_tok,
+	BRACKET_CLOSE_tok,
 	COMMENT_tok,
 	INT_NUM_tok,
 	FLOAT_NUM_tok,
 	AR_OP_tok,
 	REL_OP_tok,
 	ASSIGNMENT_OP_tok,
-	CURLY_BRACKETS_tok,
+	CURLY_BRACKET_OPEN_tok,
+	CURLY_BRACKET_CLOSE_tok,
 	EOF_tok
 }eTOKENS;
 

@@ -97,15 +97,15 @@ COMMENT			\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/
                        						return 1;
  	     						}
 
-{INT_NUM}						{ 	
-								create_and_store_token(INT_NUM_tok,  yytext, line_num); 
-                   						print_message(eTokensStrings[INT_NUM_tok]);  
-                       						return 1;
- 	     						}
-
 {FLOAT_NUM}						{ 	
 								create_and_store_token(FLOAT_NUM_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[FLOAT_NUM_tok]);  
+                       						return 1;
+ 	     						}
+
+{INT_NUM}						{ 	
+								create_and_store_token(INT_NUM_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[INT_NUM_tok]);  
                        						return 1;
  	     						}
 

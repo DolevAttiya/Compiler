@@ -20,7 +20,6 @@ char *eTokensStrings[]=
 	"PARENTHES_CLOSE_tok",
 	"BRACKET_OPEN_tok",
 	"BRACKET_CLOSE_tok",
-	"COMMENT_tok",
 	"INT_NUM_tok",
 	"FLOAT_NUM_tok",
 	"ADD_OP_tok",

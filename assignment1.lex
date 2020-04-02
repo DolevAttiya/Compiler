@@ -18,8 +18,8 @@ char *eTokensStrings[]=
 	"COMMA_tok",
 	"COLON_tok",
 	"SEMICOLON_tok",
-	"PARENTHES_OPEN_tok",
-	"PARENTHES_CLOSE_tok",
+	"PARENTHESIS_OPEN_tok",
+	"PARENTHESIS_CLOSE_tok",
 	"BRACKET_OPEN_tok",
 	"BRACKET_CLOSE_tok",
 	"COMMENT_tok",
@@ -60,8 +60,8 @@ RETURN 					return
 COMMA 					,
 COLON 					:
 SEMICOLON 				;
-PARENTHES_OPEN			\(
-PARENTHES_CLOSE			\)
+PARENTHESIS_OPEN			\(
+PARENTHESIS_CLOSE			\)
 BRACKET_OPEN 			\[
 BRACKET_CLOSE 			\]
 CURLY_BRACKET_OPEN		\{
@@ -207,15 +207,15 @@ CURLY_BRACKET_CLOSE		\}
                        						return 1;
  	     						}
 
-{PARENTHES_OPEN}				{ 	
-								create_and_store_token(PARENTHES_OPEN_tok,  yytext, line_num); 
-                   						print_message(eTokensStrings[PARENTHES_OPEN_tok]);  
+{PARENTHESIS_OPEN}				{ 	
+								create_and_store_token(PARENTHESIS_OPEN_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[PARENTHESIS_OPEN_tok]);  
                        						return 1;
  	     						}
 															
-{PARENTHES_CLOSE}				{ 	
-								create_and_store_token(PARENTHES_CLOSE_tok,  yytext, line_num); 
-                   						print_message(eTokensStrings[PARENTHES_CLOSE_tok]);  
+{PARENTHESIS_CLOSE}				{ 	
+								create_and_store_token(PARENTHESIS_CLOSE_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[PARENTHESIS_CLOSE_tok]);  
                        						return 1;
  	     						}
 
@@ -254,20 +254,30 @@ CURLY_BRACKET_CLOSE		\}
 
 int main(int argc, char **argv ){
 
-++argv, --argc;  /* skip over program name */
+	++argv, --argc;  /* skip over program name */
 
-if ( argc > 0 )
-	yyin = fopen( argv[0], "r" );
-else
-	yyin = stdin;
+	/*if ( argc > 0 )
+		yyin = fopen( argv[0], "r" );
+	else
+		yyin = stdin;
 
 
-if ( argc > 1 )
-	yyout = fopen( argv[1], "w" );
-else
-	yyout = stdout;
+	if ( argc > 1 )
+		yyout = fopen( argv[1], "w" );
+	else
+		yyout = stdout;
 
-while(yylex());
+	while(yylex());
+}*/
+
+	yyin = fopen("C:\\temp\\test1.txt", "r" );
+	yyout = fopen("c:\\temp\\test1_206920282_313533374_205811797_lex.txt", "w" );
+	while(yylex());
+	fclose(yyin);
+	fclose(yyout);
+	yyin = fopen("C:\\temp\\test2.txt", "r" );
+	yyout = fopen("c:\\temp\\test2_206920282_313533374_205811797_lex.txt", "w" );
+	while(yylex());
 }
 
 void print_message(char* token_type) {

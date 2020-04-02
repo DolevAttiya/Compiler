@@ -260,6 +260,8 @@ int main(int argc, char **argv ){
 	yyin = fopen("C:\\temp\\test2.txt", "r" );
 	yyout = fopen("c:\\temp\\test2_206920282_313533374_205811797_lex.txt", "w" );
 	while(yylex());
+	fclose(yyin);
+	fclose(yyout);
 }
 
 void print_message(char* token_type) {

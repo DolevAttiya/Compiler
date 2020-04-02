@@ -79,7 +79,7 @@ CURLY_BRACKET_CLOSE		\}
 
 <<EOF>>							{ 	
 								create_and_store_token(EOF_tok,  yytext, line_num); 
-									printf("Token of type '%s', found in line: %d\n",eTokensStrings[EOF_tok], line_num); 
+									fprintf(yyout,"Token of type '%s', found in line: %d\n",eTokensStrings[EOF_tok], line_num); 
                        						return 0;
  	     						}
 
@@ -244,7 +244,7 @@ CURLY_BRACKET_CLOSE		\}
 [ \t]							{}
 
 .								{ 	
-                   						printf("Character '%s' in line: %d does not begin any legal token in the language\n", yytext, line_num);  
+                   						fprintf(yyout,"Character '%s' in line: %d does not begin any legal token in the language\n", yytext, line_num);  
                        						return 1;
  	     						}
 
@@ -279,5 +279,5 @@ int main(int argc, char **argv ){
 }
 
 void print_message(char* token_type) {
-	printf("Token of type '%s', lexeme: '%s', found in line: %d\n", token_type, yytext, line_num);
+	fprintf(yyout,"Token of type '%s', lexeme: '%s', found in line: %d\n", token_type, yytext, line_num);
 }

@@ -76,6 +76,7 @@ COMMENT					\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/
 
 <<EOF>>							{ 	
 								create_and_store_token(EOF_tok,  yytext, line_num); 
+										print_message(eTokensStrings[EOF_tok]);  
                        						return 0;
  	     						}
 

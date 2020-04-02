@@ -24,8 +24,14 @@ char *eTokensStrings[]=
 	"COMMENT_tok",
 	"INT_NUM_tok",
 	"FLOAT_NUM_tok",
-	"AR_OP_tok",
-	"REL_OP_tok",
+	"ADD_OP_tok",
+	"MUL_OP_tok",	
+	"LESS_tok",
+	"LESS_EQUAL_tok",
+	"EQUAL_tok",
+	"GREATER_tok",
+	"GREATER_EQUAL_tok",
+	"NOT_EQUAL_tok",	
 	"ASSIGNMENT_OP_tok",
 	"CURLY_BRACKET_OPEN_tok",
 	"CURLY_BRACKET_CLOSE_tok",
@@ -33,27 +39,33 @@ char *eTokensStrings[]=
 };
 %}
 
-INT_NUM 		[1-9][0-9]*
-FLOAT_NUM 		[1-9][0-9]*\.[0-9]+[eE][\+-]?[0-9]+
-AR_OP			[+-]
-REL_OP			([<>])|([<>=!]=)
-ASSIGNMENT_OP		=
-ID 			[a-z]_?(([a-zA-Z0-9])+_?)*[a-zA-Z0-9]
-INT 			int
-FLOAT 			float
-VOID 			void
-IF 			if
-RETURN 			return
-COMMA 			,
-COLON 			:
-SEMICOLON 		;
-PARENTHES_OPEN	\(
-PARENTHES_CLOSE	\)
-BRACKET_OPEN 		\[
-BRACKET_CLOSE 		\]
+INT_NUM 				0|[1-9][0-9]*
+FLOAT_NUM 				(0|[1-9][0-9]*)\.[0-9]+[eE][\+-]?(0|[1-9][0-9]*)
+ADD_OP					\+
+MUL_OP 					\*
+LESS 					<
+LESS_EQUAL 				<=
+EQUAL					==
+GREATER 				>
+GREATER_EQUAL 			>=
+NOT_EQUAL				!=
+ASSIGNMENT_OP			=
+ID 						[a-z]_?(([a-zA-Z0-9])+_?)*[a-zA-Z0-9]
+INT 					int
+FLOAT 					float
+VOID 					void
+IF 						if
+RETURN 					return
+COMMA 					,
+COLON 					:
+SEMICOLON 				;
+PARENTHES_OPEN			\(
+PARENTHES_CLOSE			\)
+BRACKET_OPEN 			\[
+BRACKET_CLOSE 			\]
 CURLY_BRACKET_OPEN		\{
 CURLY_BRACKET_CLOSE		\}
-COMMENT			\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/
+COMMENT					\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/
 
 %%
 
@@ -109,17 +121,54 @@ COMMENT			\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/
                        						return 1;
  	     						}
 
-{AR_OP}							{ 
-								create_and_store_token(AR_OP_tok,  yytext, line_num); 
-                   						print_message(eTokensStrings[AR_OP_tok]);  
+{ADD_OP}						{ 
+								create_and_store_token(ADD_OP_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[ADD_OP_tok]);  
                        						return 1;
  	     						}
 
-{REL_OP}						{ 	
-								create_and_store_token(REL_OP_tok,  yytext, line_num); 
-                   						print_message(eTokensStrings[REL_OP_tok]);  
+{MUL_OP}						{ 
+								create_and_store_token(MUL_OP_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[MUL_OP_tok]);  
                        						return 1;
  	     						}
+
+{LESS_EQUAL}					{ 	
+								create_and_store_token(LESS_EQUAL_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[LESS_EQUAL_tok]);  
+                       						return 1;
+ 	     						}
+
+{GREATER_EQUAL}					{ 	
+								create_and_store_token(GREATER_EQUAL_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[GREATER_EQUAL_tok]);  
+                       						return 1;
+ 	     						}
+
+{NOT_EQUAL}						{ 	
+								create_and_store_token(NOT_EQUAL_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[NOT_EQUAL_tok]);  
+                       						return 1;
+ 	     						}
+
+{EQUAL}							{ 	
+								create_and_store_token(EQUAL_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[EQUAL_tok]);  
+                       						return 1;
+ 	     						}
+
+{LESS}							{ 	
+								create_and_store_token(LESS_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[LESS_tok]);  
+                       						return 1;
+ 	     						}
+
+{GREATER}						{ 	
+								create_and_store_token(GREATER_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[GREATER_tok]);  
+                       						return 1;
+ 	     						}
+
 
 {ASSIGNMENT_OP}					{ 	
 								create_and_store_token(ASSIGNMENT_OP_tok,  yytext, line_num); 

@@ -12,8 +12,6 @@ char *eTokensStrings[]=
 	"VOID_tok",
 	"IF_tok",
 	"RETURN_tok",
-	"NUM_tok",
-	"OP_tok",
 	"ID_tok",
 	"COMMA_tok",
 	"COLON_tok",

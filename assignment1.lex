@@ -1,4 +1,5 @@
 %option noyywrap
+%x COMMENT
 
 %{
 #include "Token.h"
@@ -65,9 +66,13 @@ BRACKET_OPEN 			\[
 BRACKET_CLOSE 			\]
 CURLY_BRACKET_OPEN		\{
 CURLY_BRACKET_CLOSE		\}
-COMMENT					\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/
 
 %%
+
+"/*"  BEGIN(COMMENT);
+<COMMENT>[^*\n]*                 
+<COMMENT>\n 	line_num++;                    
+<COMMENT>"*/" 	BEGIN(0);
 
 \n 								{
 									line_num++;
@@ -223,11 +228,6 @@ COMMENT					\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/
 {BRACKET_CLOSE}					{ 	
 								create_and_store_token(BRACKET_CLOSE_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[BRACKET_CLOSE_tok]);  
-                       						return 1;
- 	     						}
-
-{COMMENT}						{ 	
-                   						print_message(eTokensStrings[COMMENT_tok]);  
                        						return 1;
  	     						}
 

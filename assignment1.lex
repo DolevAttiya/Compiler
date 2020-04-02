@@ -20,7 +20,6 @@ char *eTokensStrings[]=
 	"PARENTHESIS_CLOSE_tok",
 	"BRACKET_OPEN_tok",
 	"BRACKET_CLOSE_tok",
-	"COMMENT_tok",
 	"INT_NUM_tok",
 	"FLOAT_NUM_tok",
 	"ADD_OP_tok",
@@ -132,7 +131,7 @@ CURLY_BRACKET_CLOSE		\}
  	     						}
 
 {MUL_OP}						{ 
-								create_and_store_token(MUL_OP_tok,  yytext, line_num); 
+								create_and_store_token(MUL_OP_tok,  yytext, line_num);
                    						print_message(eTokensStrings[MUL_OP_tok]);  
                        						return 1;
  	     						}

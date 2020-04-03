@@ -248,7 +248,7 @@ CURLY_BRACKET_CLOSE		\}
  	     						}
 
 %%
-
+ 
 int main(){
 	yyin = fopen("C:\\temp\\test1.txt", "r" );
 	yyout = fopen("c:\\temp\\test1_206920282_313533374_205811797_lex.txt", "w" );

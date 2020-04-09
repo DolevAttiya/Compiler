@@ -48,7 +48,7 @@ GREATER 				>
 GREATER_EQUAL 			>=
 NOT_EQUAL				!=
 ASSIGNMENT_OP			=
-ID 						[a-z]_?(([a-zA-Z0-9])+_?)*[a-zA-Z0-9]
+ID 						[a-z]|[a-z]_?(([a-zA-Z0-9])+_?)*[a-zA-Z0-9]
 INT 					int
 FLOAT 					float
 VOID 					void

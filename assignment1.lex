@@ -16,8 +16,8 @@ char *eTokensStrings[]=
 	"COMMA_tok",
 	"COLON_tok",
 	"SEMICOLON_tok",
-	"PARENTHES_OPEN_tok",
-	"PARENTHES_CLOSE_tok",
+	"PARENTHESIS_OPEN_tok",
+	"PARENTHESIS_CLOSE_tok",
 	"BRACKET_OPEN_tok",
 	"BRACKET_CLOSE_tok",
 	"INT_NUM_tok",
@@ -57,8 +57,8 @@ RETURN 					return
 COMMA 					,
 COLON 					:
 SEMICOLON 				;
-PARENTHES_OPEN			\(
-PARENTHES_CLOSE			\)
+PARENTHESIS_OPEN			\(
+PARENTHESIS_CLOSE			\)
 BRACKET_OPEN 			\[
 BRACKET_CLOSE 			\]
 CURLY_BRACKET_OPEN		\{
@@ -78,7 +78,7 @@ CURLY_BRACKET_CLOSE		\}
 
 <<EOF>>							{ 	
 								create_and_store_token(EOF_tok,  yytext, line_num); 
-									printf("Token of type '%s', found in line: %d\n",eTokensStrings[EOF_tok], line_num); 
+									fprintf(yyout,"Token of type '%s', found in line: %d\n",eTokensStrings[EOF_tok], line_num); 
                        						return 0;
  	     						}
 
@@ -131,7 +131,7 @@ CURLY_BRACKET_CLOSE		\}
  	     						}
 
 {MUL_OP}						{ 
-								create_and_store_token(MUL_OP_tok,  yytext, line_num); 
+								create_and_store_token(MUL_OP_tok,  yytext, line_num);
                    						print_message(eTokensStrings[MUL_OP_tok]);  
                        						return 1;
  	     						}
@@ -204,15 +204,15 @@ CURLY_BRACKET_CLOSE		\}
                        						return 1;
  	     						}
 
-{PARENTHES_OPEN}				{ 	
-								create_and_store_token(PARENTHES_OPEN_tok,  yytext, line_num); 
-                   						print_message(eTokensStrings[PARENTHES_OPEN_tok]);  
+{PARENTHESIS_OPEN}				{ 	
+								create_and_store_token(PARENTHESIS_OPEN_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[PARENTHESIS_OPEN_tok]);  
                        						return 1;
  	     						}
 															
-{PARENTHES_CLOSE}				{ 	
-								create_and_store_token(PARENTHES_CLOSE_tok,  yytext, line_num); 
-                   						print_message(eTokensStrings[PARENTHES_CLOSE_tok]);  
+{PARENTHESIS_CLOSE}				{ 	
+								create_and_store_token(PARENTHESIS_CLOSE_tok,  yytext, line_num); 
+                   						print_message(eTokensStrings[PARENTHESIS_CLOSE_tok]);  
                        						return 1;
  	     						}
 
@@ -243,30 +243,25 @@ CURLY_BRACKET_CLOSE		\}
 [ \t]							{}
 
 .								{ 	
-                   						printf("Character '%s' in line: %d does not begin any legal token in the language\n", yytext, line_num);  
+                   						fprintf(yyout,"Character '%s' in line: %d does not begin any legal token in the language\n", yytext, line_num);  
                        						return 1;
  	     						}
 
 %%
-
-int main(int argc, char **argv ){
-
-++argv, --argc;  /* skip over program name */
-
-if ( argc > 0 )
-	yyin = fopen( argv[0], "r" );
-else
-	yyin = stdin;
-
-
-if ( argc > 1 )
-	yyout = fopen( argv[1], "w" );
-else
-	yyout = stdout;
-
-while(yylex());
+ 
+int main(){
+	yyin = fopen("C:\\temp\\test1.txt", "r" );
+	yyout = fopen("c:\\temp\\test1_206920282_313533374_205811797_lex.txt", "w" );
+	while(yylex());
+	fclose(yyin);
+	fclose(yyout);
+	yyin = fopen("C:\\temp\\test2.txt", "r" );
+	yyout = fopen("c:\\temp\\test2_206920282_313533374_205811797_lex.txt", "w" );
+	while(yylex());
+	fclose(yyin);
+	fclose(yyout);
 }
 
 void print_message(char* token_type) {
-	printf("Token of type '%s', lexeme: '%s', found in line: %d\n", token_type, yytext, line_num);
+	fprintf(yyout,"Token of type '%s', lexeme: '%s', found in line: %d\n", token_type, yytext, line_num);
 }

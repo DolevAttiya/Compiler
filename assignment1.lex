@@ -67,9 +67,9 @@ CURLY_BRACKET_CLOSE		\}
 %%
 
 "/*"  BEGIN(COMMENT);
-<COMMENT>[^*\n]*                 
-<COMMENT>\n 	line_num++;                    
 <COMMENT>"*/" 	BEGIN(0);
+<COMMENT>\n 		line_num++;                    
+<COMMENT>.
 
 \n 								{
 									line_num++;

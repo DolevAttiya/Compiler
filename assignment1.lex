@@ -256,6 +256,7 @@ int main(){
 	while(yylex());
 	fclose(yyin);
 	fclose(yyout);
+	BEGIN(0);
 	yyin = fopen("C:\\temp\\test2.txt", "r" );
 	yyout = fopen("c:\\temp\\test2_206920282_313533374_205811797_lex.txt", "w" );
 	while(yylex());

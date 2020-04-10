@@ -79,7 +79,8 @@ CURLY_BRACKET_CLOSE		\}
 <<EOF>>							{ 	
 								create_and_store_token(EOF_tok,  yytext, line_num); 
 									fprintf(yyout,"Token of type '%s', found in line: %d\n",eTokensStrings[EOF_tok], line_num); 
-                       						return 0;
+                       						line_num = 1;
+											return 0;
  	     						}
 
 {INT}							{ 	

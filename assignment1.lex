@@ -67,7 +67,8 @@ CURLY_BRACKET_CLOSE		\}
 %%
 
 "/*"  BEGIN(COMMENT);
-<COMMENT>"*/" 	BEGIN(0);
+<COMMENT><<EOF>>	BEGIN(0);
+<COMMENT>"*/" 		BEGIN(0);
 <COMMENT>\n 		line_num++;                    
 <COMMENT>.
 
@@ -256,7 +257,6 @@ int main(){
 	while(yylex());
 	fclose(yyin);
 	fclose(yyout);
-	BEGIN(0);
 	yyin = fopen("C:\\temp\\test2.txt", "r" );
 	yyout = fopen("c:\\temp\\test2_206920282_313533374_205811797_lex.txt", "w" );
 	while(yylex());

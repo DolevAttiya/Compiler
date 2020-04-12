@@ -7,5 +7,5 @@
     Rotem: Windows 10 64bit
 
 3.  Assaf: Visual Studio 2019
-    Dolev: Visual Studio 2017
-    Rotem: Visual Studio 2017
+    Dolev: Visual Studio 2019
+    Rotem: Visual Studio 2019

@@ -493,9 +493,9 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "assignment1.lex"
+#line 1 "flex_rules.lex"
 
-#line 5 "assignment1.lex"
+#line 5 "flex_rules.lex"
 #include "../Token/Token.h"
 int line_num=1;
 void print_message(char*);
@@ -745,7 +745,7 @@ YY_DECL
 		}
 
 	{
-#line 67 "assignment1.lex"
+#line 67 "flex_rules.lex"
 
 
 #line 751 "win.lex.yy.c"
@@ -807,40 +807,40 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 69 "assignment1.lex"
+#line 69 "flex_rules.lex"
 BEGIN(COMMENT);
 	YY_BREAK
 case YY_STATE_EOF(COMMENT):
-#line 70 "assignment1.lex"
+#line 70 "flex_rules.lex"
 BEGIN(0);
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 71 "assignment1.lex"
+#line 71 "flex_rules.lex"
 BEGIN(0);
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 72 "assignment1.lex"
+#line 72 "flex_rules.lex"
 line_num++;                    
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 73 "assignment1.lex"
+#line 73 "flex_rules.lex"
 
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 75 "assignment1.lex"
+#line 75 "flex_rules.lex"
 {
 									line_num++;
 									return 1;
 								}
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 80 "assignment1.lex"
+#line 80 "flex_rules.lex"
 { 	
 								create_and_store_token(EOF_tok,  yytext, line_num); 
 									fprintf(yyout,"Token of type '%s', found in line: %d\n",eTokensStrings[EOF_tok], line_num); 
@@ -850,7 +850,7 @@ case YY_STATE_EOF(INITIAL):
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 87 "assignment1.lex"
+#line 87 "flex_rules.lex"
 { 	
 								create_and_store_token(INT_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[INT_tok]);  
@@ -859,7 +859,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 93 "assignment1.lex"
+#line 93 "flex_rules.lex"
 { 	
 								create_and_store_token(FLOAT_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[FLOAT_tok]);  
@@ -868,7 +868,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 99 "assignment1.lex"
+#line 99 "flex_rules.lex"
 { 	
 								create_and_store_token(VOID_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[VOID_tok]);  
@@ -877,7 +877,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 105 "assignment1.lex"
+#line 105 "flex_rules.lex"
 { 	
 								create_and_store_token(IF_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[IF_tok]);  
@@ -886,7 +886,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 111 "assignment1.lex"
+#line 111 "flex_rules.lex"
 { 	
 								create_and_store_token(RETURN_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[RETURN_tok]);  
@@ -895,7 +895,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 117 "assignment1.lex"
+#line 117 "flex_rules.lex"
 { 	
 								create_and_store_token(FLOAT_NUM_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[FLOAT_NUM_tok]);  
@@ -904,7 +904,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 123 "assignment1.lex"
+#line 123 "flex_rules.lex"
 { 	
 								create_and_store_token(INT_NUM_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[INT_NUM_tok]);  
@@ -913,7 +913,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 129 "assignment1.lex"
+#line 129 "flex_rules.lex"
 { 
 								create_and_store_token(ADD_OP_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[ADD_OP_tok]);  
@@ -922,7 +922,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 135 "assignment1.lex"
+#line 135 "flex_rules.lex"
 { 
 								create_and_store_token(MUL_OP_tok,  yytext, line_num);
                    						print_message(eTokensStrings[MUL_OP_tok]);  
@@ -931,7 +931,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 141 "assignment1.lex"
+#line 141 "flex_rules.lex"
 { 	
 								create_and_store_token(LESS_EQUAL_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[LESS_EQUAL_tok]);  
@@ -940,7 +940,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 147 "assignment1.lex"
+#line 147 "flex_rules.lex"
 { 	
 								create_and_store_token(GREATER_EQUAL_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[GREATER_EQUAL_tok]);  
@@ -949,7 +949,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 153 "assignment1.lex"
+#line 153 "flex_rules.lex"
 { 	
 								create_and_store_token(NOT_EQUAL_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[NOT_EQUAL_tok]);  
@@ -958,7 +958,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 159 "assignment1.lex"
+#line 159 "flex_rules.lex"
 { 	
 								create_and_store_token(EQUAL_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[EQUAL_tok]);  
@@ -967,7 +967,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 165 "assignment1.lex"
+#line 165 "flex_rules.lex"
 { 	
 								create_and_store_token(LESS_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[LESS_tok]);  
@@ -976,7 +976,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 171 "assignment1.lex"
+#line 171 "flex_rules.lex"
 { 	
 								create_and_store_token(GREATER_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[GREATER_tok]);  
@@ -985,7 +985,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 178 "assignment1.lex"
+#line 178 "flex_rules.lex"
 { 	
 								create_and_store_token(ASSIGNMENT_OP_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[ASSIGNMENT_OP_tok]);  
@@ -994,7 +994,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 184 "assignment1.lex"
+#line 184 "flex_rules.lex"
 { 	
 								create_and_store_token(ID_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[ID_tok]);  
@@ -1003,7 +1003,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 191 "assignment1.lex"
+#line 191 "flex_rules.lex"
 { 	
 								create_and_store_token(COMMA_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[COMMA_tok]);  
@@ -1012,7 +1012,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 197 "assignment1.lex"
+#line 197 "flex_rules.lex"
 { 	
 								create_and_store_token(COLON_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[COLON_tok]);  
@@ -1021,7 +1021,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 203 "assignment1.lex"
+#line 203 "flex_rules.lex"
 { 	
 								create_and_store_token(SEMICOLON_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[SEMICOLON_tok]);  
@@ -1030,7 +1030,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 209 "assignment1.lex"
+#line 209 "flex_rules.lex"
 { 	
 								create_and_store_token(PARENTHESIS_OPEN_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[PARENTHESIS_OPEN_tok]);  
@@ -1039,7 +1039,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 215 "assignment1.lex"
+#line 215 "flex_rules.lex"
 { 	
 								create_and_store_token(PARENTHESIS_CLOSE_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[PARENTHESIS_CLOSE_tok]);  
@@ -1048,7 +1048,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 221 "assignment1.lex"
+#line 221 "flex_rules.lex"
 { 	
 								create_and_store_token(BRACKET_OPEN_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[BRACKET_OPEN_tok]);  
@@ -1057,7 +1057,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 227 "assignment1.lex"
+#line 227 "flex_rules.lex"
 { 	
 								create_and_store_token(BRACKET_CLOSE_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[BRACKET_CLOSE_tok]);  
@@ -1066,7 +1066,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 233 "assignment1.lex"
+#line 233 "flex_rules.lex"
 { 	
 								create_and_store_token(CURLY_BRACKET_OPEN_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[CURLY_BRACKET_OPEN_tok]);  
@@ -1075,7 +1075,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 239 "assignment1.lex"
+#line 239 "flex_rules.lex"
 { 	
 								create_and_store_token(CURLY_BRACKET_CLOSE_tok,  yytext, line_num); 
                    						print_message(eTokensStrings[CURLY_BRACKET_CLOSE_tok]);  
@@ -1084,12 +1084,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 245 "assignment1.lex"
+#line 245 "flex_rules.lex"
 {}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 247 "assignment1.lex"
+#line 247 "flex_rules.lex"
 { 	
                    						fprintf(yyout,"Character '%s' in line: %d does not begin any legal token in the language\n", yytext, line_num);  
                        						return 1;
@@ -1097,7 +1097,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 252 "assignment1.lex"
+#line 252 "flex_rules.lex"
 ECHO;
 	YY_BREAK
 #line 1103 "win.lex.yy.c"
@@ -2103,7 +2103,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 252 "assignment1.lex"
+#line 252 "flex_rules.lex"
 
  
 int main(){

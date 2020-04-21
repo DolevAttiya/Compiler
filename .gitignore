@@ -1,1 +1,9 @@
-README.md
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/Assignment1/x64/Debug
+/Assignment1/Assignment1.vcxproj.user
+/Parser/Parser.vcxproj.user
+/x64/Debug

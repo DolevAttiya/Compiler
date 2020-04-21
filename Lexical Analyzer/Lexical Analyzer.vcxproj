@@ -23,7 +23,7 @@
     <ClCompile Include="Token\Token.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\assignment1.lex" />
+    <None Include="Resources\flex_rules.lex" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Resources\information.txt" />
@@ -33,7 +33,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{5D3AD917-890C-4DD0-A08F-1D3FC4823EC8}</ProjectGuid>
+    <ProjectGuid>{BB99D31B-D2D3-4C4D-B977-95FC7608EE10}</ProjectGuid>
     <RootNamespace>Lexical Analyzer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>Lexical Analyzer</ProjectName>

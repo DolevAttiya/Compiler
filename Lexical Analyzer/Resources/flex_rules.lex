@@ -2,7 +2,7 @@
 %x COMMENT
 
 %{
-#include "Token.h"
+#include "../Token/Token.h"
 int line_num=1;
 void print_message(char*);
 char *eTokensStrings[]=

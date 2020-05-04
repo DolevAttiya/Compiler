@@ -101,6 +101,7 @@ Token* back_token()
 		currentNode = &currentNode->prev;
 		currentIndex = TOKEN_ARRAY_SIZE - 1;
 	}
+	return NULL;
 }
 
 /*

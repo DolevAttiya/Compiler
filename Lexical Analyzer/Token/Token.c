@@ -111,7 +111,7 @@ Token* back_token()
 */
 Token* next_token()
 {
-	if (currentNode->next != NULL) //When there are more token in the next node (back_token() was called before)
+	if ((currentIndex + 1 == TOKEN_ARRAY_SIZE) && (currentNode->next != NULL)) //When there are more token in the next node and we are at the end of the array (back_token() was called before)
 	{
 		currentNode = currentNode->next;
 		currentIndex = 0;

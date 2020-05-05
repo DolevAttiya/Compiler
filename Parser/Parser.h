@@ -3,6 +3,7 @@
 
 int match(eTOKENS token_type);
 int error(eTOKENS expected_token_type);
+FILE* parser_output_file;
 
 int parse();
 int parse_PROG();

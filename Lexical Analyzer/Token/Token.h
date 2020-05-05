@@ -53,7 +53,7 @@ typedef struct Node
 } Node;
 
 void create_and_store_token(eTOKENS kind, char* lexeme, int numOfLine);
-Token* next_token();
-Token* back_token();
+extern Token* next_token();
+extern Token* back_token();
 
 #endif

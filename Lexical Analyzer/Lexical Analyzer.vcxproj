@@ -31,6 +31,11 @@
   <ItemGroup>
     <ClInclude Include="Token\Token.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Parser\Parser.vcxproj">
+      <Project>{489daa90-17b9-490d-8e09-14c87d6a31a5}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{BB99D31B-D2D3-4C4D-B977-95FC7608EE10}</ProjectGuid>

@@ -4,6 +4,7 @@
 Token* current_token;
 eTOKENS* current_follow;
 eTOKENS expected_token_type;
+FILE* parser_output_file;
 
 int parse()
 {
@@ -14,26 +15,40 @@ int parse_PROG()
 {
 	eTOKENS follow[] = { EOF_tok };
 	current_follow = follow;
+	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}");
+	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}");
 	parse_GLOBAL_VARS();
 	do {
 		for(int i=0;i<3;i++) 
 			current_token=next_token();
 		if (current_token->kind != PARENTHESIS_OPEN_tok)
+		{
 			for (int i = 0; i < 3; i++)
 				back_token();
+			fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> VAR_DEC GLOBAL_VARS'}");
 			parse_GLOBAL_VARS();
+		}
 	} while (current_token->kind != PARENTHESIS_OPEN_tok);
+
+	fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> epsilon}");
+
 	for (int i = 0; i < 3; i++)
 		back_token();
 
-	do {
+	fprintf(parser_output_file, "Rule {FUNC_PREDEFS -> FUNC_PROTYTYPE; FUNC_PREDEFS'}");
+	do {		
 		parse_FUNC_PROTOTYPE();
 		current_token = next_token();
+		if (current_token->kind == SEMICOLON_tok)
+			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS'}");
 	} while (current_token->kind == SEMICOLON_tok);
 
+	fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> epsilon}");
 	if (!match(BRACKET_OPEN_tok))
 		return 0;
 
+	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}");
+	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}");
 	back_token();       
 	parse_COMP_STMT();
 	current_token = next_token();
@@ -66,6 +81,7 @@ int parse_VAR_DEC()
 {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
+	fprintf(parser_output_file, "Rule {VAR_DEC -> TYPE id VAR_DEC'}");
 	parse_TYPE();
 	if (!match(ID_tok))
 		return 0;
@@ -80,8 +96,10 @@ int parse_VAR_DEC_TAG()
 	switch (current_token->kind)
 	{
 	case SEMICOLON_tok: 
+		fprintf(parser_output_file, "Rule {VAR_DEC' -> ;}");
 		break;
 	case BRACKET_OPEN_tok:
+		fprintf(parser_output_file, "Rule {VAR_DEC' -> [ DIM_SIZES] ;}");
 		parse_DIM_SIZES();
 		if (!match(BRACKET_CLOSE_tok))
 			return 0;
@@ -102,8 +120,10 @@ int parse_TYPE()
 	switch (current_token->kind)
 	{
 	case INT_tok:
+		fprintf(parser_output_file, "Rule {TYPE -> int}");
 		break;
 	case FLOAT_tok:
+		fprintf(parser_output_file, "Rule {TYPE -> float}");
 		break;
 	default:
 		error(expected_token_type);
@@ -115,6 +135,7 @@ int parse_DIM_SIZES()
 {
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
+	fprintf(parser_output_file, "Rule {DIM_SIZES -> int_num DIM_SIZES'}");
 	if (!match(INT_NUM_tok))
 		return 0;
 	parse_DIM_SIZES_TAG();
@@ -128,9 +149,11 @@ int parse_DIM_SIZES_TAG()
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
+		fprintf(parser_output_file, "Rule {DIM_SIZES' -> , DIM_SIZES}");
 		parse_DIM_SIZES();
 		break;
 	case BRACKET_CLOSE_tok:
+		fprintf(parser_output_file, "Rule {DIM_SIZES' -> epsilon}");
 		back_token();
 		break;
 	default:
@@ -143,6 +166,7 @@ int parse_FUNC_PROTOTYPE()
 {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_OPEN_tok };
 	current_follow = follow;
+	fprintf(parser_output_file, "Rule {FUNC_PROTOTYPE -> RETURN_TYPE id (PARAMS)}");
 	parse_RETURN_TYPE();
 	if (!match(ID_tok))
 		return 0;
@@ -155,6 +179,7 @@ int parse_FUNC_PROTOTYPE()
 
 int parse_FUNC_FULL_DEFS()
 {
+	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}");
 	parse_FUNC_WITH_BODY();
 	parse_FUNC_FULL_DEFS_TAG();
 }
@@ -169,10 +194,12 @@ int parse_FUNC_FULL_DEFS_TAG()
 	case INT_tok:
 	case FLOAT_tok:
 	case VOID_tok:
+		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> UNC_FULL_DEFS}");
 		back_token();
 		parse_FUNC_FULL_DEFS();
 		break;
 	case EOF_tok:
+		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> epsilon}");
 		back_token();
 		break;
 	default:
@@ -183,6 +210,7 @@ int parse_FUNC_FULL_DEFS_TAG()
 
 int parse_FUNC_WITH_BODY()
 {
+	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}");
 	parse_FUNC_PROTOTYPE();
 	parse_COMP_STMT();
 }

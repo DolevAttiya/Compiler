@@ -1,6 +1,7 @@
 #pragma once
 #include "../Lexical Analyzer/Token/Token.h"
 
+FILE* parser_output_file;
 int match(eTOKENS token_type);
 int error(eTOKENS expected_token_type);
 

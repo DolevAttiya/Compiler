@@ -2,7 +2,7 @@
 #include "../Lexical Analyzer/Token/Token.h"
 
 FILE* parser_output_file;
-int match(eTOKENS token_type);
+void match(eTOKENS expected_token);
 int error(eTOKENS expected_token_type);
 int parse_Follow();
 

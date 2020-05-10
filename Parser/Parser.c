@@ -46,8 +46,6 @@ int parse_PROG()
 	} while (current_token->kind == SEMICOLON_tok);
 
 	fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> epsilon}");
-	if (!match(BRACKET_OPEN_tok))
-		return 0;
 
 	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}");
 	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}");

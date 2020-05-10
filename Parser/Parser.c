@@ -12,7 +12,7 @@ int error(eTOKENS expected_token_type) {
 	do
 	{
 		current_token = next_token();
-	} while (parse_Follow() != 0 || current_token == EOF_tok);
+	} while (parse_Follow() != 0 || current_token -> kind == EOF_tok);
 	back_token();
 
 }

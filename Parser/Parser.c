@@ -3,6 +3,7 @@
 
 Token* current_token;
 eTOKENS* current_follow;
+int current_follow_size;
 eTOKENS expected_token_type;
 FILE* parser_output_file;
 
@@ -15,6 +16,7 @@ int parse_PROG()
 {
 	eTOKENS follow[] = { EOF_tok };
 	current_follow = follow;
+	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}");
 	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}");
 	parse_GLOBAL_VARS();
@@ -64,6 +66,7 @@ int parse_GLOBAL_VARS()
 	current_token = next_token();
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok};
 	current_follow = follow;
+	current_follow_size = 3;
 	switch (current_token->kind)
 	{
 	case INT_tok:
@@ -81,6 +84,7 @@ int parse_VAR_DEC()
 {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
+	current_follow_size = 7;
 	fprintf(parser_output_file, "Rule {VAR_DEC -> TYPE id VAR_DEC'}");
 	parse_TYPE();
 	if (!match(ID_tok))
@@ -92,6 +96,7 @@ int parse_VAR_DEC_TAG()
 {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
+	current_follow_size = 7;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -116,6 +121,7 @@ int parse_TYPE()
 {
 	eTOKENS follow[] = { ID_tok };
 	current_follow = follow;
+	current_follow_size = 1;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -135,6 +141,7 @@ int parse_DIM_SIZES()
 {
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
+	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {DIM_SIZES -> int_num DIM_SIZES'}");
 	if (!match(INT_NUM_tok))
 		return 0;
@@ -145,6 +152,7 @@ int parse_DIM_SIZES_TAG()
 {
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
+	current_follow_size = 1;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -166,6 +174,7 @@ int parse_FUNC_PROTOTYPE()
 {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_OPEN_tok };
 	current_follow = follow;
+	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {FUNC_PROTOTYPE -> RETURN_TYPE id (PARAMS)}");
 	parse_RETURN_TYPE();
 	if (!match(ID_tok))
@@ -188,6 +197,7 @@ int parse_FUNC_FULL_DEFS_TAG()
 {
 	eTOKENS follow[] = { EOF_tok };
 	current_follow = follow;
+	current_follow_size = 1;
 	current_token = next_token();
 	switch (current_token->kind)
 	{

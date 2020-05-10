@@ -2,7 +2,7 @@
 #include "../Lexical Analyzer/Token/Token.h"
 
 FILE* parser_output_file;
-void match(eTOKENS expected_token);
+int match(eTOKENS expexted_token);
 int error(eTOKENS expected_token_type);
 int parse_Follow();
 
@@ -38,17 +38,17 @@ int parse_VAR_OR_CALL();
 int parse_IF_STMT();
 int parse_ARGS();
 
-int parse_ARG_LIST();
-int parse_ARG_LIST_TAG();
-int parse_RETURN_STMT();
-int parse_RETURN_STMT_TAG();
-int parse_VAR_TAG();
-int parse_EXPR_LIST();
-int parse_EXPR_LIST_TAG();
-int parse_CONDITION();
-int parse_EXPR();
-int parse_EXPR_TAG();
-int parse_TERM();
-int parse_TERM_TAG();
-int parse_FACTOR();
-int parse_VAR_OR_CALL_TAG();
+void parse_ARG_LIST();
+void parse_ARG_LIST_TAG();
+void parse_RETURN_STMT();
+void parse_RETURN_STMT_TAG();
+void parse_VAR_TAG();
+void parse_EXPR_LIST();
+void parse_EXPR_LIST_TAG();
+void parse_CONDITION();
+void parse_EXPR();
+void parse_EXPR_TAG();
+void parse_TERM();
+void parse_TERM_TAG();
+void parse_FACTOR();
+void parse_VAR_OR_CALL_TAG();

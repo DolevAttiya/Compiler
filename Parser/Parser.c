@@ -204,7 +204,7 @@ int parse_FUNC_FULL_DEFS_TAG()
 	case INT_tok:
 	case FLOAT_tok:
 	case VOID_tok:
-		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> UNC_FULL_DEFS}");
+		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> FUNC_FULL_DEFS}");
 		back_token();
 		parse_FUNC_FULL_DEFS();
 		break;

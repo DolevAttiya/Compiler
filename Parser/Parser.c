@@ -1,4 +1,4 @@
-#include "../Lexical Analyzer/Token/Token.h"
+﻿#include "../Lexical Analyzer/Token/Token.h"
 #include "Parser.h"
 
 Token* current_token;
@@ -8,6 +8,15 @@ eTOKENS* expected_token_types;
 int expected_token_types_size;
 FILE* parser_output_file;
 
+
+int match(eTOKENS expected_token) {
+	current_token = next_token();
+	if (current_token->kind != expected_token)
+	{
+		error();
+		return 0;
+	}
+	return 1;
 
 int parse_Follow()
 {
@@ -25,5 +34,4 @@ void error() {
 		current_token = next_token();
 	} while (parse_Follow() == 0 && current_token -> kind != EOF_tok);
 	back_token();
-
 }

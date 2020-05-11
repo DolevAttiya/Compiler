@@ -3,24 +3,24 @@
 
 FILE* parser_output_file;
 int match(eTOKENS token_type);
-int error(eTOKENS expected_token_type);
+void error(eTOKENS expected_token_type);
 
-int parse();
-int parse_PROG();
-int parse_GLOBAL_VARS();
-//int parse_GLOBAL_VARS_TAG();
-int parse_VAR_DEC();
-int parse_VAR_DEC_TAG();
-int parse_TYPE();
-int parse_DIM_SIZES();
-int parse_DIM_SIZES_TAG();
-//int parse_FUNC_PREDEFS();
-//int parse_FUNC_PREDEFS_TAG();
-int parse_FUNC_PROTOTYPE();
-int parse_FUNC_FULL_DEFS();
-int parse_FUNC_FULL_DEFS_TAG();
-int parse_FUNC_WITH_BODY();
+void parse();
+void parse_PROG();
+void parse_GLOBAL_VARS();
+//void parse_GLOBAL_VARS_TAG();
+void parse_VAR_DEC();
+void parse_VAR_DEC_TAG();
+void parse_TYPE();
+void parse_DIM_SIZES();
+void parse_DIM_SIZES_TAG();
+//void parse_FUNC_PREDEFS();
+//void parse_FUNC_PREDEFS_TAG();
+void parse_FUNC_PROTOTYPE();
+void parse_FUNC_FULL_DEFS();
+void parse_FUNC_FULL_DEFS_TAG();
+void parse_FUNC_WITH_BODY();
 
-int parse_COMP_STMT(); //Didn't implement
-int parse_RETURN_TYPE(); //Didn't implement
-int parse_PARAMS(); //Didn't implement
+void parse_COMP_STMT(); //Didn't implement
+void parse_RETURN_TYPE(); //Didn't implement
+void parse_PARAMS(); //Didn't implement

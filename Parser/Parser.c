@@ -4,15 +4,16 @@
 Token* current_token;
 eTOKENS* current_follow;
 int current_follow_size;
-eTOKENS expected_token_type;
+eTOKENS* expected_token_types;
+int expected_token_types_size;
 FILE* parser_output_file;
 
-int parse()
+void parse()
 {
 	parse_PROG();
 }
 
-int parse_PROG()
+void parse_PROG()
 {
 	eTOKENS follow[] = { EOF_tok };
 	current_follow = follow;

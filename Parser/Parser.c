@@ -60,12 +60,16 @@ void parse_PROG()
 	}
 }
 
-int parse_GLOBAL_VARS()
+void parse_GLOBAL_VARS()
 {
 	current_token = next_token();
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok};
 	current_follow = follow;
 	current_follow_size = 3;
+	eTOKENS tokens[] = { INT_tok, FLOAT_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 2;
+
 	switch (current_token->kind)
 	{
 	case INT_tok:
@@ -74,54 +78,63 @@ int parse_GLOBAL_VARS()
 		parse_VAR_DEC();
 		break;
 	default:
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
 
-int parse_VAR_DEC()
+void parse_VAR_DEC()
 {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
 	current_follow_size = 7;
+
 	fprintf(parser_output_file, "Rule {VAR_DEC -> TYPE id VAR_DEC'}");
 	parse_TYPE();
 	if (!match(ID_tok))
-		return 0;
+		return;
 	parse_VAR_DEC_TAG();	
 }
 
-int parse_VAR_DEC_TAG()
+void parse_VAR_DEC_TAG()
 {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
 	current_follow_size = 7;
 	current_token = next_token();
+	eTOKENS tokens[] = { SEMICOLON_tok, BRACKET_OPEN_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 2;
+
 	switch (current_token->kind)
 	{
 	case SEMICOLON_tok: 
 		fprintf(parser_output_file, "Rule {VAR_DEC' -> ;}");
 		break;
 	case BRACKET_OPEN_tok:
-		fprintf(parser_output_file, "Rule {VAR_DEC' -> [ DIM_SIZES] ;}");
+		fprintf(parser_output_file, "Rule {VAR_DEC' -> [DIM_SIZES] ;}");
 		parse_DIM_SIZES();
 		if (!match(BRACKET_CLOSE_tok))
-			return 0;
+			return;
 		if (!match(SEMICOLON_tok))
-			return 0;
+			return;
 		break;
 	default:
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
 
-int parse_TYPE()
+void parse_TYPE()
 {
 	eTOKENS follow[] = { ID_tok };
 	current_follow = follow;
 	current_follow_size = 1;
 	current_token = next_token();
+	eTOKENS tokens[] = { INT_tok, FLOAT_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 2;
+
 	switch (current_token->kind)
 	{
 	case INT_tok:
@@ -131,28 +144,32 @@ int parse_TYPE()
 		fprintf(parser_output_file, "Rule {TYPE -> float}");
 		break;
 	default:
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
 
-int parse_DIM_SIZES()
+void parse_DIM_SIZES()
 {
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {DIM_SIZES -> int_num DIM_SIZES'}");
 	if (!match(INT_NUM_tok))
-		return 0;
+		return;
 	parse_DIM_SIZES_TAG();
 }
 
-int parse_DIM_SIZES_TAG()
+void parse_DIM_SIZES_TAG()
 {
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
 	current_token = next_token();
+	eTOKENS tokens[] = { COMMA_tok, BRACKET_CLOSE_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 2;
+
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
@@ -164,12 +181,12 @@ int parse_DIM_SIZES_TAG()
 		back_token();
 		break;
 	default:
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
 
-int parse_FUNC_PROTOTYPE()
+void parse_FUNC_PROTOTYPE()
 {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_OPEN_tok };
 	current_follow = follow;
@@ -177,27 +194,31 @@ int parse_FUNC_PROTOTYPE()
 	fprintf(parser_output_file, "Rule {FUNC_PROTOTYPE -> RETURN_TYPE id (PARAMS)}");
 	parse_RETURN_TYPE();
 	if (!match(ID_tok))
-		return 0;
+		return;
 	if (!match(PARENTHESIS_OPEN_tok))
-		return 0;
+		return;
 	parse_PARAMS();
 	if (!match(PARENTHESIS_CLOSE_tok))
-		return 0;
+		return;
 }
 
-int parse_FUNC_FULL_DEFS()
+void parse_FUNC_FULL_DEFS()
 {
 	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}");
 	parse_FUNC_WITH_BODY();
 	parse_FUNC_FULL_DEFS_TAG();
 }
 
-int parse_FUNC_FULL_DEFS_TAG()
+void parse_FUNC_FULL_DEFS_TAG()
 {
 	eTOKENS follow[] = { EOF_tok };
 	current_follow = follow;
 	current_follow_size = 1;
 	current_token = next_token();
+	eTOKENS tokens[] = { INT_tok, FLOAT_tok, VOID_tok, EOF_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 3;
+
 	switch (current_token->kind)
 	{
 	case INT_tok:
@@ -212,12 +233,12 @@ int parse_FUNC_FULL_DEFS_TAG()
 		back_token();
 		break;
 	default:
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
 
-int parse_FUNC_WITH_BODY()
+void parse_FUNC_WITH_BODY()
 {
 	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}");
 	parse_FUNC_PROTOTYPE();

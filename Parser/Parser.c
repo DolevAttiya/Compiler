@@ -10,7 +10,7 @@ int match(eTOKENS expected_token) {
 	current_token = next_token();
 	if (current_token->kind != expected_token)
 	{
-		error(expected_token);
+		error();
 		return 0;
 	}
 	return 1;

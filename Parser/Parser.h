@@ -6,7 +6,7 @@ int match(eTOKENS token_type);
 void error();
 int parse_Follow();
 
-void parse();
+void parser();
 void parse_PROG();
 void parse_GLOBAL_VARS();
 //void parse_GLOBAL_VARS_TAG();

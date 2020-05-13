@@ -47,6 +47,7 @@ char* get_tokens_names()
 	for (int i = 0; i < expected_token_types_size; i++)
 	{
 		strncat(tokens, eTokensStrings[expected_token_types[i]], strlen(eTokensStrings[expected_token_types[i]]));
+		strncat(tokens, ", ", strlen(", "));
 	}
 	return tokens;
 }

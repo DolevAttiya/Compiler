@@ -62,7 +62,7 @@ void parse_ARG_LIST_TAG() {
 		back_token();
 		break;
 	default:
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
@@ -97,7 +97,7 @@ void parse_RETURN_STMT_TAG() {
 		break;
 		case
 		default:
-			error(expected_token_type);
+			error();
 			break;
 	}
 	fprintf(parser_output_file, "Rule {RETURN_STMT' -> ε | EXPR}");

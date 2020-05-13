@@ -11,7 +11,6 @@ FILE* parser_output_file;
 void parser()
 {
 	parse_PROG();
-	match(EOF_tok);
 }
 
 void parse_PROG()

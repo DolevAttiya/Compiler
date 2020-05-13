@@ -4,7 +4,9 @@
 Token* current_token;
 eTOKENS* current_follow;
 int current_follow_size;
-eTOKENS expected_token_type;
+eTOKENS* expected_token_types;
+int expected_token_types_size;
+
 FILE* parser_output_file;
 
 int parse_RETURN_TYPE() {
@@ -25,7 +27,7 @@ int parse_RETURN_TYPE() {
 		back_token();
 		if (!match(VOID_tok)) return;
 	default:
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
@@ -50,7 +52,7 @@ int parse_PARAMS() {
 			back_token();
 			break;
 		}
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
@@ -84,7 +86,7 @@ int parse_PARAM_LIST_TAG() {
 			back_token();
 			break;
 		}
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
@@ -117,7 +119,7 @@ int parse_PARAM_TAG() {
 			back_token();
 			break;
 		}
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
@@ -162,7 +164,7 @@ int parse_VAR_DEC_LIST_TAG() {
 			back_token();
 			break;
 		}
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
@@ -194,7 +196,7 @@ int parse_STMT_LIST_TAG() {
 			back_token();
 			break;
 		}
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
@@ -226,7 +228,7 @@ int parse_STMT() {
 		parse_RETURN_STMT();
 		break;
 	default:
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
@@ -255,7 +257,7 @@ int parse_VAR_OR_CALL() {
 		parse_EXPR();
 		break;
 	default:
-		error(expected_token_type);
+		error();
 		break;
 	}
 }
@@ -291,7 +293,34 @@ int parse_ARGS() {
 			back_token();
 			break;
 		}
-		error(expected_token_type);
+		error();
 		break;
 	}
+}
+
+int match(eTOKENS expected_token) {
+	current_token = next_token();
+	if (current_token->kind != expected_token)
+	{
+		error();
+		return 0;
+	}
+	return 1;
+}
+int parse_Follow()
+{
+	int flag = 0;
+	for (int i = 0; i < current_follow_size; i++)
+	{
+		flag += current_token->kind == current_follow[i];
+	}
+	return flag;
+}
+void error() {
+	fprintf(parser_output_file, "Expected token of type '{%d}' at line: {%d},  Actual token of type '{%d}', lexeme: '{%c}'.", /*TODO {expected_token_type}*/1, current_token->lineNumber, current_token->kind, current_token->lexeme);
+	do
+	{
+		current_token = next_token();
+	} while (parse_Follow() == 0 && current_token->kind != EOF_tok);
+	back_token();
 }

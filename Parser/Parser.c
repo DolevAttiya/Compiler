@@ -23,8 +23,7 @@ int parse_RETURN_TYPE() {
 	case VOID_tok:
 		fprintf(parser_output_file, "Rule {RETURN_TYPE -> void}");
 		back_token();
-		match(VOID_tok);
-		break;
+		if (!match(VOID_tok)) return;
 	default:
 		error(expected_token_type);
 		break;
@@ -96,7 +95,7 @@ int parse_PARAM() {
 	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {PARAM -> TYPE id PARAM'}");
 	parse_TYPE();
-	match(ID_tok);
+	if (!match(ID_tok)) return;
 	parse_PARAM_TAG();
 }
 
@@ -110,8 +109,7 @@ int parse_PARAM_TAG() {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {PARAMS_LIST' -> [DIM_SIZES]}");
 		parse_DIM_SIZES();
-		match(BRACKET_CLOSE_tok);
-		break;
+		if (!match(BRACKET_CLOSE_tok)) return;
 	default:
 		if (parse_Follow() != 0)
 		{
@@ -129,10 +127,10 @@ int parse_COMP_STMT() {
 	current_follow = follow;
 	current_follow_size = 6;
 	fprintf(parser_output_file, "Rule {COMP_STMT -> { VAR_DEC_LIST STMT_LIST }}");
-	match(BRACKET_OPEN_tok);
+	if (!match(BRACKET_OPEN_tok)) return;
 	parse_VAR_DEC_LIST();
 	parse_STMT_LIST();
-	match(BRACKET_CLOSE_tok);
+	if (!match(BRACKET_CLOSE_tok)) return;
 }
 
 int parse_VAR_DEC_LIST() {
@@ -243,13 +241,13 @@ int parse_VAR_OR_CALL() {
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS)}");
 		back_token();
 		parse_ARGS();
-		match(PARENTHESIS_CLOSE_tok);
+		if (!match(PARENTHESIS_CLOSE_tok)) return;
 		break;
 	case CURLY_BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}");
 		back_token();
 		parse_VAR_TAG();
-		match(ASSIGNMENT_OP_tok);
+		if (!match(ASSIGNMENT_OP_tok)) return;
 		parse_EXPR();
 		break;
 	case ASSIGNMENT_OP_tok:
@@ -266,10 +264,10 @@ int parse_IF_STMT() {
 	current_follow = follow;
 	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {IF_STMT -> if (CONDITION) STMT}");
-	match(IF_tok);
-	match(PARENTHESIS_OPEN_tok);
+	if (!match(IF_tok)) return;
+	if (!match(PARENTHESIS_OPEN_tok)) return;
 	parse_CONDITION();
-	match(PARENTHESIS_CLOSE_tok);
+	if (!match(PARENTHESIS_CLOSE_tok)) return;
 	parse_STMT();
 }
 int parse_ARGS() {

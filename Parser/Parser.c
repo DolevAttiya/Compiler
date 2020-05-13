@@ -14,7 +14,7 @@ int match(eTOKENS expected_token) {
 	current_token = next_token();
 	if (current_token->kind != expected_token)
 	{
-		expected_token_types[] = expected_token_array;
+		expected_token_types = expected_token_array;
 		expected_token_types_size = 1;
 		error();
 		return 0;

@@ -45,7 +45,6 @@ void error() {
 void
 get_tokens_names(char** tokens)
 {
-
 	*tokens = (char**)malloc(sizeof(char*));
 	(*tokens)[0] = '\0';
 	for (int i = 0; i < expected_token_types_size; i++)
@@ -54,5 +53,6 @@ get_tokens_names(char** tokens)
 			strlen(eTokensStrings[expected_token_types[i]]));
 		strncat(*tokens, ", ", strlen(", "));
 	}
+	strncpy(*tokens, *tokens, strlen(*tokens) - 2);
+	(*tokens)[strlen(*tokens) - 2] = 0;
 }
-

@@ -33,7 +33,7 @@ void error() {
 	do
 	{
 		current_token = next_token();
-	} while (parse_Follow() == 0 && current_token -> kind != EOF_tok);
+	} while (parse_Follow() == 0 && current_token->kind != EOF_tok);
 	back_token();
 }
 
@@ -77,30 +77,30 @@ void parse_RETURN_STMT() {
 	parse_RETURN_STMT_TAG();
 }
 void parse_RETURN_STMT_TAG() {
-	eTOKENS first[] = { ID_tok, INT_tok, FLOAT_tok, PARENTHESIS_OPEN_tok };
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
-	current_follow = follow;
+	eTOKENS expected_tokens[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
+	expected_token_types = expected_tokens;
+	expected_token_types_size = 2;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
 	case ID_tok:
-		fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR}");
-		break;
 	case INT_tok:
-		fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR}");
-		break;
 	case FLOAT_tok:
-		fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR}");
-		break;
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR}");
+		current_token = back_token();
+		parse_EXPR();
 		break;
-		case
-		default:
-			error();
-			break;
+	case SEMICOLON_tok:
+	case CURLY_BRACKET_CLOSE_tok:
+		fprintf(parser_output_file, "Rule {RETURN_STMT' -> Epsilon}");
+		current_token = back_token();
+		break;
+	default:
+		error();
+		break;
 	}
-	fprintf(parser_output_file, "Rule {RETURN_STMT' -> ε | EXPR}");
 }
 void parse_VAR_TAG() {
 	fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}");
@@ -112,7 +112,29 @@ void parse_EXPR_LIST() {
 	parse_EXPR_LIST_TAG();
 }
 void parse_EXPR_LIST_TAG() {
-	fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}");
+	eTOKENS follow[] = { BRACKET_CLOSE_tok };
+	eTOKENS expected_tokens[] = { BRACKET_CLOSE_tok };
+	expected_token_types = expected_tokens;
+	expected_token_types_size = 1;
+	current_token = next_token();
+	switch (current_token->kind)
+	{
+	case COMMA_tok:
+		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}");
+		if (!match(COMMA_tok))
+			return;
+		parse_EXPR();
+		parse_EXPR_LIST_TAG();
+		break;
+	case BRACKET_CLOSE_tok:
+		fprintf(parser_output_file, "Rule {DIM_SIZES' -> Epsilon}");
+		back_token();
+		break;
+	default:
+		error();
+		break;
+	}
+	
 	fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}");
 }
 void parse_CONDITION() {
@@ -123,7 +145,7 @@ void parse_CONDITION() {
 		parse_EXPR();
 	else
 	{
-		eTOKENS expected_token_types[] = {LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok };
+		eTOKENS expected_token_types[] = { LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok };
 		expected_token_types_size = 6;
 		error();
 	}

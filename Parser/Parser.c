@@ -8,9 +8,10 @@ eTOKENS* expected_token_types;
 int expected_token_types_size;
 FILE* parser_output_file;
 
-void parse()
+void parser()
 {
 	parse_PROG();
+	match(EOF_tok);
 }
 
 void parse_PROG()

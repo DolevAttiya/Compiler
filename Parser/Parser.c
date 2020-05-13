@@ -9,10 +9,14 @@ int expected_token_types_size;
 
 FILE* parser_output_file;
 
+
 int parse_RETURN_TYPE() {
 	eTOKENS follow[] = { ID_tok };
 	current_follow = follow;
 	current_follow_size = 1;
+	eTOKENS tokens[] = { INT_tok, FLOAT_tok, VOID_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 3;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -25,7 +29,8 @@ int parse_RETURN_TYPE() {
 	case VOID_tok:
 		fprintf(parser_output_file, "Rule {RETURN_TYPE -> void}");
 		back_token();
-		if (!match(VOID_tok)) return;
+		if (!match(VOID_tok))
+			return;
 	default:
 		error();
 		break;
@@ -36,6 +41,9 @@ int parse_PARAMS() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
+	eTOKENS tokens[] = { INT_tok, FLOAT_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 2;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -59,8 +67,8 @@ int parse_PARAMS() {
 
 int parse_PARAM_LIST() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
-	current_follow_size = 1;
 	current_follow = follow;
+	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {PARAMS_LIST -> PARAM PARAMS_LIST'}");
 	parse_PARAM();
 	parse_PARAM_LIST_TAG();
@@ -69,8 +77,11 @@ int parse_PARAM_LIST() {
 
 int parse_PARAM_LIST_TAG() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
-	current_follow_size = 1;
 	current_follow = follow;
+	current_follow_size = 1;
+	eTOKENS tokens[] = { COMMA_tok};
+	expected_token_types = tokens;
+	expected_token_types_size = 1;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -97,21 +108,26 @@ int parse_PARAM() {
 	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {PARAM -> TYPE id PARAM'}");
 	parse_TYPE();
-	if (!match(ID_tok)) return;
+	if (!match(ID_tok))
+		return;
 	parse_PARAM_TAG();
 }
 
 int parse_PARAM_TAG() {
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
-	current_follow_size = 2;
 	current_follow = follow;
+	current_follow_size = 2;
+	eTOKENS tokens[] = { BRACKET_OPEN_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 1;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {PARAMS_LIST' -> [DIM_SIZES]}");
 		parse_DIM_SIZES();
-		if (!match(BRACKET_CLOSE_tok)) return;
+		if (!match(BRACKET_CLOSE_tok))
+			return;
 	default:
 		if (parse_Follow() != 0)
 		{
@@ -129,17 +145,18 @@ int parse_COMP_STMT() {
 	current_follow = follow;
 	current_follow_size = 6;
 	fprintf(parser_output_file, "Rule {COMP_STMT -> { VAR_DEC_LIST STMT_LIST }}");
-	if (!match(BRACKET_OPEN_tok)) return;
+	if (!match(BRACKET_OPEN_tok))
+		return;
 	parse_VAR_DEC_LIST();
 	parse_STMT_LIST();
-	if (!match(BRACKET_CLOSE_tok)) return;
+	if (!match(BRACKET_CLOSE_tok))
+		return;
 }
 
 int parse_VAR_DEC_LIST() {
 	eTOKENS follow[] = { ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
 	current_follow_size = 4;
-	current_token = next_token();
 	fprintf(parser_output_file, "Rule {VAR_DEC_LIST -> VAR_DEC_LIST'}");
 	parse_VAR_DEC_LIST_TAG();
 }
@@ -147,6 +164,9 @@ int parse_VAR_DEC_LIST_TAG() {
 	eTOKENS follow[] = { ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
 	current_follow_size = 4;
+	eTOKENS tokens[] = { INT_tok, FLOAT_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 2;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -180,6 +200,9 @@ int parse_STMT_LIST_TAG() {
 	eTOKENS follow[] = { CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
+	eTOKENS tokens[] = { SEMICOLON_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 1;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -204,6 +227,9 @@ int parse_STMT() {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
+	eTOKENS tokens[] = { ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 4;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -236,6 +262,9 @@ int parse_VAR_OR_CALL() {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
+	eTOKENS tokens[] = { PARENTHESIS_OPEN_tok, CURLY_BRACKET_OPEN_tok,ASSIGNMENT_OP_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 3;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -243,13 +272,15 @@ int parse_VAR_OR_CALL() {
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS)}");
 		back_token();
 		parse_ARGS();
-		if (!match(PARENTHESIS_CLOSE_tok)) return;
+		if (!match(PARENTHESIS_CLOSE_tok))
+			return;
 		break;
 	case CURLY_BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}");
 		back_token();
 		parse_VAR_TAG();
-		if (!match(ASSIGNMENT_OP_tok)) return;
+		if (!match(ASSIGNMENT_OP_tok))
+			return;
 		parse_EXPR();
 		break;
 	case ASSIGNMENT_OP_tok:
@@ -266,16 +297,22 @@ int parse_IF_STMT() {
 	current_follow = follow;
 	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {IF_STMT -> if (CONDITION) STMT}");
-	if (!match(IF_tok)) return;
-	if (!match(PARENTHESIS_OPEN_tok)) return;
+	if (!match(IF_tok))
+		return;
+	if (!match(PARENTHESIS_OPEN_tok))
+		return;
 	parse_CONDITION();
-	if (!match(PARENTHESIS_CLOSE_tok)) return;
+	if (!match(PARENTHESIS_CLOSE_tok))
+		return;
 	parse_STMT();
 }
 int parse_ARGS() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
+	eTOKENS tokens[] = { ID_tok, INT_NUM_tok, FLOAT_NUM_tok, PARENTHESIS_OPEN_tok };
+	expected_token_types = tokens;
+	expected_token_types_size = 4;
 	current_token = next_token();
 	switch (current_token->kind)
 	{

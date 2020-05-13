@@ -32,8 +32,9 @@ int parse_Follow()
 }
 void error() {
 
-	char* tokens_names = get_tokens_names();
-	fprintf(parser_output_file, "Expected token of type '{%d}' at line: {%d},  Actual token of type '{%d}', lexeme: '{%s}'.", tokens_names, current_token->lineNumber, current_token->kind, current_token->lexeme);
+	char* tokens_names;
+	get_tokens_names(&tokens_names);
+	fprintf(parser_output_file, "Expected token of type '{%s}' at line: {%d},  Actual token of type '{%d}', lexeme: '{%s}'.", tokens_names, current_token->lineNumber, current_token->kind, current_token->lexeme);
 	do
 	{
 		current_token = next_token();
@@ -41,13 +42,17 @@ void error() {
 	back_token();
 	free(tokens_names);
 }
-char* get_tokens_names()
+void
+get_tokens_names(char** tokens)
 {
-	char* tokens;
+
+	*tokens = (char**)malloc(sizeof(char*));
+	(*tokens)[0] = '\0';
 	for (int i = 0; i < expected_token_types_size; i++)
 	{
-		strncat(tokens, eTokensStrings[expected_token_types[i]], strlen(eTokensStrings[expected_token_types[i]]));
-		strncat(tokens, ", ", strlen(", "));
+		strncat(*tokens, eTokensStrings[expected_token_types[i]],
+			strlen(eTokensStrings[expected_token_types[i]]));
+		strncat(*tokens, ", ", strlen(", "));
 	}
-	return tokens;
 }
+

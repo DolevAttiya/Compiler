@@ -57,7 +57,7 @@ void parse_ARG_LIST_TAG() {
 		break;
 	case PARENTHESIS_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {DIM_SIZES' -> Epsilon}");
-		current_token = back_token();
+		back_token();
 		break;
 	default:
 		error();
@@ -86,13 +86,13 @@ void parse_RETURN_STMT_TAG() {
 	case FLOAT_tok:
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR}");
-		current_token = back_token();
+		back_token();
 		parse_EXPR();
 		break;
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {RETURN_STMT' -> Epsilon}");
-		current_token = back_token();
+		back_token();
 		break;
 	default:
 		error();
@@ -133,7 +133,7 @@ void parse_VAR_TAG() {
 	case MUL_OP_tok:
 	case ASSIGNMENT_OP_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}");
-		current_token = back_token();
+		back_token();
 		break;
 	case default:
 		error();
@@ -220,7 +220,7 @@ void parse_EXPR_TAG() {
 	case GREATER_EQUAL_tok:
 	case NOT_EQUAL_tok:
 		fprintf(parser_output_file, "Rule {EXPR' -> Epsilon}");
-		current_token = back_token();
+		back_token();
 		break;
 	case default:
 		error();
@@ -261,7 +261,7 @@ void parse_TERM_TAG() {
 	case GREATER_EQUAL_tok:
 	case NOT_EQUAL_tok:
 		fprintf(parser_output_file, "Rule {TERM' ->  Epsilon}");
-		current_token = back_token();
+		back_token();
 		break;
 	case default:
 		error();

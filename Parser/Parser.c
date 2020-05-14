@@ -42,8 +42,7 @@ void error() {
 	back_token();
 	free(tokens_names);
 }
-void
-get_tokens_names(char** tokens)
+void get_tokens_names(char** tokens)
 {
 	*tokens = (char**)malloc(sizeof(char*));
 	(*tokens)[0] = '\0';

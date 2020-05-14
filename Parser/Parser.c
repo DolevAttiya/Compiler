@@ -137,6 +137,7 @@ void parse_VAR_TAG() {
 		break;
 	case default:
 		error();
+		break;
 	}
 }
 void parse_EXPR_LIST() {
@@ -206,6 +207,7 @@ void parse_EXPR_TAG() {
 		fprintf(parser_output_file, "Rule {EXPR' -> + TERM EXPR'}");
 		parse_TERM();
 		parse_EXPR_TAG();
+		break;
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
 	case COMMA_tok:
@@ -222,6 +224,7 @@ void parse_EXPR_TAG() {
 		break;
 	case default:
 		error();
+		break;
 	}
 }
 void parse_TERM() {
@@ -262,6 +265,7 @@ void parse_TERM_TAG() {
 		break;
 	case default:
 		error();
+		break;
 	}
 }
 void parse_FACTOR() {
@@ -274,6 +278,7 @@ void parse_FACTOR() {
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL'}");
 		parse_VAR_OR_CALL_TAG();
+		break;
 	case INT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> int_num}");
 		break;
@@ -288,6 +293,7 @@ void parse_FACTOR() {
 		break;
 	case default:
 		error();
+		break;
 	}
 }
 void parse_VAR_OR_CALL_TAG() {
@@ -328,5 +334,6 @@ void parse_VAR_OR_CALL_TAG() {
 		break;
 	case default:
 		error();
+		break;
 	}
 }

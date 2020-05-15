@@ -86,7 +86,7 @@ void parse_PARAM_LIST_TAG() {
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
-		fprintf(parser_output_file, "Rule {PARAMS_LIST' -> PARAM PARAMS_LIST'}");
+		fprintf(parser_output_file, "Rule {PARAMS_LIST' -> , PARAM PARAMS_LIST'}");
 		parse_PARAM();
 		parse_PARAM_LIST_TAG();
 		break;
@@ -124,14 +124,15 @@ void parse_PARAM_TAG() {
 	switch (current_token->kind)
 	{
 	case BRACKET_OPEN_tok:
-		fprintf(parser_output_file, "Rule {PARAMS_LIST' -> [DIM_SIZES]}");
+		fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES]}");
 		parse_DIM_SIZES();
 		if (!match(BRACKET_CLOSE_tok))
 			return;
+		break;
 	default:
 		if (parse_Follow() != 0)
 		{
-			fprintf(parser_output_file, "Rule {PARAMS_LIST' -> epsilon}");
+			fprintf(parser_output_file, "Rule {PARAM' -> epsilon}");
 			back_token();
 			break;
 		}
@@ -145,11 +146,11 @@ void parse_COMP_STMT() {
 	current_follow = follow;
 	current_follow_size = 6;
 	fprintf(parser_output_file, "Rule {COMP_STMT -> { VAR_DEC_LIST STMT_LIST }}");
-	if (!match(BRACKET_OPEN_tok))
+	if (!match(CURLY_BRACKET_OPEN_tok))
 		return;
 	parse_VAR_DEC_LIST();
 	parse_STMT_LIST();
-	if (!match(BRACKET_CLOSE_tok))
+	if (!match(CURLY_BRACKET_CLOSE_tok))
 		return;
 }
 
@@ -208,7 +209,6 @@ void parse_STMT_LIST_TAG() {
 	{
 	case SEMICOLON_tok:
 		fprintf(parser_output_file, "Rule {STMT_LIST' -> ; STMT STMT_LIST'}");
-		back_token();
 		parse_STMT();
 		parse_STMT_LIST_TAG();
 		break;
@@ -235,7 +235,6 @@ void parse_STMT() {
 	{
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {STMT -> id VAR_OR_CALL}");
-		back_token();
 		parse_VAR_OR_CALL();
 		break;
 	case CURLY_BRACKET_OPEN_tok:
@@ -270,7 +269,6 @@ void parse_VAR_OR_CALL() {
 	{
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS)}");
-		back_token();
 		parse_ARGS();
 		if (!match(PARENTHESIS_CLOSE_tok))
 			return;

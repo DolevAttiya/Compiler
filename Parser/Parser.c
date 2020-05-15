@@ -14,7 +14,7 @@ void parse_RETURN_TYPE() {
 	eTOKENS follow[] = { ID_tok };
 	current_follow = follow;
 	current_follow_size = 1;
-	eTOKENS tokens[] = { INT_tok, FLOAT_tok, VOID_tok };
+	eTOKENS tokens[] = {/*Firsts*/ INT_tok, FLOAT_tok, VOID_tok};
 	expected_token_types = tokens;
 	expected_token_types_size = 3;
 	current_token = next_token();
@@ -42,9 +42,9 @@ void parse_PARAMS() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
-	eTOKENS tokens[] = { INT_tok, FLOAT_tok };
+	eTOKENS tokens[] = {/*Firsts*/ INT_tok, FLOAT_tok,/*Follows*/ PARENTHESIS_CLOSE_tok };
 	expected_token_types = tokens;
-	expected_token_types_size = 2;
+	expected_token_types_size = 3;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -67,9 +67,6 @@ void parse_PARAMS() {
 }
 
 void parse_PARAM_LIST() {
-	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
-	current_follow = follow;
-	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {PARAMS_LIST -> PARAM PARAMS_LIST'}");
 	parse_PARAM();
 	parse_PARAM_LIST_TAG();
@@ -79,9 +76,9 @@ void parse_PARAM_LIST_TAG() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
-	eTOKENS tokens[] = { COMMA_tok};
+	eTOKENS tokens[] = {/*Firsts*/ COMMA_tok,/*Follows*/ PARENTHESIS_CLOSE_tok};
 	expected_token_types = tokens;
-	expected_token_types_size = 1;
+	expected_token_types_size = 2;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -117,9 +114,9 @@ void parse_PARAM_TAG() {
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
-	eTOKENS tokens[] = { BRACKET_OPEN_tok };
+	eTOKENS tokens[] = {/*Firsts*/ BRACKET_OPEN_tok,/*Follows*/ COMMA_tok, PARENTHESIS_CLOSE_tok };
 	expected_token_types = tokens;
-	expected_token_types_size = 1;
+	expected_token_types_size = 3;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -155,9 +152,6 @@ void parse_COMP_STMT() {
 }
 
 void parse_VAR_DEC_LIST() {
-	eTOKENS follow[] = { ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
-	current_follow = follow;
-	current_follow_size = 4;
 	fprintf(parser_output_file, "Rule {VAR_DEC_LIST -> VAR_DEC_LIST'}");
 	parse_VAR_DEC_LIST_TAG();
 }
@@ -190,9 +184,6 @@ void parse_VAR_DEC_LIST_TAG() {
 	}
 }
 void parse_STMT_LIST() {
-	eTOKENS follow[] = { CURLY_BRACKET_CLOSE_tok };
-	current_follow = follow;
-	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {STMT_LIST -> STMT STMT_LIST'}");
 	parse_STMT();
 	parse_STMT_LIST_TAG();
@@ -201,9 +192,9 @@ void parse_STMT_LIST_TAG() {
 	eTOKENS follow[] = { CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
-	eTOKENS tokens[] = { SEMICOLON_tok };
+	eTOKENS tokens[] = {/*Firsts*/SEMICOLON_tok ,/*Follow*/CURLY_BRACKET_CLOSE_tok};
 	expected_token_types = tokens;
-	expected_token_types_size = 1;
+	expected_token_types_size = 2;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -261,7 +252,7 @@ void parse_VAR_OR_CALL() {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
-	eTOKENS tokens[] = { PARENTHESIS_OPEN_tok, CURLY_BRACKET_OPEN_tok,ASSIGNMENT_OP_tok };
+	eTOKENS tokens[] = { PARENTHESIS_OPEN_tok, BRACKET_OPEN_tok,ASSIGNMENT_OP_tok };
 	expected_token_types = tokens;
 	expected_token_types_size = 3;
 	current_token = next_token();
@@ -273,7 +264,7 @@ void parse_VAR_OR_CALL() {
 		if (!match(PARENTHESIS_CLOSE_tok))
 			return;
 		break;
-	case CURLY_BRACKET_OPEN_tok:
+	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}");
 		back_token();
 		parse_VAR_TAG();
@@ -308,9 +299,9 @@ void parse_ARGS() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
-	eTOKENS tokens[] = { ID_tok, INT_NUM_tok, FLOAT_NUM_tok, PARENTHESIS_OPEN_tok };
+	eTOKENS tokens[] = {/*Firsts*/ ID_tok, INT_NUM_tok, FLOAT_NUM_tok, PARENTHESIS_OPEN_tok,/*Follows*/ PARENTHESIS_CLOSE_tok};
 	expected_token_types = tokens;
-	expected_token_types_size = 4;
+	expected_token_types_size = 5;
 	current_token = next_token();
 	switch (current_token->kind)
 	{

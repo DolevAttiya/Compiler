@@ -4,6 +4,7 @@
 FILE* parser_output_file;
 int match(eTOKENS expexted_token);
 void error();
+
 int parse_Follow();
 void get_tokens_names(char** tokens);
 

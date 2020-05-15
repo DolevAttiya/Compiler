@@ -65,7 +65,6 @@ void parse_ARG_LIST_TAG() {
 	}
 }
 void parse_RETURN_STMT() {
-	current_token = next_token();
 	fprintf(parser_output_file, "Rule {RETURN_STMT -> return RETURN_STMT'}");
 	if(!match(RETURN_tok))
 		return;
@@ -75,15 +74,17 @@ void parse_RETURN_STMT_TAG() {
 	// First of EXPR - id int_num float_num (
 	// Follow of RETURN_STMT' - ; }
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
-	eTOKENS expected_tokens[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, ID_tok, INT_tok, FLOAT_tok, PARENTHESIS_OPEN_tok };
+	current_follow = follow;
+	current_follow_size = 2;
+	eTOKENS expected_tokens[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, ID_tok, INT_NUM_tok, FLOAT_NUM_tok, PARENTHESIS_OPEN_tok };
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 6;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
 	case ID_tok:
-	case INT_tok:
-	case FLOAT_tok:
+	case INT_NUM_tok:
+	case FLOAT_NUM_tok:
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR}");
 		back_token();
@@ -105,11 +106,13 @@ void parse_VAR_TAG() {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok, 
 						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok,
 						 ADD_OP_tok, MUL_OP_tok, ASSIGNMENT_OP_tok };
+	current_follow = follow;
+	current_follow_size = 14;
 	eTOKENS expected_tokens[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
 						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok,
-						 ADD_OP_tok, MUL_OP_tok, ASSIGNMENT_OP_tok };
+						 ADD_OP_tok, MUL_OP_tok, ASSIGNMENT_OP_tok, BRACKET_OPEN_tok };
 	expected_token_types = expected_tokens;
-	expected_token_types_size = 14;
+	expected_token_types_size = 15;
 	current_token = next_token();
 	switch (current_token->kind) {
 	case BRACKET_OPEN_tok:
@@ -148,9 +151,11 @@ void parse_EXPR_LIST() {
 void parse_EXPR_LIST_TAG() {
 	// Follow of EXPR_LIST' - ]
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
-	eTOKENS expected_tokens[] = { BRACKET_CLOSE_tok };
+	current_follow = follow;
+	current_follow_size = 1;
+	eTOKENS expected_tokens[] = { BRACKET_CLOSE_tok, COMMA_tok };
 	expected_token_types = expected_tokens;
-	expected_token_types_size = 1;
+	expected_token_types_size = 2;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -197,6 +202,8 @@ void parse_EXPR_TAG() {
 	// rel_op -  <  <=  ==  >=  >  != 
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
 						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok };
+	current_follow = follow;
+	current_follow_size = 11;
 	eTOKENS expected_tokens[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
 						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok, ADD_OP_tok };
 	expected_token_types = expected_tokens;
@@ -237,6 +244,8 @@ void parse_TERM_TAG() {
 	// rel_op -  <  <=  ==  >=  >  != 
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
 						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok, ADD_OP_tok };
+	current_follow = follow;
+	current_follow_size = 12;
 	eTOKENS expected_tokens[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
 						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok, ADD_OP_tok,
 						 MUL_OP_tok };
@@ -303,6 +312,8 @@ void parse_VAR_OR_CALL_TAG() {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
 						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok, ADD_OP_tok,
 						 MUL_OP_tok };
+	current_follow = follow;
+	current_follow_size = 13;
 	eTOKENS expected_tokens[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
 						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok, ADD_OP_tok,
 						 MUL_OP_tok, PARENTHESIS_OPEN_tok, BRACKET_OPEN_tok };
@@ -331,6 +342,8 @@ void parse_VAR_OR_CALL_TAG() {
 	case MUL_OP_tok:
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> VAR'}");
+		back_token();
+		parse_VAR_TAG();
 		break;
 	case default:
 		error();

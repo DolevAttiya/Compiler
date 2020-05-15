@@ -47,6 +47,9 @@ void parse_ARG_LIST_TAG() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
+	eTOKENS expected_tokens[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
+	expected_token_types = expected_tokens;
+	expected_token_types_size = 2;
 	current_token = next_token();
 	switch (current_token->kind)
 	{
@@ -279,6 +282,12 @@ void parse_TERM_TAG() {
 }
 void parse_FACTOR() {
 	// First of FACTOR - id int_num float_num (
+	// Follow of FACTOR - ; } , ) ] rel_op + *
+	// rel_op -  <  <=  ==  >=  >  != 
+	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
+						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok, ADD_OP_tok, MUL_OP_tok};
+	current_follow = follow;
+	current_follow_size = 13;
 	eTOKENS expected_tokens[] = { ID_tok, INT_NUM_tok, FLOAT_NUM_tok, PARENTHESIS_OPEN_tok };
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 4;

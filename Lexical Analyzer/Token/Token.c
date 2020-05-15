@@ -1,5 +1,4 @@
 #include "Token.h"
-#include "../Source Code/win.lex.yy.c"
 
 /* This package describes the storage of tokens identified in the input text.
 * The storage is a bi-directional list of nodes.
@@ -13,6 +12,7 @@ There are three functions providing an external access to the storage:
 
 int currentIndex = 0;
 Node* currentNode = NULL;
+extern int yylex(void);
 
 #define TOKEN_ARRAY_SIZE 1000
 
@@ -94,8 +94,10 @@ void create_and_store_token(eTOKENS kind, char* lexeme, int numOfLine)
 */
 Token* back_token()
 { 
-	if (currentIndex > 0) 
+	if (currentIndex > 0)
 		currentIndex--;
+	else if (currentNode -> prev == NULL)
+		currentIndex=-1;
 	else //When the last token created is at the beginning of the array
 	{
 		currentNode = &currentNode->prev;
@@ -117,7 +119,7 @@ Token* next_token()
 		currentNode = currentNode->next;
 		currentIndex = 0;
 	}
-	else if ((currentIndex + 1 != TOKEN_ARRAY_SIZE) && (&currentNode->tokensArray[currentIndex + 1] != 0)) //When we are not at the end of the token array and there is a token in the next index (back_token() was called)
+	else if ((currentNode != NULL) && (currentIndex + 1 != TOKEN_ARRAY_SIZE) && ((&currentNode->tokensArray[currentIndex + 1])->lineNumber != 0)) //When we are not at the end of the token array and there is a token in the next index (back_token() was called)
 	{
 		currentIndex++;
 	}

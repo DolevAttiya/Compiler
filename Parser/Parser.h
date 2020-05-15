@@ -3,7 +3,7 @@
 
 FILE* parser_output_file;
 int match(eTOKENS expected_token);
-void error(eTOKENS expected_token_type);
+void error();
 int parse_Follow();
 
 void parse();

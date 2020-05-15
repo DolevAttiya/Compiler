@@ -10,7 +10,7 @@ int expected_token_types_size;
 FILE* parser_output_file;
 
 
-int parse_RETURN_TYPE() {
+void parse_RETURN_TYPE() {
 	eTOKENS follow[] = { ID_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -31,13 +31,14 @@ int parse_RETURN_TYPE() {
 		back_token();
 		if (!match(VOID_tok))
 			return;
+		break;
 	default:
 		error();
 		break;
 	}
 }
 
-int parse_PARAMS() {
+void parse_PARAMS() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -65,17 +66,16 @@ int parse_PARAMS() {
 	}
 }
 
-int parse_PARAM_LIST() {
+void parse_PARAM_LIST() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {PARAMS_LIST -> PARAM PARAMS_LIST'}");
 	parse_PARAM();
 	parse_PARAM_LIST_TAG();
-
 }
 
-int parse_PARAM_LIST_TAG() {
+void parse_PARAM_LIST_TAG() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -102,7 +102,7 @@ int parse_PARAM_LIST_TAG() {
 	}
 }
 
-int parse_PARAM() {
+void parse_PARAM() {
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
@@ -113,7 +113,7 @@ int parse_PARAM() {
 	parse_PARAM_TAG();
 }
 
-int parse_PARAM_TAG() {
+void parse_PARAM_TAG() {
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
@@ -140,7 +140,7 @@ int parse_PARAM_TAG() {
 	}
 }
 
-int parse_COMP_STMT() {
+void parse_COMP_STMT() {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, EOF_tok, SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 6;
@@ -153,14 +153,14 @@ int parse_COMP_STMT() {
 		return;
 }
 
-int parse_VAR_DEC_LIST() {
+void parse_VAR_DEC_LIST() {
 	eTOKENS follow[] = { ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
 	current_follow_size = 4;
 	fprintf(parser_output_file, "Rule {VAR_DEC_LIST -> VAR_DEC_LIST'}");
 	parse_VAR_DEC_LIST_TAG();
 }
-int parse_VAR_DEC_LIST_TAG() {
+void parse_VAR_DEC_LIST_TAG() {
 	eTOKENS follow[] = { ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
 	current_follow_size = 4;
@@ -188,7 +188,7 @@ int parse_VAR_DEC_LIST_TAG() {
 		break;
 	}
 }
-int parse_STMT_LIST() {
+void parse_STMT_LIST() {
 	eTOKENS follow[] = { CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -196,7 +196,7 @@ int parse_STMT_LIST() {
 	parse_STMT();
 	parse_STMT_LIST_TAG();
 }
-int parse_STMT_LIST_TAG() {
+void parse_STMT_LIST_TAG() {
 	eTOKENS follow[] = { CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -223,7 +223,7 @@ int parse_STMT_LIST_TAG() {
 		break;
 	}
 }
-int parse_STMT() {
+void parse_STMT() {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
@@ -258,7 +258,7 @@ int parse_STMT() {
 		break;
 	}
 }
-int parse_VAR_OR_CALL() {
+void parse_VAR_OR_CALL() {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
@@ -292,7 +292,7 @@ int parse_VAR_OR_CALL() {
 		break;
 	}
 }
-int parse_IF_STMT() {
+void parse_IF_STMT() {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
@@ -306,7 +306,7 @@ int parse_IF_STMT() {
 		return;
 	parse_STMT();
 }
-int parse_ARGS() {
+void parse_ARGS() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;

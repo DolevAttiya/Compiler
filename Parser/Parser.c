@@ -47,7 +47,7 @@ void error() {
 }
 void get_tokens_names(char** tokens)
 {
-	*tokens = (char**)malloc(sizeof(char*));
+	*tokens = (char*)malloc(sizeof(char*));
 	(*tokens)[0] = '\0';
 	for (int i = 0; i < expected_token_types_size; i++)
 	{

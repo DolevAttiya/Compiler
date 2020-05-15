@@ -1,5 +1,5 @@
 ﻿#include "../Lexical Analyzer/Token/Token.h"
-#include "../Lexical Analyzer/Source Code/win.lex.yy.c"
+char* eTokensStrings[];
 #include "Parser.h"
 #include <string.h>
 
@@ -20,8 +20,8 @@ void parse_PROG()
 	eTOKENS follow[] = { EOF_tok };
 	current_follow = follow;
 	current_follow_size = 1;
-	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}");
-	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}");
+	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}\n");
+	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}\n");
 	parse_GLOBAL_VARS();
 	do {
 		for(int i=0;i<3;i++) 
@@ -30,28 +30,28 @@ void parse_PROG()
 		{
 			for (int i = 0; i < 3; i++)
 				back_token();
-			fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> VAR_DEC GLOBAL_VARS'}");
+			fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> VAR_DEC GLOBAL_VARS'}\n");
 			parse_GLOBAL_VARS();
 		}
 	} while (current_token->kind != PARENTHESIS_OPEN_tok);
 
-	fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> epsilon}");
+	fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> epsilon}\n");
 
 	for (int i = 0; i < 3; i++)
 		back_token();
 
-	fprintf(parser_output_file, "Rule {FUNC_PREDEFS -> FUNC_PROTYTYPE; FUNC_PREDEFS'}");
+	fprintf(parser_output_file, "Rule {FUNC_PREDEFS -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
 	do {		
 		parse_FUNC_PROTOTYPE();
 		current_token = next_token();
 		if (current_token->kind == SEMICOLON_tok)
-			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS'}");
+			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
 	} while (current_token->kind == SEMICOLON_tok);
 
-	fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> epsilon}");
+	fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> epsilon}\n");
 
-	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}");
-	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}");
+	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}\n");
+	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}\n");
 	back_token();       
 	parse_COMP_STMT();
 	current_token = next_token();
@@ -91,7 +91,7 @@ void parse_VAR_DEC()
 	current_follow = follow;
 	current_follow_size = 7;
 
-	fprintf(parser_output_file, "Rule {VAR_DEC -> TYPE id VAR_DEC'}");
+	fprintf(parser_output_file, "Rule {VAR_DEC -> TYPE id VAR_DEC'}\n");
 	parse_TYPE();
 	if (!match(ID_tok))
 		return;
@@ -111,10 +111,10 @@ void parse_VAR_DEC_TAG()
 	switch (current_token->kind)
 	{
 	case SEMICOLON_tok: 
-		fprintf(parser_output_file, "Rule {VAR_DEC' -> ;}");
+		fprintf(parser_output_file, "Rule {VAR_DEC' -> ;}\n");
 		break;
 	case BRACKET_OPEN_tok:
-		fprintf(parser_output_file, "Rule {VAR_DEC' -> [DIM_SIZES] ;}");
+		fprintf(parser_output_file, "Rule {VAR_DEC' -> [DIM_SIZES] ;}\n");
 		parse_DIM_SIZES();
 		if (!match(BRACKET_CLOSE_tok))
 			return;
@@ -140,10 +140,10 @@ void parse_TYPE()
 	switch (current_token->kind)
 	{
 	case INT_tok:
-		fprintf(parser_output_file, "Rule {TYPE -> int}");
+		fprintf(parser_output_file, "Rule {TYPE -> int}\n");
 		break;
 	case FLOAT_tok:
-		fprintf(parser_output_file, "Rule {TYPE -> float}");
+		fprintf(parser_output_file, "Rule {TYPE -> float}\n");
 		break;
 	default:
 		error();
@@ -156,7 +156,7 @@ void parse_DIM_SIZES()
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
-	fprintf(parser_output_file, "Rule {DIM_SIZES -> int_num DIM_SIZES'}");
+	fprintf(parser_output_file, "Rule {DIM_SIZES -> int_num DIM_SIZES'}\n");
 	if (!match(INT_NUM_tok))
 		return;
 	parse_DIM_SIZES_TAG();
@@ -175,11 +175,11 @@ void parse_DIM_SIZES_TAG()
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
-		fprintf(parser_output_file, "Rule {DIM_SIZES' -> , DIM_SIZES}");
+		fprintf(parser_output_file, "Rule {DIM_SIZES' -> , DIM_SIZES}\n");
 		parse_DIM_SIZES();
 		break;
 	case BRACKET_CLOSE_tok:
-		fprintf(parser_output_file, "Rule {DIM_SIZES' -> epsilon}");
+		fprintf(parser_output_file, "Rule {DIM_SIZES' -> epsilon}\n");
 		back_token();
 		break;
 	default:
@@ -193,7 +193,7 @@ void parse_FUNC_PROTOTYPE()
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_OPEN_tok };
 	current_follow = follow;
 	current_follow_size = 2;
-	fprintf(parser_output_file, "Rule {FUNC_PROTOTYPE -> RETURN_TYPE id (PARAMS)}");
+	fprintf(parser_output_file, "Rule {FUNC_PROTOTYPE -> RETURN_TYPE id (PARAMS)}\n");
 	parse_RETURN_TYPE();
 	if (!match(ID_tok))
 		return;
@@ -206,7 +206,7 @@ void parse_FUNC_PROTOTYPE()
 
 void parse_FUNC_FULL_DEFS()
 {
-	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}");
+	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}\n");
 	parse_FUNC_WITH_BODY();
 	parse_FUNC_FULL_DEFS_TAG();
 }
@@ -219,19 +219,19 @@ void parse_FUNC_FULL_DEFS_TAG()
 	current_token = next_token();
 	eTOKENS tokens[] = { INT_tok, FLOAT_tok, VOID_tok, EOF_tok };
 	expected_token_types = tokens;
-	expected_token_types_size = 3;
+	expected_token_types_size = 4;
 
 	switch (current_token->kind)
 	{
 	case INT_tok:
 	case FLOAT_tok:
 	case VOID_tok:
-		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> FUNC_FULL_DEFS}");
+		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> FUNC_FULL_DEFS}\n");
 		back_token();
 		parse_FUNC_FULL_DEFS();
 		break;
 	case EOF_tok:
-		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> epsilon}");
+		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> epsilon}\n");
 		back_token();
 		break;
 	default:
@@ -242,10 +242,11 @@ void parse_FUNC_FULL_DEFS_TAG()
 
 void parse_FUNC_WITH_BODY()
 {
-	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}");
+	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}\n");
 	parse_FUNC_PROTOTYPE();
 	parse_COMP_STMT();
 }
+
 
 int match(eTOKENS expected_token) {
 	eTOKENS expected_token_array[] = { expected_token };
@@ -274,7 +275,7 @@ void error() {
 
 	char* tokens_names;
 	get_tokens_names(&tokens_names);
-	fprintf(parser_output_file, "Expected token of type '{%s}' at line: {%d},  Actual token of type '{%d}', lexeme: '{%s}'.", tokens_names, current_token->lineNumber, current_token->kind, current_token->lexeme);
+	fprintf(parser_output_file, "Expected token of type '{%s}' at line: {%d},  Actual token of type '{%d}', lexeme: '{%s}'.\n", tokens_names, current_token->lineNumber, current_token->kind, current_token->lexeme);
 	do
 	{
 		current_token = next_token();
@@ -285,7 +286,7 @@ void error() {
 
 void get_tokens_names(char** tokens)
 {
-	*tokens = (char**)malloc(sizeof(char*));
+	*tokens = (char*)malloc(sizeof(char*));
 	(*tokens)[0] = '\0';
 	for (int i = 0; i < expected_token_types_size; i++)
 	{
@@ -296,3 +297,7 @@ void get_tokens_names(char** tokens)
 	strncpy(*tokens, *tokens, strlen(*tokens) - 2);
 	(*tokens)[strlen(*tokens) - 2] = 0;
 }
+
+void parse_COMP_STMT() { return; }
+void parse_PARAMS() { return; }
+void parse_RETURN_TYPE() { return; }

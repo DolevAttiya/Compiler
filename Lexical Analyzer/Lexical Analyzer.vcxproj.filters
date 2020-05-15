@@ -25,13 +25,13 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\flex_rules.lex">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Token\Token.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flex_rules.lex">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

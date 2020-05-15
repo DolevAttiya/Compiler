@@ -497,6 +497,7 @@ char *yytext;
 
 #line 5 "flex_rules.lex"
 #include "../Token/Token.h"
+#include "../../Parser/Parser.h"
 int line_num=1;
 void print_message(char*);
 char *eTokensStrings[]=
@@ -529,8 +530,8 @@ char *eTokensStrings[]=
 	"CURLY_BRACKET_CLOSE_tok",
 	"EOF_tok"
 };
-#line 532 "win.lex.yy.c"
 #line 533 "win.lex.yy.c"
+#line 534 "win.lex.yy.c"
 
 #define INITIAL 0
 #define COMMENT 1
@@ -745,10 +746,10 @@ YY_DECL
 		}
 
 	{
-#line 67 "flex_rules.lex"
+#line 68 "flex_rules.lex"
 
 
-#line 751 "win.lex.yy.c"
+#line 752 "win.lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -807,36 +808,35 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 69 "flex_rules.lex"
+#line 70 "flex_rules.lex"
 BEGIN(COMMENT);
 	YY_BREAK
 case YY_STATE_EOF(COMMENT):
-#line 70 "flex_rules.lex"
+#line 71 "flex_rules.lex"
 BEGIN(0);
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 71 "flex_rules.lex"
+#line 72 "flex_rules.lex"
 BEGIN(0);
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 72 "flex_rules.lex"
+#line 73 "flex_rules.lex"
 line_num++;                    
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 73 "flex_rules.lex"
+#line 74 "flex_rules.lex"
 
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 75 "flex_rules.lex"
+#line 76 "flex_rules.lex"
 {
 									line_num++;
-									return 1;
 								}
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
@@ -2109,14 +2109,18 @@ void yyfree (void * ptr )
 int main(){
 	yyin = fopen("C:\\temp\\test1.txt", "r" );
 	yyout = fopen("c:\\temp\\test1_206920282_313533374_205811797_lex.txt", "w" );
-	while(yylex());
+	parser_output_file = fopen("c:\\temp\\test1_206920282_313533374_205811797_syntactic.txt", "w");
+    parser();
 	fclose(yyin);
 	fclose(yyout);
+	fclose(parser_output_file);
 	yyin = fopen("C:\\temp\\test2.txt", "r" );
 	yyout = fopen("c:\\temp\\test2_206920282_313533374_205811797_lex.txt", "w" );
-	while(yylex());
+	parser_output_file = fopen("c:\\temp\\test2_206920282_313533374_205811797_syntactic.txt", "w");
+    parser();
 	fclose(yyin);
 	fclose(yyout);
+	fclose(parser_output_file);
 }
 
 void print_message(char* token_type) {

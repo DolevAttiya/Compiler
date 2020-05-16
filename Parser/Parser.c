@@ -39,7 +39,7 @@ void error() {
 
 
 void parse_ARG_LIST() {
-	fprintf(parser_output_file, "Rule {ARG_LIST -> EXPR ARG_LIST'}");
+	fprintf(parser_output_file, "Rule {ARG_LIST -> EXPR ARG_LIST'}\n");
 	parse_EXPR();
 	parse_ARG_LIST_TAG();
 }
@@ -54,12 +54,12 @@ void parse_ARG_LIST_TAG() {
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
-		fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST'}");
+		fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST'}\n");
 		parse_EXPR();
 		parse_ARG_LIST_TAG();
 		break;
 	case PARENTHESIS_CLOSE_tok:
-		fprintf(parser_output_file, "Rule {DIM_SIZES' -> Epsilon}");
+		fprintf(parser_output_file, "Rule {DIM_SIZES' -> Epsilon}\n");
 		back_token();
 		break;
 	default:
@@ -68,7 +68,7 @@ void parse_ARG_LIST_TAG() {
 	}
 }
 void parse_RETURN_STMT() {
-	fprintf(parser_output_file, "Rule {RETURN_STMT -> return RETURN_STMT'}");
+	fprintf(parser_output_file, "Rule {RETURN_STMT -> return RETURN_STMT'}\n");
 	if(!match(RETURN_tok))
 		return;
 	parse_RETURN_STMT_TAG();
@@ -89,13 +89,13 @@ void parse_RETURN_STMT_TAG() {
 	case INT_NUM_tok:
 	case FLOAT_NUM_tok:
 	case PARENTHESIS_OPEN_tok:
-		fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR}");
+		fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR}\n");
 		back_token();
 		parse_EXPR();
 		break;
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
-		fprintf(parser_output_file, "Rule {RETURN_STMT' -> Epsilon}");
+		fprintf(parser_output_file, "Rule {RETURN_STMT' -> Epsilon}\n");
 		back_token();
 		break;
 	default:
@@ -119,7 +119,7 @@ void parse_VAR_TAG() {
 	current_token = next_token();
 	switch (current_token->kind) {
 	case BRACKET_OPEN_tok:
-		fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}");
+		fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}\n");
 		parse_EXPR_LIST();
 		if(!match(BRACKET_CLOSE_tok))
 			return;
@@ -138,7 +138,7 @@ void parse_VAR_TAG() {
 	case ADD_OP_tok:
 	case MUL_OP_tok:
 	case ASSIGNMENT_OP_tok:
-		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}");
+		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
 		break;
 	case default:
@@ -147,7 +147,7 @@ void parse_VAR_TAG() {
 	}
 }
 void parse_EXPR_LIST() {
-	fprintf(parser_output_file, "Rule {EXPR_LIST -> EXPR EXPR_LIST'}");
+	fprintf(parser_output_file, "Rule {EXPR_LIST -> EXPR EXPR_LIST'}\n");
 	parse_EXPR();
 	parse_EXPR_LIST_TAG();
 }
@@ -163,14 +163,14 @@ void parse_EXPR_LIST_TAG() {
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
-		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}");
+		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}\n");
 		if(!match(COMMA_tok))
 			return;
 		parse_EXPR();
 		parse_EXPR_LIST_TAG();
 		break;
 	case BRACKET_CLOSE_tok:
-		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}");
+		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");
 		back_token();
 		break;
 	default:
@@ -181,7 +181,7 @@ void parse_EXPR_LIST_TAG() {
 void parse_CONDITION() {
 	eTOKENS expected_token_types[] = { LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok,
 											GREATER_EQUAL_tok, NOT_EQUAL_tok };
-	fprintf(parser_output_file, "Rule {CONDITION -> EXPR rel_op EXPR}");
+	fprintf(parser_output_file, "Rule {CONDITION -> EXPR rel_op EXPR}\n");
 	parse_EXPR();
 	current_token = next_token();
 	if ((current_token->kind == LESS_tok) || (current_token->kind == LESS_EQUAL_tok) ||
@@ -196,7 +196,7 @@ void parse_CONDITION() {
 	}
 }
 void parse_EXPR() {
-	fprintf(parser_output_file, "Rule {EXPR -> TERM EXPR'}");
+	fprintf(parser_output_file, "Rule {EXPR -> TERM EXPR'}\n");
 	parse_TERM();
 	parse_EXPR_TAG();
 }
@@ -214,7 +214,7 @@ void parse_EXPR_TAG() {
 	current_token = next_token();
 	switch (current_token->kind) {
 	case ADD_OP_tok:
-		fprintf(parser_output_file, "Rule {EXPR' -> + TERM EXPR'}");
+		fprintf(parser_output_file, "Rule {EXPR' -> + TERM EXPR'}\n");
 		parse_TERM();
 		parse_EXPR_TAG();
 		break;
@@ -229,7 +229,7 @@ void parse_EXPR_TAG() {
 	case GREATER_tok:
 	case GREATER_EQUAL_tok:
 	case NOT_EQUAL_tok:
-		fprintf(parser_output_file, "Rule {EXPR' -> Epsilon}");
+		fprintf(parser_output_file, "Rule {EXPR' -> Epsilon}\n");
 		back_token();
 		break;
 	case default:
@@ -238,7 +238,7 @@ void parse_EXPR_TAG() {
 	}
 }
 void parse_TERM() {
-	fprintf(parser_output_file, "Rule {TERM -> FACTOR TERM'}");
+	fprintf(parser_output_file, "Rule {TERM -> FACTOR TERM'}\n");
 	parse_FACTOR();
 	parse_TERM_TAG();
 }
@@ -257,7 +257,7 @@ void parse_TERM_TAG() {
 	current_token = next_token();
 	switch (current_token->kind) {
 	case MUL_OP_tok:
-		fprintf(parser_output_file, "Rule {TERM' ->  * FACTOR TERM'}");
+		fprintf(parser_output_file, "Rule {TERM' ->  * FACTOR TERM'}\n");
 		parse_FACTOR();
 		parse_TERM_TAG();
 		break;
@@ -272,7 +272,7 @@ void parse_TERM_TAG() {
 	case GREATER_tok:
 	case GREATER_EQUAL_tok:
 	case NOT_EQUAL_tok:
-		fprintf(parser_output_file, "Rule {TERM' ->  Epsilon}");
+		fprintf(parser_output_file, "Rule {TERM' ->  Epsilon}\n");
 		back_token();
 		break;
 	case default:
@@ -294,17 +294,17 @@ void parse_FACTOR() {
 	current_token = next_token();
 	switch (current_token->kind) {
 	case ID_tok:
-		fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL'}");
+		fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL'}\n");
 		parse_VAR_OR_CALL_TAG();
 		break;
 	case INT_NUM_tok:
-		fprintf(parser_output_file, "Rule {FACTOR -> int_num}");
+		fprintf(parser_output_file, "Rule {FACTOR -> int_num}\n");
 		break;
 	case FLOAT_NUM_tok:
-		fprintf(parser_output_file, "Rule {FACTOR -> float_num}");
+		fprintf(parser_output_file, "Rule {FACTOR -> float_num}\n");
 		break;
 	case PARENTHESIS_OPEN_tok:
-		fprintf(parser_output_file, "Rule {FACTOR -> (EXPR)}");
+		fprintf(parser_output_file, "Rule {FACTOR -> (EXPR)}\n");
 		parse_EXPR();
 		if(!match(PARENTHESIS_CLOSE_tok))
 			return;
@@ -331,7 +331,7 @@ void parse_VAR_OR_CALL_TAG() {
 	current_token = next_token();
 	switch (current_token->kind) {
 	case PARENTHESIS_OPEN_tok:
-		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS)}");
+		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS)}\n");
 		parse_ARGS();
 		if(!match(PARENTHESIS_CLOSE_tok))
 			return;
@@ -350,7 +350,7 @@ void parse_VAR_OR_CALL_TAG() {
 	case ADD_OP_tok:
 	case MUL_OP_tok:
 	case BRACKET_OPEN_tok:
-		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> VAR'}");
+		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> VAR'}\n");
 		back_token();
 		parse_VAR_TAG();
 		break;

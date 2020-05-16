@@ -1,5 +1,5 @@
 #include "../Lexical Analyzer/Token/Token.h"
-#include "../Lexical Analyzer/Source Code/win.lex.yy.c"
+char* eTokensStrings[];
 
 #include "Parser.h"
 

@@ -3,6 +3,7 @@
 
 %{
 #include "../Token/Token.h"
+#include "../../Parser/Parser.h"
 int line_num=1;
 void print_message(char*);
 char *eTokensStrings[]=
@@ -74,7 +75,6 @@ CURLY_BRACKET_CLOSE		\}
 
 \n 								{
 									line_num++;
-									return 1;
 								}
 
 <<EOF>>							{ 	
@@ -254,14 +254,18 @@ CURLY_BRACKET_CLOSE		\}
 int main(){
 	yyin = fopen("C:\\temp\\test1.txt", "r" );
 	yyout = fopen("c:\\temp\\test1_206920282_313533374_205811797_lex.txt", "w" );
-	while(yylex());
+	parser_output_file = fopen("c:\\temp\\test1_206920282_313533374_205811797_syntactic.txt", "w");
+    parser();
 	fclose(yyin);
 	fclose(yyout);
+	fclose(parser_output_file);
 	yyin = fopen("C:\\temp\\test2.txt", "r" );
 	yyout = fopen("c:\\temp\\test2_206920282_313533374_205811797_lex.txt", "w" );
-	while(yylex());
+	parser_output_file = fopen("c:\\temp\\test2_206920282_313533374_205811797_syntactic.txt", "w");
+    parser();
 	fclose(yyin);
 	fclose(yyout);
+	fclose(parser_output_file);
 }
 
 void print_message(char* token_type) {

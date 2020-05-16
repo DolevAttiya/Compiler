@@ -23,9 +23,6 @@
     <ClCompile Include="Token\Token.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\flex_rules.lex" />
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="Resources\information.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +32,9 @@
     <ProjectReference Include="..\Parser\Parser.vcxproj">
       <Project>{489daa90-17b9-490d-8e09-14c87d6a31a5}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flex_rules.lex" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

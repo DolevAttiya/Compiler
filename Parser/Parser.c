@@ -37,7 +37,7 @@ void error() {
 
 	char* tokens_names;
 	get_tokens_names(&tokens_names);
-	fprintf(parser_output_file, "Expected token of type '{%s}' at line: {%d},  Actual token of type '{%d}', lexeme: '{%s}'.", tokens_names, current_token->lineNumber, current_token->kind, current_token->lexeme);
+	fprintf(parser_output_file, "Expected token of type '{%s}' at line: {%d},  Actual token of type '{%d}', lexeme: '{%s}'.\n", tokens_names, current_token->lineNumber, current_token->kind, current_token->lexeme);
 	do
 	{
 		current_token = next_token();

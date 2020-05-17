@@ -588,7 +588,7 @@ int parse_Follow()
 
 void error() {
 	char* tokens_names;
-	get_tokens_names(&tokens_names);
+	tokens_names = get_tokens_names();
 	fprintf(parser_output_file, "Expected token of type '{%s}' at line: {%d},  Actual token of type '{%d}', lexeme: '{%s}'.\n", tokens_names, current_token->lineNumber, current_token->kind, current_token->lexeme);
 	do
 	{
@@ -598,18 +598,19 @@ void error() {
 	free(tokens_names);
 }
 
-void get_tokens_names(char** tokens)
+char* get_tokens_names()
 {
-	*tokens = (char*)malloc(sizeof(char*));
-	(*tokens)[0] = '\0';
+	char* tokens = (char*)malloc(sizeof(char*));
 	for (int i = 0; i < expected_token_types_size; i++)
 	{
-		strncat(*tokens, eTokensStrings[expected_token_types[i]],
+		strncat(tokens, eTokensStrings[expected_token_types[i]],
 			strlen(eTokensStrings[expected_token_types[i]]));
-		strncat(*tokens, ", ", strlen(", "));
+		strncat(tokens, ", ", strlen(", "));
 	}
-	strncpy(*tokens, *tokens, strlen(*tokens) - 2);
-	(*tokens)[strlen(*tokens) - 2] = 0;
+	strncpy(tokens, tokens, strlen(tokens) - 2);
+	(tokens)[strlen(tokens) - 2] = 0;
+
+	return tokens;
 }
 
 void parse_ARG_LIST() {

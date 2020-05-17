@@ -6,7 +6,7 @@ int match(eTOKENS expected_token);
 void error();
 
 int parse_Follow();
-void get_tokens_names(char** tokens);
+char* get_tokens_names();
 
 void parser();
 void parse_PROG();

@@ -246,7 +246,6 @@ CURLY_BRACKET_CLOSE		\}
 
 .								{ 	
                    						fprintf(yyout,"Character '%s' in line: %d does not begin any legal token in the language\n", yytext, line_num);  
-                       						return 1;
  	     						}
 
 %%

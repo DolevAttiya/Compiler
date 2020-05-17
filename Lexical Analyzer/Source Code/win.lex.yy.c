@@ -1092,15 +1092,14 @@ YY_RULE_SETUP
 #line 247 "flex_rules.lex"
 { 	
                    						fprintf(yyout,"Character '%s' in line: %d does not begin any legal token in the language\n", yytext, line_num);  
-                       						return 1;
  	     						}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 252 "flex_rules.lex"
+#line 251 "flex_rules.lex"
 ECHO;
 	YY_BREAK
-#line 1103 "win.lex.yy.c"
+#line 1102 "win.lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2103,7 +2102,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 252 "flex_rules.lex"
+#line 251 "flex_rules.lex"
 
  
 int main(){

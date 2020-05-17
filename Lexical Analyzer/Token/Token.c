@@ -129,3 +129,24 @@ Token* next_token()
 	}
 	return &currentNode->tokensArray[currentIndex];
 }
+
+void clean_token_storage()
+{
+	int i;
+	Node* prevNode;
+	while (currentNode->next != NULL)
+		currentNode = currentNode->next;
+	while (currentNode != NULL)
+	{
+		i = 0;
+		while (currentNode->tokensArray[i].lineNumber != 0)
+		{
+			free(currentNode->tokensArray[i].lexeme);
+			i++;
+		}
+		free(currentNode->tokensArray);
+		prevNode = currentNode->prev;
+		free(currentNode);
+		currentNode = prevNode;
+	}
+}

@@ -14,6 +14,7 @@ FILE* parser_output_file;
 void parser()
 {
 	parse_PROG();
+	clean_token_storage();
 }
 
 void parse_PROG()
@@ -551,6 +552,7 @@ void parse_ARGS() {
 		fprintf(parser_output_file, "Rule {ARGS -> ARG_LIST}\n");
 		back_token();
 		parse_ARG_LIST();
+		break;
 	default:
 		if (parse_Follow() != 0)
 		{
@@ -848,6 +850,7 @@ void parse_TERM_TAG() {
 	case GREATER_tok:
 	case GREATER_EQUAL_tok:
 	case NOT_EQUAL_tok:
+	case ADD_OP_tok:
 		fprintf(parser_output_file, "Rule {TERM' ->  Epsilon}\n");
 		back_token();
 		break;

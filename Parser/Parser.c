@@ -715,7 +715,7 @@ void parse_VAR_TAG() {
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
 		break;
-	case default:
+	 default:
 		error();
 		break;
 	}
@@ -753,7 +753,7 @@ void parse_EXPR_LIST_TAG() {
 	}
 }
 void parse_CONDITION() {
-	eTOKENS expected_token_types[] = { LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok,
+	eTOKENS expected_tokens[] = { LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok,
 											GREATER_EQUAL_tok, NOT_EQUAL_tok };
 	fprintf(parser_output_file, "Rule {CONDITION -> EXPR rel_op EXPR}\n");
 	parse_EXPR();
@@ -806,7 +806,7 @@ void parse_EXPR_TAG() {
 		fprintf(parser_output_file, "Rule {EXPR' -> Epsilon}\n");
 		back_token();
 		break;
-	case default:
+	 default:
 		error();
 		break;
 	}
@@ -849,7 +849,7 @@ void parse_TERM_TAG() {
 		fprintf(parser_output_file, "Rule {TERM' ->  Epsilon}\n");
 		back_token();
 		break;
-	case default:
+	default:
 		error();
 		break;
 	}
@@ -883,7 +883,7 @@ void parse_FACTOR() {
 		if(!match(PARENTHESIS_CLOSE_tok))
 			return;
 		break;
-	case default:
+	default:
 		error();
 		break;
 	}
@@ -928,7 +928,7 @@ void parse_VAR_OR_CALL_TAG() {
 		back_token();
 		parse_VAR_TAG();
 		break;
-	case default:
+	default:
 		error();
 		break;
 	}

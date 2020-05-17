@@ -19,6 +19,7 @@ void parser()
 
 void parse_PROG()
 {
+	int steps = 0;
 	eTOKENS follow[] = { EOF_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -26,20 +27,22 @@ void parse_PROG()
 	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}\n");
 	parse_GLOBAL_VARS();
 	do {
-		for(int i=0;i<3;i++) 
+		for(int i=0;i<3&&current_token->kind!=EOF_tok;i++,steps++) 
 			current_token=next_token();
 		if (current_token->kind != PARENTHESIS_OPEN_tok)
 		{
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < steps; i++)
 				back_token();
+			steps = 0; //steps -= i - 1
 			fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> VAR_DEC GLOBAL_VARS'}\n");
 			parse_GLOBAL_VARS();
 		}
-	} while (current_token->kind != PARENTHESIS_OPEN_tok);
+	} while (current_token->kind != PARENTHESIS_OPEN_tok && current_token->kind != EOF_tok);
+
 
 	fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> epsilon}\n");
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < steps; i++)
 		back_token();
 
 	fprintf(parser_output_file, "Rule {FUNC_PREDEFS -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");

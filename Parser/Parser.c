@@ -602,18 +602,26 @@ void error() {
 
 char* get_tokens_names()
 {
-	char* tokens1;
-	char* tokens = (char*)malloc(sizeof(char));
-	tokens[0] = 0;
+	char* tokens;
+	int size=0;
 	for (int i = 0; i < expected_token_types_size; i++)
 	{
+		size += strlen(eTokensStrings[expected_token_types[i]]);
+		size += strlen(", ");
+	}
+	size -= 2;
+	size++;
+	tokens = (char*)malloc(size);
+	strncpy(tokens, eTokensStrings[expected_token_types[0]],
+		strlen(eTokensStrings[expected_token_types[0]])+1);
+	for (int i = 1; i < expected_token_types_size; i++)
+	{
+		strncat(tokens, ", ", strlen(", "));
 		strncat(tokens, eTokensStrings[expected_token_types[i]],
 			strlen(eTokensStrings[expected_token_types[i]]));
-		strncat(tokens, ", ", strlen(", "));
 	}
-	tokens1 = (char*)malloc(sizeof(char)* (strlen(tokens) - 2));
-	strncpy(tokens1, tokens, strlen(tokens) - 2);
-	return tokens1;
+	tokens[size - 1] = 0;
+	return tokens;
 }
 
 void parse_ARG_LIST() {

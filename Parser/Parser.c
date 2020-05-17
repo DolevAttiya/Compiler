@@ -14,6 +14,7 @@ FILE* parser_output_file;
 void parser()
 {
 	parse_PROG();
+	clean_token_storage();
 }
 
 void parse_PROG()

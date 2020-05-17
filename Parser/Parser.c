@@ -46,25 +46,17 @@ void parse_PROG()
 		back_token();
 
 	fprintf(parser_output_file, "Rule {FUNC_PREDEFS -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
-	do {		
+
+	parse_FUNC_PROTOTYPE();
+	while (match(SEMICOLON_tok))
+	{
+		fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
 		parse_FUNC_PROTOTYPE();
-		current_token = next_token();
-		if (current_token->kind == SEMICOLON_tok)
-			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
-	} while (current_token->kind == SEMICOLON_tok);
+	}
 
 	fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> epsilon}\n");
 
-	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}\n");
-	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}\n");
-	back_token();       
-	parse_COMP_STMT();
-	current_token = next_token();
-	if (current_token->kind != EOF_tok)
-	{
-		back_token();    
-		parse_FUNC_FULL_DEFS();
-	}
+	parse_FUNC_FULL_DEFS();
 }
 
 void parse_GLOBAL_VARS()
@@ -385,9 +377,9 @@ void parse_COMP_STMT() {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, EOF_tok, SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 6;
-	fprintf(parser_output_file, "Rule {COMP_STMT -> { VAR_DEC_LIST STMT_LIST }}\n");
 	if (!match(CURLY_BRACKET_OPEN_tok))
 		return;
+	fprintf(parser_output_file, "Rule {COMP_STMT -> { VAR_DEC_LIST STMT_LIST }}\n");
 	parse_VAR_DEC_LIST();
 	parse_STMT_LIST();
 	if (!match(CURLY_BRACKET_CLOSE_tok))

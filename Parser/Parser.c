@@ -551,6 +551,7 @@ void parse_ARGS() {
 		fprintf(parser_output_file, "Rule {ARGS -> ARG_LIST}\n");
 		back_token();
 		parse_ARG_LIST();
+		break;
 	default:
 		if (parse_Follow() != 0)
 		{

@@ -847,6 +847,7 @@ void parse_TERM_TAG() {
 	case GREATER_tok:
 	case GREATER_EQUAL_tok:
 	case NOT_EQUAL_tok:
+	case ADD_OP_tok:
 		fprintf(parser_output_file, "Rule {TERM' ->  Epsilon}\n");
 		back_token();
 		break;

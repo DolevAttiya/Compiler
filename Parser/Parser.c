@@ -699,10 +699,10 @@ void error() {
 	char* tokens_names;
 	tokens_names = get_tokens_names();
 	fprintf(parser_output_file, "Expected token of type '{%s}' at line: {%d},  Actual token of type '{%s}', lexeme: '{%s}'.\n", tokens_names, current_token->lineNumber, eTokensStrings[current_token->kind], current_token->lexeme);
-	while (parse_Follow() == 0 && current_token->kind != EOF_tok)
+	do
 	{
 		current_token = next_token();
-	} 
+	} while (parse_Follow() == 0 && current_token->kind != EOF_tok);
 	back_token();
 	free(tokens_names);
 }

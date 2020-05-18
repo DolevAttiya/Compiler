@@ -9,6 +9,9 @@ int current_follow_size;
 eTOKENS* expected_token_types;
 int expected_token_types_size;
 
+int buffer_size=0;
+char* temp_buffer=NULL;
+int parser_output_file_last_position;
 FILE* parser_output_file;
 
 void parser()
@@ -73,19 +76,40 @@ void parse_PROG()
 
 	} while(1);
 
+	eTOKENS follow2[] = { INT_tok, FLOAT_tok, VOID_tok };
+	current_follow = follow2;
+	current_follow_size = 3;
 	fprintf(parser_output_file, "Rule {FUNC_PREDEFS -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
-	do {
-		parse_FUNC_PROTOTYPE();
-		current_token = next_token();
-		if (current_token->kind == SEMICOLON_tok)
-			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
-	} while (current_token->kind == SEMICOLON_tok);
+	parse_FUNC_PROTOTYPE();
+	if (match(SEMICOLON_tok))
+	{
+		do {
+			parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
+			parse_FUNC_PROTOTYPE();
+			current_token = next_token();
+			if (current_token->kind == SEMICOLON_tok)
+				fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
+		} while (current_token->kind == SEMICOLON_tok);
 
-	fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> epsilon}\n");
+		fseek(parser_output_file, parser_output_file_last_position, SEEK_SET); //Returns file position to before the last parse_FUNC_PROTOTYPE
+		while (fgetc(parser_output_file) != EOF)
+			buffer_size++;
+		temp_buffer = (char*)malloc(buffer_size + 1);
+		fseek(parser_output_file, parser_output_file_last_position, SEEK_SET); //Returns file position to before the last parse_FUNC_PROTOTYPE
+		fread(temp_buffer, 1, buffer_size, parser_output_file); //read from file seek location and save to a defined buffer
+		temp_buffer[buffer_size] = 0;
+		fseek(parser_output_file, parser_output_file_last_position, SEEK_SET); //Reset file position to the last position
+		buffer_size = 0;
+		back_token();
+		fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> epsilon}\n");
+	}
 
 	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}\n");
-	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}\n");
-	back_token();       
+	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}\n");  
+	if(temp_buffer!=NULL)
+		fprintf(parser_output_file, temp_buffer); //Append to output file
+		free(temp_buffer);
+	temp_buffer = NULL;
 	parse_COMP_STMT();
 	current_token = next_token();
 	if (current_token->kind != EOF_tok)

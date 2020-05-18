@@ -2108,14 +2108,14 @@ void yyfree (void * ptr )
 int main(){
 	yyin = fopen("C:\\temp\\test1.txt", "r" );
 	yyout = fopen("c:\\temp\\test1_206920282_313533374_205811797_lex.txt", "w" );
-	parser_output_file = fopen("c:\\temp\\test1_206920282_313533374_205811797_syntactic.txt", "w");
+	parser_output_file = fopen("c:\\temp\\test1_206920282_313533374_205811797_syntactic.txt", "w+");
     parser();
 	fclose(yyin);
 	fclose(yyout);
 	fclose(parser_output_file);
 	yyin = fopen("C:\\temp\\test2.txt", "r" );
 	yyout = fopen("c:\\temp\\test2_206920282_313533374_205811797_lex.txt", "w" );
-	parser_output_file = fopen("c:\\temp\\test2_206920282_313533374_205811797_syntactic.txt", "w");
+	parser_output_file = fopen("c:\\temp\\test2_206920282_313533374_205811797_syntactic.txt", "w+");
     parser();
 	fclose(yyin);
 	fclose(yyout);

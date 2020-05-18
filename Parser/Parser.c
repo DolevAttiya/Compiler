@@ -24,6 +24,7 @@ void parse_PROG()
 	current_follow = follow;
 	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}\n");
+
 	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}\n");
 	parse_GLOBAL_VARS();
 	do {
@@ -73,7 +74,7 @@ void parse_PROG()
 	} while(1);
 
 	fprintf(parser_output_file, "Rule {FUNC_PREDEFS -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
-	do {		
+	do {
 		parse_FUNC_PROTOTYPE();
 		current_token = next_token();
 		if (current_token->kind == SEMICOLON_tok)
@@ -89,8 +90,13 @@ void parse_PROG()
 	current_token = next_token();
 	if (current_token->kind != EOF_tok)
 	{
+		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> FUNC_FULL_DEFS}\n");
 		back_token();    
 		parse_FUNC_FULL_DEFS();
+	}
+	else
+	{
+		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> epsilon}\n");
 	}
 }
 

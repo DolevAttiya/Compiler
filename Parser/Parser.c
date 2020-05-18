@@ -103,6 +103,20 @@ void parse_PROG()
 		back_token();
 		fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> epsilon}\n");
 	}
+	else
+	{
+		parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
+		parse_FUNC_PROTOTYPE();
+		fseek(parser_output_file, parser_output_file_last_position, SEEK_SET); //Returns file position to before the last parse_FUNC_PROTOTYPE
+		while (fgetc(parser_output_file) != EOF)
+			buffer_size++;
+		temp_buffer = (char*)malloc(buffer_size + 1);
+		fseek(parser_output_file, parser_output_file_last_position, SEEK_SET); //Returns file position to before the last parse_FUNC_PROTOTYPE
+		fread(temp_buffer, 1, buffer_size, parser_output_file); //read from file seek location and save to a defined buffer
+		temp_buffer[buffer_size] = 0;
+		fseek(parser_output_file, parser_output_file_last_position, SEEK_SET);
+		buffer_size = 0;
+	}
 
 	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}\n");
 	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}\n");  

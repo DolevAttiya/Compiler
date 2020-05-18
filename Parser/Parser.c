@@ -27,23 +27,50 @@ void parse_PROG()
 	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}\n");
 	parse_GLOBAL_VARS();
 	do {
-		for(int i=0;i<3&&current_token->kind!=EOF_tok;i++,steps++) 
-			current_token=next_token();
-		if (current_token->kind != PARENTHESIS_OPEN_tok)
+		fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> VAR_DEC GLOBAL_VARS' | epsilon}\n");
+		
+		current_token = next_token(); //Checks if first token is 'void'
+		if (current_token->kind == VOID_tok || current_token->kind == EOF_tok)
 		{
+			fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> epsilon}\n");
+			back_token();
+			break;
+		}
+		back_token();
+
+		for (int i = 0; i < 3 && current_token->kind != EOF_tok; i++, steps++) // Lookahead for '{' (Means it function predefinition)
+			current_token = next_token();
+		if (current_token->kind == PARENTHESIS_OPEN_tok || current_token->kind == EOF_tok)
+		{
+			fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> epsilon}\n");
 			for (int i = 0; i < steps; i++)
 				back_token();
-			steps = 0; //steps -= i - 1
-			fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> VAR_DEC GLOBAL_VARS'}\n");
-			parse_GLOBAL_VARS();
+			break;
 		}
-	} while (current_token->kind != PARENTHESIS_OPEN_tok && current_token->kind != EOF_tok);
+		for (int i = 0; i < steps; i++)
+			back_token();
+		steps = 0;
 
+		fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> VAR_DEC GLOBAL_VARS'}\n"); //Continues regular parsing
+		eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok };
+		current_follow = follow;
+		current_follow_size = 3;
+		eTOKENS tokens[] = { INT_tok, FLOAT_tok };
+		expected_token_types = tokens;
+		expected_token_types_size = 2;
+		current_token = next_token();
+		if (current_token->kind == INT_tok || current_token->kind == FLOAT_tok)
+		{
+			back_token();
+			parse_VAR_DEC();
+		}
+		else
+		{
+			error();
+			break;
+		}
 
-	fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> epsilon}\n");
-
-	for (int i = 0; i < steps; i++)
-		back_token();
+	} while(1);
 
 	fprintf(parser_output_file, "Rule {FUNC_PREDEFS -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
 	do {		
@@ -76,7 +103,6 @@ void parse_GLOBAL_VARS()
 	eTOKENS tokens[] = { INT_tok, FLOAT_tok };
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
-
 	switch (current_token->kind)
 	{
 	case INT_tok:

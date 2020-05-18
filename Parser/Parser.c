@@ -755,7 +755,7 @@ void parse_ARG_LIST_TAG() {
 		parse_ARG_LIST_TAG();
 		break;
 	case PARENTHESIS_CLOSE_tok:
-		fprintf(parser_output_file, "Rule {DIM_SIZES' -> Epsilon}\n");
+		fprintf(parser_output_file, "Rule {ARG_LIST' -> Epsilon}\n");
 		back_token();
 		break;
 	default:

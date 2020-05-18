@@ -113,6 +113,8 @@ void parse_VAR_DEC_TAG()
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
 
+	fprintf(parser_output_file, "Rule {VAR_DEC' -> ; | [DIM_SIZES] ;}\n");
+
 	switch (current_token->kind)
 	{
 	case SEMICOLON_tok: 
@@ -141,6 +143,8 @@ void parse_TYPE()
 	eTOKENS tokens[] = { INT_tok, FLOAT_tok };
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
+
+	fprintf(parser_output_file, "Rule {TYPE -> int | float}\n");
 
 	switch (current_token->kind)
 	{
@@ -176,6 +180,8 @@ void parse_DIM_SIZES_TAG()
 	eTOKENS tokens[] = { COMMA_tok, BRACKET_CLOSE_tok };
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
+
+	fprintf(parser_output_file, "Rule {DIM_SIZES' -> , DIM_SIZES | epsilon}\n");
 
 	switch (current_token->kind)
 	{
@@ -226,6 +232,8 @@ void parse_FUNC_FULL_DEFS_TAG()
 	expected_token_types = tokens;
 	expected_token_types_size = 4;
 
+	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> FUNC_FULL_DEFS | epsilon}\n");
+
 	switch (current_token->kind)
 	{
 	case INT_tok:
@@ -261,6 +269,9 @@ void parse_RETURN_TYPE() {
 	expected_token_types = tokens;
 	expected_token_types_size = 3;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {RETURN_TYPE -> TYPE | void}\n");
+
 	switch (current_token->kind)
 	{
 	case INT_tok:
@@ -289,6 +300,9 @@ void parse_PARAMS() {
 	expected_token_types = tokens;
 	expected_token_types_size = 3;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {PARAMS -> PARAMS_LIST | epsilon}\n");
+
 	switch (current_token->kind)
 	{
 	case INT_tok:
@@ -323,6 +337,9 @@ void parse_PARAM_LIST_TAG() {
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {PARAMS_LIST' -> , PARAM PARAMS_LIST' | epsilon}\n");
+
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
@@ -361,6 +378,9 @@ void parse_PARAM_TAG() {
 	expected_token_types = tokens;
 	expected_token_types_size = 3;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES] | epsilon}\n");
+
 	switch (current_token->kind)
 	{
 	case BRACKET_OPEN_tok:
@@ -385,9 +405,11 @@ void parse_COMP_STMT() {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, EOF_tok, SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 6;
+
+	fprintf(parser_output_file, "Rule {COMP_STMT -> { VAR_DEC_LIST STMT_LIST }}\n");
+
 	if (!match(CURLY_BRACKET_OPEN_tok))
 		return;
-	fprintf(parser_output_file, "Rule {COMP_STMT -> { VAR_DEC_LIST STMT_LIST }}\n");
 	parse_VAR_DEC_LIST();
 	parse_STMT_LIST();
 	if (!match(CURLY_BRACKET_CLOSE_tok))
@@ -406,6 +428,9 @@ void parse_VAR_DEC_LIST_TAG() {
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {VAR_DEC_LIST' -> VAR_DEC VAR_DEC_LIST' | epsilon}\n");
+
 	switch (current_token->kind)
 	{
 	case INT_tok:
@@ -439,6 +464,9 @@ void parse_STMT_LIST_TAG() {
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {STMT_LIST' -> ; STMT STMT_LIST' | epsilon}\n");
+
 	switch (current_token->kind)
 	{
 	case SEMICOLON_tok:
@@ -465,6 +493,9 @@ void parse_STMT() {
 	expected_token_types = tokens;
 	expected_token_types_size = 4;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {STMT -> id VAR_OR_CALL | COMP_STMT | IF_STMT | RETURN_STMT}\n");
+
 	switch (current_token->kind)
 	{
 	case ID_tok:
@@ -499,6 +530,9 @@ void parse_VAR_OR_CALL() {
 	expected_token_types = tokens;
 	expected_token_types_size = 3;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS) | VAR' = EXPR}\n");
+
 	switch (current_token->kind)
 	{
 	case PARENTHESIS_OPEN_tok:
@@ -508,15 +542,12 @@ void parse_VAR_OR_CALL() {
 			return;
 		break;
 	case BRACKET_OPEN_tok:
+	case ASSIGNMENT_OP_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}\n");
 		back_token();
 		parse_VAR_TAG();
 		if (!match(ASSIGNMENT_OP_tok))
 			return;
-		parse_EXPR();
-		break;
-	case ASSIGNMENT_OP_tok:
-		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}\n");
 		parse_EXPR();
 		break;
 	default:
@@ -546,6 +577,9 @@ void parse_ARGS() {
 	expected_token_types = tokens;
 	expected_token_types_size = 5;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {ARGS -> ARG_LIST | epsilon}\n");
+
 	switch (current_token->kind)
 	{
 	case ID_tok:
@@ -640,6 +674,9 @@ void parse_ARG_LIST_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 2;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST' | Epsilon}\n");
+
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
@@ -672,6 +709,9 @@ void parse_RETURN_STMT_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 6;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR | Epsilon}\n");
+
 	switch (current_token->kind)
 	{
 	case ID_tok:
@@ -706,6 +746,9 @@ void parse_VAR_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 15;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST] | Epsilon}\n");
+
 	switch (current_token->kind) {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}\n");
@@ -749,6 +792,9 @@ void parse_EXPR_LIST_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 2;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST' | Epsilon}\n");
+
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
@@ -801,6 +847,9 @@ void parse_EXPR_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 12;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {EXPR' -> + TERM EXPR' | Epsilon}\n");
+
 	switch (current_token->kind) {
 	case ADD_OP_tok:
 		fprintf(parser_output_file, "Rule {EXPR' -> + TERM EXPR'}\n");
@@ -844,6 +893,9 @@ void parse_TERM_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 13;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {TERM' ->  * FACTOR TERM' | Epsilon}\n");
+
 	switch (current_token->kind) {
 	case MUL_OP_tok:
 		fprintf(parser_output_file, "Rule {TERM' ->  * FACTOR TERM'}\n");
@@ -882,6 +934,9 @@ void parse_FACTOR() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 4;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL' | int_num | float_num | (EXPR)}\n");
+
 	switch (current_token->kind) {
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL'}\n");
@@ -919,6 +974,9 @@ void parse_VAR_OR_CALL_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 15;
 	current_token = next_token();
+
+	fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS) | VAR'}\n");
+
 	switch (current_token->kind) {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS)}\n");

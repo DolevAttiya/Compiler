@@ -84,11 +84,10 @@ void parse_PROG()
 	if (match(SEMICOLON_tok))
 	{
 		do {
+			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
 			parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
 			parse_FUNC_PROTOTYPE();
 			current_token = next_token();
-			if (current_token->kind == SEMICOLON_tok)
-				fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
 		} while (current_token->kind == SEMICOLON_tok);
 
 		fseek(parser_output_file, parser_output_file_last_position, SEEK_SET); //Returns file position to before the last parse_FUNC_PROTOTYPE
@@ -125,6 +124,7 @@ void parse_PROG()
 		free(temp_buffer);
 	temp_buffer = NULL;
 	parse_COMP_STMT();
+	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> FUNC_FULL_DEFS | epsilon}\n");
 	current_token = next_token();
 	if (current_token->kind != EOF_tok)
 	{
@@ -704,6 +704,7 @@ void error() {
 		current_token = next_token();
 	} while (parse_Follow() == 0 && current_token->kind != EOF_tok);
 	back_token();
+
 	free(tokens_names);
 }
 

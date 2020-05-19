@@ -891,8 +891,8 @@ void parse_CONDITION() {
 	parse_EXPR();
 	current_token = next_token();
 	if ((current_token->kind == LESS_tok) || (current_token->kind == LESS_EQUAL_tok) ||
-		(current_token->kind == EQUAL_tok) || (current_token == GREATER_tok) ||
-		(current_token == GREATER_EQUAL_tok) || (current_token->kind == NOT_EQUAL_tok))
+		(current_token->kind == EQUAL_tok) || (current_token->kind == GREATER_tok) ||
+		(current_token->kind == GREATER_EQUAL_tok) || (current_token->kind == NOT_EQUAL_tok))
 		parse_EXPR();
 	else
 	{

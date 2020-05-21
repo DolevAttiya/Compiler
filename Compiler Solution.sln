@@ -7,6 +7,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Parser", "Parser\Parser.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lexical Analyzer", "Lexical Analyzer\Lexical Analyzer.vcxproj", "{BB99D31B-D2D3-4C4D-B977-95FC7608EE10}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{93348829-93EB-4DC3-A83C-12A5C2B13F77}"
+	ProjectSection(SolutionItems) = preProject
+		Lexical Analyzer\Resources\information.txt = Lexical Analyzer\Resources\information.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

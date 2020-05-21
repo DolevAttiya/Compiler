@@ -23,9 +23,6 @@
     <ClCompile Include="Token\Token.c" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\information.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Token\Token.h" />
   </ItemGroup>
   <ItemGroup>

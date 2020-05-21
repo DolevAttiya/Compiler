@@ -20,11 +20,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\information.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Token\Token.h">
       <Filter>Header Files</Filter>
     </ClInclude>

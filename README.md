@@ -7,3 +7,6 @@ Amazing book about Flex - https://www.iith.ac.in/~ramakrishna/Compilers-Aug14/do
 [Optimized Grammar](https://github.com/DolevAttiya/Compiler/files/4564815/Grammar.Fixed.docx)
 
 [Nullable, First and Follow](https://github.com/DolevAttiya/Compiler/files/4567302/params.xlsx)
+
+## Semantic analyser related To Do 6.6.2020
+[Flutzy](https://github.com/DolevAttiya/Compiler/files/4696492/compilation.txt)

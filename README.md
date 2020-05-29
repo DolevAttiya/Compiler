@@ -9,6 +9,4 @@ Amazing book about Flex - https://www.iith.ac.in/~ramakrishna/Compilers-Aug14/do
 [Nullable, First and Follow](https://github.com/DolevAttiya/Compiler/files/4567302/params.xlsx)
 
 ## Semantic analyzer related content: 
-To do until 6.6.2020:
-
-[Checklist](https://github.com/DolevAttiya/Compiler/files/4696492/compilation.txt)
+To do until 6.6.2020: [Checklist](https://github.com/DolevAttiya/Compiler/files/4696492/compilation.txt)

@@ -1,5 +1,6 @@
 ## Lexical analyzer related content:
-https://rosettacode.org/wiki/Compiler/lexical_analyzer <br/>
+https://rosettacode.org/wiki/Compiler/lexical_analyzer
+
 Amazing book about Flex - https://www.iith.ac.in/~ramakrishna/Compilers-Aug14/doc/flex.pdf
 
 ## Parser related content:

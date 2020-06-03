@@ -16,6 +16,9 @@
     <Filter Include="SYMBOL_TABLE_ENTRY">
       <UniqueIdentifier>{6e44933d-b840-4a84-b471-af265745ccf7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HASH_TABLE">
+      <UniqueIdentifier>{befa2c8e-0a4e-4988-abc7-8ea2293f2611}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.c">
@@ -24,6 +27,9 @@
     <ClCompile Include="SYMBOL_TABLE_ENTRY\INTERNAL FUNCTIONS.c">
       <Filter>SYMBOL_TABLE_ENTRY</Filter>
     </ClCompile>
+    <ClCompile Include="HashMap.c">
+      <Filter>HASH_TABLE</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.h">
@@ -31,6 +37,9 @@
     </ClInclude>
     <ClInclude Include="SYMBOL_TABLE_ENTRY\INTERNAL FUNCTIONS.h">
       <Filter>SYMBOL_TABLE_ENTRY</Filter>
+    </ClInclude>
+    <ClInclude Include="Hashmap.h">
+      <Filter>HASH_TABLE</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

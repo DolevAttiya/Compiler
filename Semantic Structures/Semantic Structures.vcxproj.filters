@@ -13,5 +13,24 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="SYMBOL_TABLE_ENTRY">
+      <UniqueIdentifier>{6e44933d-b840-4a84-b471-af265745ccf7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.c">
+      <Filter>SYMBOL_TABLE_ENTRY</Filter>
+    </ClCompile>
+    <ClCompile Include="SYMBOL_TABLE_ENTRY\INTERNAL FUNCTIONS.c">
+      <Filter>SYMBOL_TABLE_ENTRY</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.h">
+      <Filter>SYMBOL_TABLE_ENTRY</Filter>
+    </ClInclude>
+    <ClInclude Include="SYMBOL_TABLE_ENTRY\INTERNAL FUNCTIONS.h">
+      <Filter>SYMBOL_TABLE_ENTRY</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

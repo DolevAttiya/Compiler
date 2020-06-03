@@ -138,6 +138,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SYMBOL_TABLE_ENTRY\INTERNAL FUNCTIONS.c" />
+    <ClCompile Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SYMBOL_TABLE_ENTRY\INTERNAL FUNCTIONS.h" />
+    <ClInclude Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

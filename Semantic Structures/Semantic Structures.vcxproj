@@ -139,11 +139,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HashMap.c" />
+    <ClCompile Include="Linked List.c" />
     <ClCompile Include="SYMBOL_TABLE_ENTRY\INTERNAL FUNCTIONS.c" />
     <ClCompile Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Hashmap.h" />
+    <ClInclude Include="Linked List.h" />
     <ClInclude Include="SYMBOL_TABLE_ENTRY\INTERNAL FUNCTIONS.h" />
     <ClInclude Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.h" />
   </ItemGroup>

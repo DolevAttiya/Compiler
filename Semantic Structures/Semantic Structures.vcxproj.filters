@@ -19,6 +19,9 @@
     <Filter Include="HASH_TABLE">
       <UniqueIdentifier>{befa2c8e-0a4e-4988-abc7-8ea2293f2611}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LINKED_LIST">
+      <UniqueIdentifier>{0ca3d84d-b21e-47d3-b90d-38cd81654402}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.c">
@@ -30,6 +33,9 @@
     <ClCompile Include="HashMap.c">
       <Filter>HASH_TABLE</Filter>
     </ClCompile>
+    <ClCompile Include="Linked List.c">
+      <Filter>LINKED_LIST</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.h">
@@ -40,6 +46,9 @@
     </ClInclude>
     <ClInclude Include="Hashmap.h">
       <Filter>HASH_TABLE</Filter>
+    </ClInclude>
+    <ClInclude Include="Linked List.h">
+      <Filter>LINKED_LIST</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -273,14 +273,10 @@ void removeList(struct linkedList* lst, TYPE e) {
 	return;
 }
 
-/*	Comapare 
-	if it occurs
-	param:	lst		pointer to the bag
-	param:	e		the value to be removed from the bag
-	pre:	lst is not null
-	pre:	lst is not empty
-	post:	e has been removed
-	post:	size of the bag is reduced by 1
+/*	Comapare hashTable's keys
+	param:	first		hashTable to compare
+	param:	second		hashTable to compare
+	post:	return 1 if they are the same 0 if there is a diffrence
 */
 int compareTYPEValues(TYPE first, TYPE second)
 {
@@ -290,15 +286,17 @@ int compareTYPEValues(TYPE first, TYPE second)
 	{
 		hashLink* firsthash = first.table;// get the first hash
 		hashLink* secondhash = second.table;// get the first hash
-		while (firsthash->next != NULL && secondhash->next != NULL) // while
+		while (firsthash->next != NULL && secondhash->next != NULL) // while one of the entries is not null
 		{
-			if (!strcmp(firsthash->key, secondhash->key))
+			if (!strcmp(firsthash->key, secondhash->key)) // if the keys are the same
 			{
+				//move to the next entry
 				firsthash = firsthash->next;
 				secondhash = secondhash->next;
 			}
 			else return 0;
 		}
+		//if both of the hashes had ended
 		if (firsthash->next == NULL && secondhash->next == NULL)
 			return 1;
 	}

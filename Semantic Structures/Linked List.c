@@ -240,7 +240,7 @@ int containsList(struct linkedList* lst, TYPE e) {
 	assert(!isEmptyList(lst));
 	while (current->next != lst->lastLink) {
 		current = current->next;
-		if (current->value == e)
+		if (compareTYPEValues(current->value , e))
 			return 1;
 	}
 
@@ -263,7 +263,7 @@ void removeList(struct linkedList* lst, TYPE e) {
 	assert(!isEmptyList(lst));
 	while (current->next != lst->lastLink) {
 		current = current->next;
-		if (current->value == e) {
+		if (compareTYPEValues(current->value, e)) {
 			_removeLink(lst, current);
 			return;
 		}
@@ -271,4 +271,37 @@ void removeList(struct linkedList* lst, TYPE e) {
 	}
 
 	return;
+}
+
+/*	Comapare 
+	if it occurs
+	param:	lst		pointer to the bag
+	param:	e		the value to be removed from the bag
+	pre:	lst is not null
+	pre:	lst is not empty
+	post:	e has been removed
+	post:	size of the bag is reduced by 1
+*/
+int compareTYPEValues(TYPE first, TYPE second)
+{
+	//check the simple parameters in the hash table
+	if (first.count == second.count && first.tableSize == second.tableSize)
+
+	{
+		hashLink* firsthash = first.table;// get the first hash
+		hashLink* secondhash = second.table;// get the first hash
+		while (firsthash->next != NULL && secondhash->next != NULL) // while
+		{
+			if (!strcmp(firsthash->key, secondhash->key))
+			{
+				firsthash = firsthash->next;
+				secondhash = secondhash->next;
+			}
+			else return 0;
+		}
+		if (firsthash->next == NULL && secondhash->next == NULL)
+			return 1;
+	}
+	return 0;
+
 }

@@ -94,7 +94,6 @@ void _freeMap(struct hashMap* ht) {
             ht->count--;
 
             /* Move to next link */
-            assert(nextLink);
             currLink = nextLink;
             if (currLink != 0)
                 nextLink = currLink->next;

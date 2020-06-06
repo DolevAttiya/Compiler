@@ -3,7 +3,7 @@
 # define HashMap
 #include"SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
 # define KeyType char*
-# define ValueType SYMBOL_TABLE_ENTRY
+# define ValueType SYMBOL_TABLE_ENTRY*
 
 /*
  this is useful for you in answering the questions. if your write your code such
@@ -41,12 +41,12 @@ int stringHash1(char* str);
 int stringHash2(char* str);
 
 /*initialize the supplied hashMap struct*/
-void initMap(struct hashMap* ht, int tableSize);
+//void initMap(struct hashMap* ht, int tableSize);
 
 struct hashMap* createMap(int tableSize);
 
 
-void freeMap(struct hashMap* ht);
+//void freeMap(struct hashMap* ht);
 /*
  free all memory used for your hashMap, but do not free the pointer to ht. you
  can see why this would not work by examining main(). the hashMap passed into
@@ -110,9 +110,8 @@ int emptyBuckets(struct hashMap* ht);
  */
 float tableLoad(struct hashMap* ht);
 
-void printMap(struct hashMap* ht);
+//void printMap(struct hashMap* ht);
 
-void printValue(ValueType v);
 
 
 # endif

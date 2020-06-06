@@ -73,7 +73,7 @@ hashMap* createMap(int tableSize) {
  */
 void _freeMap(struct hashMap* ht) {
     int i = 0;
-    struct hashLink* currLink, * nextLink;
+    struct hashLink* currLink, * nextLink=NULL;
 
     /* Scan each bucket for hashLinks and remove all hashLinks */
     for (i = 0; i < ht->tableSize; i++) {
@@ -94,6 +94,7 @@ void _freeMap(struct hashMap* ht) {
             ht->count--;
 
             /* Move to next link */
+            assert(nextLink);
             currLink = nextLink;
             if (currLink != 0)
                 nextLink = currLink->next;
@@ -338,7 +339,7 @@ float tableLoad(struct hashMap* ht) {
     return loadRatio;
 }
 
-void printMap(struct hashMap* ht)
+/*void printMap(struct hashMap* ht)
 {
     int i;
     struct hashLink* temp;
@@ -354,5 +355,4 @@ void printMap(struct hashMap* ht)
             temp = temp->next;
         }
     }
-}
-
+}*/

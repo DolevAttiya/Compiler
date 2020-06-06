@@ -183,19 +183,6 @@ int isEmptyList( linkedList* lst) {
 }
 
 
-/* Function to print list
- Pre: lst is not null
- */
-void _printList( linkedList* lst) {
-	 DLink* current = lst->firstLink;
-
-	assert(lst->firstLink);
-	while (current->next != lst->lastLink) {
-		current = current->next;
-		printf("%d\n", current->value);
-	}
-}
-
 /*
 	Add an item to the bag
 	param: 	lst		pointer to the bag

@@ -4,21 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* Double Link*/
-struct DLink {
-	TYPE value;
-	struct DLink* next;
-	struct DLink* prev;
-};
-
-/* Double Linked List with Head and Tail Sentinels  */
-
-struct linkedList {
-	int size;
-	struct DLink* firstLink;
-	struct DLink* lastLink;
-};
-
 /*
 	initList
 	param lst the linkedList
@@ -26,10 +11,10 @@ struct linkedList {
 	post: lst size is 0
 */
 
-void _initList(struct linkedList* lst) {
-	lst->firstLink = malloc(sizeof(struct DLink));
+void _initList( linkedList* lst) {
+	lst->firstLink = malloc(sizeof( DLink));
 	assert(lst->firstLink != 0);
-	lst->lastLink = malloc(sizeof(struct DLink));
+	lst->lastLink = malloc(sizeof( DLink));
 	assert(lst->lastLink);
 	lst->firstLink->next = lst->lastLink;
 	lst->lastLink->prev = lst->firstLink;
@@ -43,8 +28,8 @@ void _initList(struct linkedList* lst) {
  post: firstLink and lastLink reference sentinels
  */
 
-struct linkedList* createLinkedList() {
-	struct linkedList* newList = malloc(sizeof(struct linkedList));
+ linkedList* createLinkedList() {
+	 linkedList* newList = malloc(sizeof( linkedList));
 	_initList(newList);
 	return(newList);
 }
@@ -61,9 +46,9 @@ struct linkedList* createLinkedList() {
 
 /* Adds Before the provided link, l */
 
-void _addLinkBefore(struct linkedList* lst, struct DLink* l, TYPE v) {
-	struct DLink* prevLink = l->prev;
-	struct DLink* newLink = (struct DLink*)malloc(sizeof(struct DLink));
+void _addLinkBefore( linkedList* lst,  DLink* l, TYPE v) {
+	 DLink* prevLink = l->prev;
+	 DLink* newLink = ( DLink*)malloc(sizeof( DLink));
 
 	assert(lst);
 	/*assign newLink attributes*/
@@ -87,7 +72,7 @@ void _addLinkBefore(struct linkedList* lst, struct DLink* l, TYPE v) {
 	post: lst is not empty, increased size by 1
 */
 
-void addFrontList(struct linkedList* lst, TYPE e) {
+void addFrontList( linkedList* lst, TYPE e) {
 	assert(lst);
 	_addLinkBefore(lst, lst->firstLink->next, e);
 }
@@ -100,7 +85,7 @@ void addFrontList(struct linkedList* lst, TYPE e) {
 	post: lst is not empty, increased size by 1
 */
 
-void addBackList(struct linkedList* lst, TYPE e) {
+void addBackList( linkedList* lst, TYPE e) {
 	assert(lst);
 	_addLinkBefore(lst, lst->lastLink, e);
 }
@@ -113,7 +98,7 @@ void addBackList(struct linkedList* lst, TYPE e) {
 	post: none
 */
 
-TYPE frontList(struct linkedList* lst) {
+TYPE frontList( linkedList* lst) {
 	assert(lst);
 	assert(lst->size > 0);
 
@@ -128,7 +113,7 @@ TYPE frontList(struct linkedList* lst) {
 	post: lst is not empty
 */
 
-TYPE backList(struct linkedList* lst) {
+TYPE backList( linkedList* lst) {
 	assert(lst);
 	assert(lst->size > 0);
 
@@ -144,9 +129,9 @@ TYPE backList(struct linkedList* lst) {
 	post: lst size is reduced by 1
 */
 
-void _removeLink(struct linkedList* lst, struct DLink* l) {
-	struct DLink* prevLink = l->prev;
-	struct DLink* nextLink = l->next;
+void _removeLink( linkedList* lst,  DLink* l) {
+	 DLink* prevLink = l->prev;
+	 DLink* nextLink = l->next;
 
 	assert(lst);
 
@@ -165,7 +150,7 @@ void _removeLink(struct linkedList* lst, struct DLink* l) {
 	post: size is reduced by 1
 */
 
-void removeFrontList(struct linkedList* lst) {
+void removeFrontList( linkedList* lst) {
 	assert(lst);
 	assert(!isEmptyList(lst));
 	_removeLink(lst, lst->firstLink->next);
@@ -179,7 +164,7 @@ void removeFrontList(struct linkedList* lst) {
 	post: size reduced by 1
 */
 
-void removeBackList(struct linkedList* lst) {
+void removeBackList( linkedList* lst) {
 	assert(lst);
 	assert(!isEmptyList(lst));
 	_removeLink(lst, lst->lastLink->prev);
@@ -192,7 +177,7 @@ void removeBackList(struct linkedList* lst) {
 	post: none
 */
 
-int isEmptyList(struct linkedList* lst) {
+int isEmptyList( linkedList* lst) {
 	assert(lst);
 	return lst->size == 0;
 }
@@ -201,8 +186,8 @@ int isEmptyList(struct linkedList* lst) {
 /* Function to print list
  Pre: lst is not null
  */
-void _printList(struct linkedList* lst) {
-	struct DLink* current = lst->firstLink;
+void _printList( linkedList* lst) {
+	 DLink* current = lst->firstLink;
 
 	assert(lst->firstLink);
 	while (current->next != lst->lastLink) {
@@ -218,7 +203,7 @@ void _printList(struct linkedList* lst) {
 	pre:	lst is not null
 	post:	a link storing val is added to the bag
  */
-void addList(struct linkedList* lst, TYPE v) {
+void addList( linkedList* lst, TYPE v) {
 	assert(lst);
 	addFrontList(lst, v);
 }
@@ -233,8 +218,8 @@ void addList(struct linkedList* lst, TYPE v) {
 	pre:	lst is not empty
 	post:	no changes to the bag
 */
-int containsList(struct linkedList* lst, TYPE e) {
-	struct DLink* current = lst->firstLink;
+int containsList( linkedList* lst, TYPE e) {
+	 DLink* current = lst->firstLink;
 
 	assert(lst);
 	assert(!isEmptyList(lst));
@@ -256,8 +241,8 @@ int containsList(struct linkedList* lst, TYPE e) {
 	post:	e has been removed
 	post:	size of the bag is reduced by 1
 */
-void removeList(struct linkedList* lst, TYPE e) {
-	struct DLink* current = lst->firstLink->next;
+void removeList( linkedList* lst, TYPE e) {
+	 DLink* current = lst->firstLink->next;
 
 	assert(lst);
 	assert(!isEmptyList(lst));
@@ -281,11 +266,11 @@ void removeList(struct linkedList* lst, TYPE e) {
 int compareTYPEValues(TYPE first, TYPE second)
 {
 	//check the simple parameters in the hash table
-	if (first.count == second.count && first.tableSize == second.tableSize)
+	if (first->count == second->count && first->tableSize == second->tableSize)
 
 	{
-		hashLink* firsthash = first.table;// get the first hash
-		hashLink* secondhash = second.table;// get the first hash
+		hashLink* firsthash = first->table;// get the first hash
+		hashLink* secondhash = second->table;// get the first hash
 		while (firsthash->next != NULL && secondhash->next != NULL) // while one of the entries is not null
 		{
 			if (!strcmp(firsthash->key, secondhash->key)) // if the keys are the same

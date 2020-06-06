@@ -356,5 +356,3 @@ float tableLoad(struct hashMap* ht) {
         }
     }
 }*/
-
-int main() {}

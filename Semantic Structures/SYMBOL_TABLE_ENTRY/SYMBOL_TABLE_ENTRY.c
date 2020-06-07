@@ -4,6 +4,8 @@
 
 #include <string.h>
 
+#include <stdlib.h>
+
 void set_id_name(SYMBOL_TABLE_ENTRY* entry, const char* name)
 {
 	entry->Name = _strdup(name);
@@ -58,7 +60,7 @@ ListNode* get_parameter_types(SYMBOL_TABLE_ENTRY* entry)
 
 SYMBOL_TABLE_ENTRY* create_new_symbol_table_entry()
 {
-	SYMBOL_TABLE_ENTRY* entry = (SYMBOL_TABLE_ENTRY*)calloc(sizeof(SYMBOL_TABLE_ENTRY));
+	SYMBOL_TABLE_ENTRY* entry = (SYMBOL_TABLE_ENTRY*)calloc(1, sizeof(SYMBOL_TABLE_ENTRY));
 	return entry;
 }
 

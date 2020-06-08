@@ -6,4 +6,5 @@
 
 table_entry insert(table_ptr current_table, char* id_name);
 table_entry lookup(table_ptr current_table, char* id_name);
+void error();
 void AssafTest();

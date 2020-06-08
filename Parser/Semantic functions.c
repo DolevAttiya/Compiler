@@ -14,6 +14,7 @@ table_entry insert(table_ptr current_table, char* id_name)
 		entry = create_new_symbol_table_entry();
 		set_id_name(entry, id_name);
 		insertMap(current_table, id_name, entry);
+		return entry;
 	}
 }
 
@@ -22,7 +23,7 @@ table_entry lookup(table_ptr current_table, char* id_name)
 	return atMap(current_table, id_name);
 }
 
-void error(char *message)
+void semantic_error(char *message)
 {
 
 }

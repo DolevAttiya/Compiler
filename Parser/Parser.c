@@ -35,7 +35,7 @@ void parse_PROG()
 	parse_GLOBAL_VARS();
 	do {
 		fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> VAR_DEC GLOBAL_VARS' | epsilon}\n");
-		
+	
 		current_token = next_token(); //Checks if first token is 'void'
 		if (current_token->kind == VOID_tok || current_token->kind == EOF_tok)
 		{
@@ -45,7 +45,7 @@ void parse_PROG()
 		}
 		back_token();
 
-		for (int i = 0; i < 3 && current_token->kind != EOF_tok; i++, steps++) // Lookahead for '{' (Means it function predefinition)
+		for (int i = 0; i < 3 && current_token->kind != EOF_tok; i++, steps++) // Lookahead for '(' (Meaning it's a function predefinition)
 			current_token = next_token();
 		if (current_token->kind == PARENTHESIS_OPEN_tok || current_token->kind == EOF_tok)
 		{

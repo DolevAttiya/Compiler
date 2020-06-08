@@ -1,18 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="SYMBOL_TABLE_ENTRY">
       <UniqueIdentifier>{6e44933d-b840-4a84-b471-af265745ccf7}</UniqueIdentifier>
     </Filter>
@@ -30,10 +18,10 @@
     <ClCompile Include="SYMBOL_TABLE_ENTRY\INTERNAL FUNCTIONS.c">
       <Filter>SYMBOL_TABLE_ENTRY</Filter>
     </ClCompile>
-    <ClCompile Include="HashMap.c">
+    <ClCompile Include="Hashmap\Hashmap.c">
       <Filter>HASH_TABLE</Filter>
     </ClCompile>
-    <ClCompile Include="Linked List.c">
+    <ClCompile Include="Linked List\Linked List.c">
       <Filter>LINKED_LIST</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,10 +32,10 @@
     <ClInclude Include="SYMBOL_TABLE_ENTRY\INTERNAL FUNCTIONS.h">
       <Filter>SYMBOL_TABLE_ENTRY</Filter>
     </ClInclude>
-    <ClInclude Include="Hashmap.h">
+    <ClInclude Include="Hashmap\Hashmap.h">
       <Filter>HASH_TABLE</Filter>
     </ClInclude>
-    <ClInclude Include="Linked List.h">
+    <ClInclude Include="Linked List\Linked List.h">
       <Filter>LINKED_LIST</Filter>
     </ClInclude>
   </ItemGroup>

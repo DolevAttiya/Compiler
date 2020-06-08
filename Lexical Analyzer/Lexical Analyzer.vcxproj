@@ -29,6 +29,9 @@
     <ProjectReference Include="..\Parser\Parser.vcxproj">
       <Project>{489daa90-17b9-490d-8e09-14c87d6a31a5}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Semantic Structures\Semantic Structures.vcxproj">
+      <Project>{cfe71c15-f422-4d1f-b024-d8034cd87c8b}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\flex_rules.lex" />

@@ -2,6 +2,8 @@
 char* eTokensStrings[];
 #include "Parser.h"
 #include <string.h>
+#include "../Semantic Structures/SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
+#include "Semantic functions.h"
 
 Token* current_token;
 eTOKENS* current_follow;
@@ -16,6 +18,7 @@ FILE* parser_output_file;
 
 void parser()
 {
+	AssafTest();
 	parse_PROG();
 	clean_token_storage();
 }

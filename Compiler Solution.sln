@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Parser", "Parser\Parser.vcxproj", "{489DAA90-17B9-490D-8E09-14C87D6A31A5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CFE71C15-F422-4D1F-B024-D8034CD87C8B} = {CFE71C15-F422-4D1F-B024-D8034CD87C8B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lexical Analyzer", "Lexical Analyzer\Lexical Analyzer.vcxproj", "{BB99D31B-D2D3-4C4D-B977-95FC7608EE10}"
 EndProject

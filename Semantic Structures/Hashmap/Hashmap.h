@@ -1,7 +1,7 @@
 #pragma once
 # ifndef HashMap
 # define HashMap
-#include"SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
+#include "../SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
 # define KeyType char*
 # define ValueType SYMBOL_TABLE_ENTRY*
 

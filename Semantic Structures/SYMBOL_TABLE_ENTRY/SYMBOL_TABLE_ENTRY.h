@@ -12,7 +12,10 @@ typedef enum Role
 typedef enum Type
 {
 	Integer,
-	Float
+	Float,
+	IntArray,
+	FloatArray,
+	Void
 } Type;
 
 typedef struct ListNode
@@ -55,6 +58,8 @@ ListNode* get_dimensions_of_array(SYMBOL_TABLE_ENTRY* entry);
 void add_parameter_type_to_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry, Type type);
 
 ListNode* get_parameter_types(SYMBOL_TABLE_ENTRY* entry);
+
+int is_parameter_name_exist(SYMBOL_TABLE_ENTRY* entry, char* parameter_name);
 
 SYMBOL_TABLE_ENTRY* create_new_symbol_table_entry();
 

@@ -1,12 +1,21 @@
 #include "Semantic functions.h"
+#define symbol_table value
 
-table_entry insert(table_ptr current_table, char* id_name)
+void semantic_error(char* message);
+table_entry _get_current_table();
+void _free_current_table_with_contents_from_list();
+
+
+//SEMANTIC ANALYZER INTERFACE
+table_entry insert(char* id_name)
 {
+	table_ptr current_table = _get_current_table();
 	table_entry entry;
-	entry = lookup(current_table, id_name);
+
+	entry = lookup(id_name);
 	if (entry != NULL)
 	{
-		error("Duplicated declaration");
+		semantic_error("Duplicated declaration");
 		return NULL;
 	}
 	else
@@ -18,21 +27,93 @@ table_entry insert(table_ptr current_table, char* id_name)
 	}
 }
 
-table_entry lookup(table_ptr current_table, char* id_name)
+table_entry lookup(char* id_name)
 {
+	table_ptr current_table = _get_current_table();
 	return atMap(current_table, id_name);
 }
 
-void semantic_error(char *message)
-{
-
+table_ptr make_table() 
+{ 
+	table_ptr tab = createMap(1);
+	addBackList(symbolTableList, tab);
+	return tab; 
 }
 
+table_ptr pop_table()
+{
+	_free_current_table_with_contents_from_list();
+	return _get_current_table();
+}
+
+table_entry find(char* id_name)
+{
+	DLink* node = symbolTableList->lastLink->prev;
+	table_entry id_entry;
+
+	while (node != symbolTableList->firstLink)
+	{
+		id_entry = lookup(node->symbol_table, id_name);
+		if (id_entry != NULL)
+			return id_entry;
+		else
+			node = node->prev;
+	}
+	semantic_error("Undeclared identifier");
+	return NULL;
+}
+
+
+//INTERNAL FUNCTIONS
+void semantic_error(char *message)
+{
+	// Should print to the log file I guess
+}
+
+table_entry _get_current_table()
+{
+	if (symbolTableList->size != 0)
+		return symbolTableList->lastLink->prev->symbol_table;
+	else
+		return NULL;
+}
+
+void _free_current_table_with_contents_from_list()
+{
+	int i;
+	struct hashLink* currLink, * nextLink = NULL;
+	table_ptr current_table = _get_current_table();
+
+	/*Checks if there's a symbol table left*/
+	if (current_table == NULL)
+		return;
+
+	/* Frees all entries from the symbol table (Implementation copied from _freeMap() */
+	for (i = 0; i < current_table->tableSize; i++) {
+		currLink = current_table->table[i];
+		if (currLink != 0)
+			nextLink = currLink->next;
+		while (currLink != 0) {
+			free_symbol_table_entry(currLink->value);
+			currLink = nextLink;
+			if (currLink != 0)
+				nextLink = currLink->next;
+		}
+	}
+
+	/*Frees the symbol table (hashmap)*/
+	deleteMap(current_table);
+
+	/*Frees the node from the list of the symbol tables*/
+	removeBackList(symbolTableList);
+}
+
+
+//TEST
 void AssafTest()
 {
-	hashMap* ht = createMap(1);
-	SYMBOL_TABLE_ENTRY* entry = create_new_symbol_table_entry();
-	set_id_name(entry, "hello");
-	insertMap(ht,get_id_name(entry) ,entry);
-	lookup(ht, "hello2");
+	table_ptr table = make_table();
+	insert("hello");
+	lookup("hello");
+	pop_table();
 }

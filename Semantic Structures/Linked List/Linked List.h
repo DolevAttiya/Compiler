@@ -1,3 +1,4 @@
+#pragma once
 #include "../Hashmap/Hashmap.h"
 #ifndef __LISTDEQUE_H
 #define __LISTDEQUE_H

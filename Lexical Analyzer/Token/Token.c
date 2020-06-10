@@ -100,7 +100,7 @@ Token* back_token()
 		currentIndex=-1;
 	else //When the last token created is at the beginning of the array
 	{
-		currentNode = &currentNode->prev;
+		currentNode = currentNode->prev;
 		currentIndex = TOKEN_ARRAY_SIZE - 1;
 	}
 	return NULL;
@@ -149,4 +149,6 @@ void clean_token_storage()
 		free(currentNode);
 		currentNode = prevNode;
 	}
+	currentNode = NULL;
+	currentIndex = 0;
 }

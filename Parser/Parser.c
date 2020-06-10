@@ -74,7 +74,7 @@ void parse_PROG()
 		else
 		{
 			error();
-			break;
+			//break
 		}
 
 	} while(1);
@@ -83,8 +83,9 @@ void parse_PROG()
 	current_follow = follow2;
 	current_follow_size = 3;
 	fprintf(parser_output_file, "Rule {FUNC_PREDEFS -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
-	parse_FUNC_PROTOTYPE();
+ 	parse_FUNC_PROTOTYPE();
 	current_follow = follow2;
+	current_follow_size = 3;
 	if (match(SEMICOLON_tok))
 	{
 		do {
@@ -173,6 +174,7 @@ void parse_VAR_DEC()
 	fprintf(parser_output_file, "Rule {VAR_DEC -> TYPE id VAR_DEC'}\n");
 	parse_TYPE();
 	current_follow = follow;
+	current_follow_size = 7;
 	if (!match(ID_tok))
 		return;
 	parse_VAR_DEC_TAG();	
@@ -199,6 +201,7 @@ void parse_VAR_DEC_TAG()
 		fprintf(parser_output_file, "Rule {VAR_DEC' -> [DIM_SIZES] ;}\n");
 		parse_DIM_SIZES();
 		current_follow = follow;
+		current_follow_size = 7;
 		if (!match(BRACKET_CLOSE_tok))
 			return;
 		if (!match(SEMICOLON_tok))
@@ -283,12 +286,14 @@ void parse_FUNC_PROTOTYPE()
 	fprintf(parser_output_file, "Rule {FUNC_PROTOTYPE -> RETURN_TYPE id (PARAMS)}\n");
 	parse_RETURN_TYPE();
 	current_follow = follow;
+	current_follow_size = 2;
 	if (!match(ID_tok))
 		return;
 	if (!match(PARENTHESIS_OPEN_tok))
 		return;
 	parse_PARAMS();
 	current_follow = follow;
+	current_follow_size = 2;
 	if (!match(PARENTHESIS_CLOSE_tok))
 		return;
 }
@@ -444,6 +449,7 @@ void parse_PARAM() {
 	fprintf(parser_output_file, "Rule {PARAM -> TYPE id PARAM'}\n");
 	parse_TYPE();
 	current_follow = follow;
+	current_follow_size = 2;
 	if (!match(ID_tok))
 		return;
 	parse_PARAM_TAG();
@@ -466,6 +472,7 @@ void parse_PARAM_TAG() {
 		fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES]}\n");
 		parse_DIM_SIZES();
 		current_follow = follow;
+		current_follow_size = 2;
 		if (!match(BRACKET_CLOSE_tok))
 			return;
 		break;
@@ -492,6 +499,7 @@ void parse_COMP_STMT() {
 	parse_VAR_DEC_LIST();
 	parse_STMT_LIST();
 	current_follow = follow;
+	current_follow_size = 6;
 	if (!match(CURLY_BRACKET_CLOSE_tok))
 		return;
 }
@@ -619,6 +627,7 @@ void parse_VAR_OR_CALL() {
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS)}\n");
 		parse_ARGS();
 		current_follow = follow;
+		current_follow_size = 2;
 		if (!match(PARENTHESIS_CLOSE_tok))
 			return;
 		break;
@@ -628,6 +637,7 @@ void parse_VAR_OR_CALL() {
 		back_token();
 		parse_VAR_TAG();
 		current_follow = follow;
+		current_follow_size = 2;
 		if (!match(ASSIGNMENT_OP_tok))
 			return;
 		parse_EXPR();
@@ -648,6 +658,7 @@ void parse_IF_STMT() {
 		return;
 	parse_CONDITION();
 	current_follow = follow;
+	current_follow_size = 2;
 	if (!match(PARENTHESIS_CLOSE_tok))
 		return;
 	parse_STMT();
@@ -884,8 +895,6 @@ void parse_EXPR_LIST_TAG() {
 	{
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}\n");
-		if(!match(COMMA_tok))
-			return;
 		parse_EXPR();
 		parse_EXPR_LIST_TAG();
 		break;

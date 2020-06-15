@@ -908,8 +908,11 @@ void parse_EXPR_LIST_TAG() {
 	}
 }
 void parse_CONDITION() {
+	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
+	current_follow = follow;
+	current_follow_size = 1;
 	eTOKENS expected_tokens[] = { LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok,
-											GREATER_EQUAL_tok, NOT_EQUAL_tok };
+											GREATER_EQUAL_tok, NOT_EQUAL_tok , PARENTHESIS_CLOSE_tok };
 	fprintf(parser_output_file, "Rule {CONDITION -> EXPR rel_op EXPR}\n");
 	parse_EXPR();
 	current_token = next_token();
@@ -920,7 +923,7 @@ void parse_CONDITION() {
 	else
 	{
 		expected_token_types = expected_tokens;
-		expected_token_types_size = 6;
+		expected_token_types_size = 7;
 		error();
 	}
 }

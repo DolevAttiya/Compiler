@@ -915,6 +915,8 @@ void parse_CONDITION() {
 											GREATER_EQUAL_tok, NOT_EQUAL_tok , PARENTHESIS_CLOSE_tok };
 	fprintf(parser_output_file, "Rule {CONDITION -> EXPR rel_op EXPR}\n");
 	parse_EXPR();
+	current_follow = follow;
+	current_follow_size = 1;
 	current_token = next_token();
 	if ((current_token->kind == LESS_tok) || (current_token->kind == LESS_EQUAL_tok) ||
 		(current_token->kind == EQUAL_tok) || (current_token->kind == GREATER_tok) ||

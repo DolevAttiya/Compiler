@@ -12,3 +12,5 @@ table_ptr make_table();
 table_ptr pop_table();
 table_entry find(char* id_name);
 void AssafTest();
+void semantic_error(char* message);
+int check_types_equality(ListNode*, ListNode*);

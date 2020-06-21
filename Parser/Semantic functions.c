@@ -117,3 +117,37 @@ void AssafTest()
 	lookup("hello");
 	pop_table();
 }
+
+/*
+in : 2 ListNodes *
+out : 
+		0 - both types and size are the same
+		1 - one of the types isnt the same
+		2 - not same length of args
+		3 - not the same length and not all of the types are the same
+*/
+int check_types_equality(ListNode* id_parameters, ListNode* args) 
+{
+	int flag = 0;
+	if (id_parameters == NULL && args == NULL)
+		return 0;
+	else {
+		if (id_parameters == NULL || args == NULL)
+			return 2;
+		else
+		{
+			if (id_parameters->type != args->type)
+				flag = 1;
+			while (id_parameters->next != NULL && args->next != NULL)
+			{
+				id_parameters = id_parameters->next;
+				args= args->next;
+				if (id_parameters->type != args->type)
+					flag = 1;
+			}
+			if ((id_parameters->next == NULL && args->next != NULL) || (id_parameters->next != NULL && args->next == NULL))
+				return 2+flag;
+			return 0;
+		}
+	}
+}

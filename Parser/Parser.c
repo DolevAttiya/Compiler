@@ -30,7 +30,7 @@ void parse_PROG()
 	current_follow = follow;
 	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}\n");
-
+	
 	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}\n");
 	parse_GLOBAL_VARS();
 	do {
@@ -172,11 +172,12 @@ void parse_VAR_DEC()
 	current_follow_size = 7;
 
 	fprintf(parser_output_file, "Rule {VAR_DEC -> TYPE id VAR_DEC'}\n");
-	parse_TYPE();
+	Type type = parse_TYPE();
 	current_follow = follow;
 	current_follow_size = 7;
 	if (!match(ID_tok))
 		return;
+	char* id_name; // Enter the name of the token
 	parse_VAR_DEC_TAG();	
 }
 
@@ -213,7 +214,7 @@ void parse_VAR_DEC_TAG()
 	}
 }
 
-void parse_TYPE()
+Type parse_TYPE()
 {
 	eTOKENS follow[] = { ID_tok };
 	current_follow = follow;
@@ -229,9 +230,11 @@ void parse_TYPE()
 	{
 	case INT_tok:
 		fprintf(parser_output_file, "Rule {TYPE -> int}\n");
+		return Integer;
 		break;
 	case FLOAT_tok:
 		fprintf(parser_output_file, "Rule {TYPE -> float}\n");
+		return Float;
 		break;
 	default:
 		error();

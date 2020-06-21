@@ -14,7 +14,7 @@ void parse_GLOBAL_VARS();
 //void parse_GLOBAL_VARS_TAG();
 void parse_VAR_DEC();
 void parse_VAR_DEC_TAG();
-void parse_TYPE();
+Type parse_TYPE();
 void parse_DIM_SIZES();
 void parse_DIM_SIZES_TAG();
 //void parse_FUNC_PREDEFS();

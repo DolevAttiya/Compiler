@@ -213,7 +213,7 @@ void parse_VAR_DEC_TAG()
 	}
 }
 
-void parse_TYPE()
+Type parse_TYPE()
 {
 	eTOKENS follow[] = { ID_tok };
 	current_follow = follow;
@@ -239,7 +239,7 @@ void parse_TYPE()
 	}
 }
 
-void parse_DIM_SIZES()
+ListNode* parse_DIM_SIZES()
 {
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
@@ -344,7 +344,7 @@ void parse_FUNC_WITH_BODY()
 }
 
 
-void parse_RETURN_TYPE() {
+Type parse_RETURN_TYPE() {
 	eTOKENS follow[] = { ID_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -361,14 +361,13 @@ void parse_RETURN_TYPE() {
 	case FLOAT_tok:
 		fprintf(parser_output_file, "Rule {RETURN_TYPE -> TYPE}\n");
 		back_token();
-		parse_TYPE();
-		break;
+		return parse_TYPE();
 	case VOID_tok:
 		fprintf(parser_output_file, "Rule {RETURN_TYPE -> void}\n");
 		back_token();
 		if (!match(VOID_tok))
 			return;
-		break;
+		return Void;
 	default:
 		error();
 		break;
@@ -442,20 +441,27 @@ void parse_PARAM_LIST_TAG() {
 	}
 }
 
-void parse_PARAM() {
+SYMBOL_TABLE_ENTRY* parse_PARAM() {
+	SYMBOL_TABLE_ENTRY* L = create_new_symbol_table_entry();
+	SYMBOL_TABLE_ENTRY* id = create_new_symbol_table_entry();
+	set_id_role(L, Variable);
+	set_id_role(id, Variable);
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {PARAM -> TYPE id PARAM'}\n");
-	parse_TYPE();
+	set_id_type(L, parse_TYPE());
 	current_follow = follow;
 	current_follow_size = 2;
 	if (!match(ID_tok))
 		return;
-	parse_PARAM_TAG();
+	set_id_type(id, L->Type);
+	strncpy(id->Name, current_token->lexeme, strlen(current_token->lexeme));
+	parse_PARAM_TAG(id);
+	return L;
 }
 
-void parse_PARAM_TAG() {
+void parse_PARAM_TAG(SYMBOL_TABLE_ENTRY* id) {
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
@@ -470,12 +476,12 @@ void parse_PARAM_TAG() {
 	{
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES]}\n");
-		parse_DIM_SIZES();
+		id->ListOfArrayDimensions = parse_DIM_SIZES();
 		current_follow = follow;
 		current_follow_size = 2;
 		if (!match(BRACKET_CLOSE_tok))
 			return;
-		break;
+		insert(id);
 	default:
 		if (parse_Follow() != 0)
 		{

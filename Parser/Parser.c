@@ -441,7 +441,7 @@ void parse_PARAM_LIST_TAG() {
 	}
 }
 
-SYMBOL_TABLE_ENTRY* parse_PARAM() {
+SYMBOL_TABLE_ENTRY* parse_PARAM() { 
 	SYMBOL_TABLE_ENTRY* L = create_new_symbol_table_entry();
 	SYMBOL_TABLE_ENTRY* id = create_new_symbol_table_entry();
 	set_id_role(L, Variable);

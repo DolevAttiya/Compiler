@@ -461,7 +461,6 @@ Type parse_PARAM() {
 	/*Semantic*/
 	current_follow = follow;
 	current_follow_size = 2;
-	return L;
 	if (!match(ID_tok))//need to add to the symbol table
 		return NULL;// if match didn't work does the type is error_type ?
 	/*Semantic*/

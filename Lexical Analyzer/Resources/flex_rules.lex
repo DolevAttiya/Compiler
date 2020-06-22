@@ -254,6 +254,7 @@ int main(){
 	yyin = fopen("C:\\temp\\test1.txt", "r" );
 	yyout = fopen("c:\\temp\\test1_206920282_313533374_205811797_lex.txt", "w" );
 	parser_output_file = fopen("c:\\temp\\test1_206920282_313533374_205811797_syntactic.txt", "w+");
+    semantic_analyzer_output_file = fopen("c:\\temp\\test1_206920282_313533374_205811797_semantic.txt", "w+");
     parser();
 	fclose(yyin);
 	fclose(yyout);
@@ -261,6 +262,7 @@ int main(){
 	yyin = fopen("C:\\temp\\test2.txt", "r" );
 	yyout = fopen("c:\\temp\\test2_206920282_313533374_205811797_lex.txt", "w" );
 	parser_output_file = fopen("c:\\temp\\test2_206920282_313533374_205811797_syntactic.txt", "w+");
+    semantic_analyzer_output_file = fopen("c:\\temp\\test2_206920282_313533374_205811797_semantic.txt", "w+");
     parser();
 	fclose(yyin);
 	fclose(yyout);

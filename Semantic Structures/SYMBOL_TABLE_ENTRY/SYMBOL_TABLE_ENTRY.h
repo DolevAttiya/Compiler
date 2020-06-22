@@ -15,7 +15,8 @@ typedef enum Type
 	Float,
 	IntArray,
 	FloatArray,
-	Void
+	Void,
+	TypeError
 } Type;
 
 typedef struct ListNode
@@ -64,3 +65,9 @@ int is_parameter_name_exist(SYMBOL_TABLE_ENTRY* entry, char* parameter_name);
 SYMBOL_TABLE_ENTRY* create_new_symbol_table_entry();
 
 void free_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry);
+
+void add_node_to_list(ListNode* list, ListNode* newNode);
+
+void set_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list);
+
+void free_list(ListNode** list);

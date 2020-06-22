@@ -21,3 +21,38 @@ ListNode* allocate_new_node_for_list(SYMBOL_TABLE_ENTRY* entry)
 	NewDimension->next = NULL;
 	return NewDimension;
 }
+
+void add_node_to_list(ListNode** list, ListNode* newNode)
+{
+	ListNode* currentNode = *list;
+
+	if (*list == NULL)
+	{
+		*list = newNode;
+	}
+	else
+	{
+		while (currentNode->next != NULL)
+		{
+			currentNode = currentNode->next;
+		}
+		currentNode->next = newNode;
+	}
+	newNode->next = NULL;
+}
+
+void free_list(ListNode** list)
+{
+	ListNode* currentNode = *list;
+	ListNode* prevNode = *list;
+
+	if (*list != NULL)
+	{
+		while (currentNode != NULL)
+		{
+			prevNode = currentNode;
+			currentNode = currentNode->next;
+			free(prevNode);
+		}
+	}
+}

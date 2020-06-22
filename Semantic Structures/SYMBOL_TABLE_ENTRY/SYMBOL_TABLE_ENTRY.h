@@ -69,3 +69,5 @@ void free_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry);
 void add_node_to_list(ListNode* list, ListNode* newNode);
 
 void set_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list);
+
+void free_list(ListNode** list);

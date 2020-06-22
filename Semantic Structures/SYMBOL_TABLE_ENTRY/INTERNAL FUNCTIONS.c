@@ -22,13 +22,13 @@ ListNode* allocate_new_node_for_list(SYMBOL_TABLE_ENTRY* entry)
 	return NewDimension;
 }
 
-void add_node_to_list(ListNode* list, ListNode* newNode)
+void add_node_to_list(ListNode** list, ListNode* newNode)
 {
-	ListNode* currentNode = list;
+	ListNode* currentNode = *list;
 
-	if (list == NULL)
+	if (*list == NULL)
 	{
-		list = newNode;
+		*list = newNode;
 	}
 	else
 	{
@@ -39,4 +39,20 @@ void add_node_to_list(ListNode* list, ListNode* newNode)
 		currentNode->next = newNode;
 	}
 	newNode->next = NULL;
+}
+
+void free_list(ListNode** list)
+{
+	ListNode* currentNode = *list;
+	ListNode* prevNode = *list;
+
+	if (*list != NULL)
+	{
+		while (currentNode != NULL)
+		{
+			prevNode = currentNode;
+			currentNode = currentNode->next;
+			free(prevNode);
+		}
+	}
 }

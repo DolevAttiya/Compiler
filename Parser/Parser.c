@@ -11,6 +11,8 @@ int current_follow_size;
 eTOKENS* expected_token_types;
 int expected_token_types_size;
 
+int ParsingSucceeded;
+
 int buffer_size=0;
 char* temp_buffer=NULL;
 int parser_output_file_last_position;
@@ -29,6 +31,10 @@ void parse_PROG()
 	eTOKENS follow[] = { EOF_tok };
 	current_follow = follow;
 	current_follow_size = 1;
+	ParsingSucceeded = 1;
+
+	parse_BB();
+
 	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}\n");
 	
 	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}\n");
@@ -171,17 +177,47 @@ void parse_VAR_DEC()
 	current_follow = follow;
 	current_follow_size = 7;
 
+	/*SEMANTIC*/
+	ParsingSucceeded = 1;
+	/*SEMANTIC*/
+
 	fprintf(parser_output_file, "Rule {VAR_DEC -> TYPE id VAR_DEC'}\n");
+
+	/*SEMANTIC*/
 	Type type = parse_TYPE();
+	/*SEMANTIC*/
+
 	current_follow = follow;
 	current_follow_size = 7;
 	if (!match(ID_tok))
+		ParsingSucceeded = 0;
 		return;
-	char* id_name; // Enter the name of the token
-	parse_VAR_DEC_TAG();	
+
+	/*SEMANTIC*/
+	char* id_name = current_token->lexeme;
+	/*SEMANTIC*/
+
+	/*SEMANTIC*/
+	ListNode* DimensionsList = NULL;
+	/*SEMANTIC*/
+
+	parse_VAR_DEC_TAG(&type, DimensionsList);
+
+	/*SEMANTIC*/
+	if(ParsingSucceeded)
+	{
+		table_entry entry = insert(id_name);
+		set_id_role(entry, Variable);
+		set_id_type(entry, type);
+		if (type == IntArray || type == FloatArray)
+		{
+			set_list(entry, DimensionsList);
+		}
+	}
+	/*SEMANTIC*/
 }
 
-void parse_VAR_DEC_TAG()
+void parse_VAR_DEC_TAG(Type* type, ListNode* DimensionsList)
 {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
@@ -190,6 +226,10 @@ void parse_VAR_DEC_TAG()
 	eTOKENS tokens[] = { SEMICOLON_tok, BRACKET_OPEN_tok };
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
+
+	/*SEMANTIC*/
+	DimensionsList = NULL;
+	/*SEMANTIC*/
 
 	fprintf(parser_output_file, "Rule {VAR_DEC' -> ; | [DIM_SIZES] ;}\n");
 
@@ -200,16 +240,39 @@ void parse_VAR_DEC_TAG()
 		break;
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_DEC' -> [DIM_SIZES] ;}\n");
-		parse_DIM_SIZES();
+		parse_DIM_SIZES(DimensionsList);
 		current_follow = follow;
 		current_follow_size = 7;
 		if (!match(BRACKET_CLOSE_tok))
+
+			/*SEMANTIC*/
+			ParsingSucceeded = 0;
+			/*SEMANTIC*/
+
 			return;
 		if (!match(SEMICOLON_tok))
+
+			/*SEMANTIC*/
+			ParsingSucceeded = 0;
+			/*SEMANTIC*/
+
 			return;
+
+		/*SEMANTIC*/
+		if (*type == Integer)
+			*type = IntArray;
+		else if (*type == Float)
+			*type == FloatArray;
+		/*SEMANTIC*/
+
 		break;
 	default:
 		error();
+
+		/*SEMANTIC*/
+		ParsingSucceeded = 0;
+		/*SEMANTIC*/
+
 		break;
 	}
 }
@@ -230,30 +293,53 @@ Type parse_TYPE()
 	{
 	case INT_tok:
 		fprintf(parser_output_file, "Rule {TYPE -> int}\n");
+
+		/*SEMANTIC*/
 		return Integer;
+		/*SEMANTIC*/
+
 		break;
 	case FLOAT_tok:
 		fprintf(parser_output_file, "Rule {TYPE -> float}\n");
+
+		/*SEMANTIC*/
 		return Float;
+		/*SEMANTIC*/
+
 		break;
 	default:
 		error();
+
+		/*SEMANTIC*/
+		ParsingSucceeded = 0;
+		return TypeError;
+		/*SEMANTIC*/
+
 		break;
 	}
 }
 
-void parse_DIM_SIZES()
+void parse_DIM_SIZES(ListNode* DimensionsList)
 {
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {DIM_SIZES -> int_num DIM_SIZES'}\n");
 	if (!match(INT_NUM_tok))
+	{
+		ParsingSucceeded = 0;
 		return;
-	parse_DIM_SIZES_TAG();
+	}
+	else
+	{
+		ListNode* NewDimension = (ListNode*)calloc(1, sizeof(ListNode));
+		NewDimension->dimension = atoi(current_token->lexeme);
+		add_node_to_list(DimensionsList, NewDimension);
+	}
+	parse_DIM_SIZES_TAG(DimensionsList);
 }
 
-void parse_DIM_SIZES_TAG()
+void parse_DIM_SIZES_TAG(ListNode* DimensionsList)
 {
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
@@ -269,7 +355,7 @@ void parse_DIM_SIZES_TAG()
 	{
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {DIM_SIZES' -> , DIM_SIZES}\n");
-		parse_DIM_SIZES();
+		parse_DIM_SIZES(DimensionsList);
 		break;
 	case BRACKET_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {DIM_SIZES' -> epsilon}\n");
@@ -277,6 +363,7 @@ void parse_DIM_SIZES_TAG()
 		break;
 	default:
 		error();
+		ParsingSucceeded = 0;
 		break;
 	}
 }
@@ -473,7 +560,7 @@ void parse_PARAM_TAG() {
 	{
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES]}\n");
-		parse_DIM_SIZES();
+		parse_DIM_SIZES(NULL);
 		current_follow = follow;
 		current_follow_size = 2;
 		if (!match(BRACKET_CLOSE_tok))
@@ -1110,4 +1197,14 @@ void parse_VAR_OR_CALL_TAG() {
 		error();
 		break;
 	}
+}
+
+void parse_BB()
+{
+	make_table();
+}
+
+void parse_FB()
+{
+	pop_table();
 }

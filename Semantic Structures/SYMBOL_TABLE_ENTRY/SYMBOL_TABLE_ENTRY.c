@@ -80,7 +80,12 @@ void free_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry)
 	free(entry);
 }
 
-void set_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
+void set_dimensions_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
 {
 	entry->ListOfArrayDimensions = list;
+}
+
+void set_parameters_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
+{
+	entry->ListOfParameterTypes = list;
 }

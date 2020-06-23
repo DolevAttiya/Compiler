@@ -48,5 +48,5 @@ void 	removeBackList( linkedList* lst);
 void addList( linkedList* lst, TYPE v);
 int containsList( linkedList* lst, TYPE e);
 void removeList( linkedList* lst, TYPE e);
-
+int free_empty_list(linkedList* lst);
 #endif

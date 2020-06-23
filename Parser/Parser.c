@@ -390,7 +390,11 @@ ListNode* parse_PARAMS() {
 		fprintf(parser_output_file, "Rule {PARAMS -> PARAMS_LIST}\n");
 		back_token();
 		/*Semantic*/
-		return parse_PARAM_LIST();
+		ListNode* to_check = parse_PARAM_LIST();
+		if (!search_type_error(to_check))
+			return to_check;
+		else
+			return NULL;
 		/*Semantic*/
 		break;
 	default:
@@ -399,7 +403,7 @@ ListNode* parse_PARAMS() {
 			fprintf(parser_output_file, "Rule {PARAMS -> epsilon}\n");
 			back_token();
 			/*Semantic*/
-			return NULL;
+			return (ListNode*) calloc(1,sizeof(ListNode));
 			/*Semantic*/
 		}
 		error();
@@ -482,7 +486,7 @@ Type parse_PARAM() {
 	/*Semantic*/
 }
 
-void parse_PARAM_TAG(Type* param_type, ListNode** DimList) {
+void parse_PARAM_TAG(Type* param_type, ListNode** dimList) {
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
@@ -499,7 +503,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** DimList) {
 		fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES]}\n");
 
 		/*Semantic*/
-		parse_DIM_SIZES(DimList);
+		parse_DIM_SIZES(dimList);
 		if (*param_type == Integer)
 			*param_type = IntArray;
 		else
@@ -518,13 +522,17 @@ void parse_PARAM_TAG(Type* param_type, ListNode** DimList) {
 		if (parse_Follow() != 0)
 		{
 			fprintf(parser_output_file, "Rule {PARAM' -> epsilon}\n");
-			*DimList = (ListNode*)calloc(1, sizeof(ListNode));
+			/*Semantic*/
+			*dimList = (ListNode*)calloc(1, sizeof(ListNode));
+			/*Semantic*/
 			back_token();
 			break;
 		}
 		error();
+		/*Semantic*/
 		*param_type = ErrorType;
-		*DimList = NULL;
+		*dimList = NULL;
+		/*Semantic*/
 		break;
 	}
 }
@@ -533,22 +541,28 @@ void parse_COMP_STMT() {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, EOF_tok, SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 6;
-
 	fprintf(parser_output_file, "Rule {COMP_STMT -> { VAR_DEC_LIST STMT_LIST }}\n");
 	if (!match(CURLY_BRACKET_OPEN_tok))
 		return;
+	/*Semantic*/
+	make_table();
+	/*Semantic*/
 	parse_VAR_DEC_LIST();
 	parse_STMT_LIST();
 	current_follow = follow;
 	current_follow_size = 6;
 	if (!match(CURLY_BRACKET_CLOSE_tok))
 		return;
+	/*Semantic*/
+	pop_table();
+	/*Semantic*/
 }
 
 void parse_VAR_DEC_LIST() {
 	fprintf(parser_output_file, "Rule {VAR_DEC_LIST -> VAR_DEC_LIST'}\n");
 	parse_VAR_DEC_LIST_TAG();
 }
+
 void parse_VAR_DEC_LIST_TAG() {
 	eTOKENS follow[] = { ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
@@ -580,11 +594,13 @@ void parse_VAR_DEC_LIST_TAG() {
 		break;
 	}
 }
+
 void parse_STMT_LIST() {
 	fprintf(parser_output_file, "Rule {STMT_LIST -> STMT STMT_LIST'}\n");
 	parse_STMT();
 	parse_STMT_LIST_TAG();
 }
+
 void parse_STMT_LIST_TAG() {
 	eTOKENS follow[] = { CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
@@ -614,6 +630,7 @@ void parse_STMT_LIST_TAG() {
 		break;
 	}
 }
+
 void parse_STMT() {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
@@ -629,7 +646,7 @@ void parse_STMT() {
 	{
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {STMT -> id VAR_OR_CALL}\n");
-		table_entry id = insert(current_token->lexeme);
+		table_entry id= lookup(current_token->lexeme);
 		parse_VAR_OR_CALL(id);
 		break;
 	case CURLY_BRACKET_OPEN_tok:
@@ -652,6 +669,7 @@ void parse_STMT() {
 		break;
 	}
 }
+
 void parse_VAR_OR_CALL(table_entry id) {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
@@ -670,27 +688,12 @@ void parse_VAR_OR_CALL(table_entry id) {
 		/*Semantic*/
 		if (id->Role != FullDefinition)
 		{
-			 semantic_error("Calling args on not a Function var");
+			semantic_error("Calling args on not a Function var");
 		}
 		ListNode* args = parse_ARGS();
 		int result = check_types_equality(id->ListOfParameterTypes, args);
-		if(result)
-		{
-			switch (result)
-			{
-			case 1:
-				semantic_error("same size but not same types");
-				break;
-			case 2:
-				semantic_error("not same sizes but all types are the same till than");
-				break;
-			case 3:
-				semantic_error("not same sizes and not all types are the same");
-				break;
-			}
-		}
 		/*Semantic*/
-			current_follow = follow;
+		current_follow = follow;
 		current_follow_size = 2;
 		if (!match(PARENTHESIS_CLOSE_tok))
 			return;
@@ -700,7 +703,8 @@ void parse_VAR_OR_CALL(table_entry id) {
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}\n");
 		back_token();
 		/*Semantic*/
-		int x = parse_VAR_TAG();
+		ListNode* var_tag_result = parse_VAR_TAG();
+		int result = check_dim_equality(id->ListOfArrayDimensions, var_tag_result);
 		/*Semantic*/
 		current_follow = follow;
 		current_follow_size = 2;
@@ -708,17 +712,17 @@ void parse_VAR_OR_CALL(table_entry id) {
 			return;
 		/*Semantic*/
 		Type rightSide = parse_EXPR();
-		if (!x)
+		if (!result)
 		{
-			if ((id->Type == Integer) && (rightSide != Integer))
+			if (rightSide != ErrorType)
 			{
-				 semantic_error(" Right side not match Left side");
+				if ((id->Type == Integer) && (rightSide != Integer))
+				{
+					semantic_error(" Right side not match Left side");
+				}
 			}
 		}
-		else
-		{
-			//TODO
-		}
+
 		/*Semantic*/
 		break;
 	default:
@@ -743,6 +747,7 @@ void parse_IF_STMT() {
 		return;
 	parse_STMT();
 }
+
 ListNode* parse_ARGS() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
@@ -763,7 +768,11 @@ ListNode* parse_ARGS() {
 		fprintf(parser_output_file, "Rule {ARGS -> ARG_LIST}\n");
 		back_token();
 		/*Semantic*/
-		return parse_ARG_LIST();
+		ListNode* to_check = parse_ARG_LIST();
+		if (!search_type_error(to_check))
+			return to_check;
+		else
+			return NULL;
 		/*Semantic*/
 		break;
 	default:
@@ -771,10 +780,14 @@ ListNode* parse_ARGS() {
 		{
 			fprintf(parser_output_file, "Rule {ARGS -> epsilon}\n");
 			back_token();
-			return NULL;
+			/*Semantic*/
+			return (ListNode*)calloc(1, sizeof(ListNode));
+			/*Semantic*/
 		}
 		error();
+		/*Semantic*/
 		return NULL;
+		/*Semantic*/
 	}
 }
 

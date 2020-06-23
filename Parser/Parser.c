@@ -124,7 +124,7 @@ void parse_PROG()
 			{
 				set_id_role(entry, PreDefinition);
 				set_id_type(entry, function_type);
-				set_list(entry, parameters_list);
+				set_parameters_list(entry, parameters_list);
 			}
 		}
 		/*SEMANTIC*/
@@ -144,7 +144,7 @@ void parse_PROG()
 				{
 					set_id_role(entry, PreDefinition);
 					set_id_type(entry, function_type);
-					set_list(entry, parameters_list);
+					set_parameters_list(entry, parameters_list);
 				}
 			}
 			/*SEMANTIC*/
@@ -294,7 +294,7 @@ void parse_VAR_DEC()
 			set_id_type(entry, type);
 			if (type == IntArray || type == FloatArray)
 			{
-				set_list(entry, DimensionsList);
+				set_dimensions_list(entry, DimensionsList);
 			}
 		}
 	}

@@ -464,13 +464,15 @@ Type parse_PARAM() {
 	if (!match(ID_tok))//need to add to the symbol table
 		return NULL;// if match didn't work does the type is error_type ?
 	/*Semantic*/
+	ListNode* DimList = NULL;
+	parse_PARAM_TAG(&param_type,&DimList);
 	table_entry id = insert(current_token->lexeme);
-	parse_PARAM_TAG(id, param_type);
 	return get_id_type(id);
+
 	/*Semantic*/
 }
 
-void parse_PARAM_TAG(SYMBOL_TABLE_ENTRY* id, Type param_type) {
+void parse_PARAM_TAG(Type* param_type, ListNode** DimList) {
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
@@ -485,8 +487,8 @@ void parse_PARAM_TAG(SYMBOL_TABLE_ENTRY* id, Type param_type) {
 	{
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES]}\n");
-		/*Semantic*/
-		id->ListOfArrayDimensions = parse_DIM_SIZES();
+
+		/*Semantic*/parse_DIM_SIZES();
 		if (param_type == Integer)
 			set_id_type(id, IntArray);
 		else

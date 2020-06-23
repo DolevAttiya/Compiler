@@ -245,6 +245,21 @@ void removeList( linkedList* lst, TYPE e) {
 	return;
 }
 
+
+/*	Free LinkedList if it's empty
+	param:	first		hashTable to free
+	post:	return 1 if the list is not empty , 0 if succeded.
+*/
+int free_empty_list(linkedList* lst)
+{
+	if (!isEmptyList(lst))
+		return 1;
+	free(lst->firstLink);
+	free(lst->lastLink);
+	free(lst);
+	return 0;
+}
+
 /*	Comapare hashTable's keys
 	param:	first		hashTable to compare
 	param:	second		hashTable to compare

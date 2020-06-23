@@ -458,17 +458,27 @@ Type parse_PARAM() {
 	fprintf(parser_output_file, "Rule {PARAM -> TYPE id PARAM'}\n");
 	/*Semantic*/
 	Type param_type = parse_TYPE();
+	ListNode* dimList = NULL;
 	/*Semantic*/
 	current_follow = follow;
 	current_follow_size = 2;
 	if (!match(ID_tok))//need to add to the symbol table
 		return NULL;// if match didn't work does the type is error_type ?
+	parse_PARAM_TAG(&param_type,&dimList);
 	/*Semantic*/
-	ListNode* DimList = NULL;
-	parse_PARAM_TAG(&param_type,&DimList);
-	table_entry id = insert(current_token->lexeme);
-	return get_id_type(id);
-
+	if (param_type != ErrorType && dimList!= NULL)
+	{
+		table_entry id = insert(current_token->lexeme);
+		set_id_role(id, Variable);
+		set_list(id, dimList);
+		set_id_type(id, param_type);
+		return get_id_type(id);
+	}
+	else if (dimList!=NULL)
+	{
+		free_list(&dimList);
+	}
+	return ErrorType;
 	/*Semantic*/
 }
 
@@ -488,15 +498,16 @@ void parse_PARAM_TAG(Type* param_type, ListNode** DimList) {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES]}\n");
 
-		/*Semantic*/parse_DIM_SIZES();
-		if (param_type == Integer)
-			set_id_type(id, IntArray);
+		/*Semantic*/
+		parse_DIM_SIZES(DimList);
+		if (*param_type == Integer)
+			*param_type = IntArray;
 		else
 		{
-			if (param_type != ErrorType)
-				set_id_type(id, FloatArray);
+			if (*param_type != ErrorType)
+				*param_type = FloatArray;
 			else
-				return 0; // TODO so do i delete the ID if he is set to error type ?
+				return; // TODO so do i delete the ID if he is set to error type ?
 		}
 		/*Semantic*/
 		current_follow = follow;
@@ -506,14 +517,14 @@ void parse_PARAM_TAG(Type* param_type, ListNode** DimList) {
 	default:
 		if (parse_Follow() != 0)
 		{
-			/*Semantic*/
-			set_id_type(id, param_type);
-			/*Semantic*/
 			fprintf(parser_output_file, "Rule {PARAM' -> epsilon}\n");
+			*DimList = (ListNode*)calloc(1, sizeof(ListNode));
 			back_token();
 			break;
 		}
 		error();
+		*param_type = ErrorType;
+		*DimList = NULL;
 		break;
 	}
 }

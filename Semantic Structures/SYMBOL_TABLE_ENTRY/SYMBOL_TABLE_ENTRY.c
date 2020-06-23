@@ -138,6 +138,8 @@ int get_node_list_size(ListNode* listNode)
 		}
 	}
 	return count;
+}
+
 void set_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
 {
 	entry->ListOfArrayDimensions = list;

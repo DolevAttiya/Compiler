@@ -27,10 +27,10 @@ void parse_FUNC_WITH_BODY();
 
 Type parse_RETURN_TYPE();
 ListNode* parse_PARAMS();
-void parse_PARAM_LIST();
-void parse_PARAM_LIST_TAG();
-void parse_PARAM();
-void parse_PARAM_TAG();
+ListNode* parse_PARAM_LIST();
+void parse_PARAM_LIST_TAG(ListNode* Head);
+Type parse_PARAM();
+void parse_PARAM_TAG(Type* param_type, ListNode** dimList);
 void parse_COMP_STMT();
 void parse_VAR_DEC_LIST();
 void parse_VAR_DEC_LIST_TAG();

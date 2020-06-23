@@ -108,3 +108,25 @@ void add_node_to_list(ListNode** list, ListNode* newNode)
 	}
 	newNode->next = NULL;
 }
+
+void add_type_to_list_node(ListNode** list_node, Type type)
+{
+	ListNode* NewType = (ListNode*)malloc(sizeof(ListNode));
+	NewType->type = type;
+
+	if (*list_node != NULL) // When there are dimensions in the list
+	{
+		while ((*list_node)->next != NULL)
+		{
+			*list_node = (*list_node)->next;
+		}
+		(*list_node)->next = NewType;
+
+	}
+	else // When there are no dimensions in the list
+	{
+		*list_node = NewType;
+	}
+	NewType->next = NULL;
+
+}

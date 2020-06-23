@@ -1,6 +1,8 @@
+#include <stdio.h>
 #include "Semantic functions.h"
 #define symbol_table value
 
+lookupByTable(TYPE symbolTable,char* id_name);
 void semantic_error(char* message);
 table_entry _get_current_table();
 void _free_current_table_with_contents_from_list();
@@ -15,7 +17,7 @@ table_entry insert(char* id_name)
 	entry = lookup(id_name);
 	if (entry != NULL)
 	{
-		semantic_error("Duplicated declaration");
+		fprintf(semantic_analyzer_output_file,"Duplicate declaration\n");
 		return NULL;
 	}
 	else
@@ -27,7 +29,7 @@ table_entry insert(char* id_name)
 	}
 }
 
-table_entry lookup(char* id_name)
+table_entry lookup(char* id_name) 
 {
 	table_ptr current_table = _get_current_table();
 	return atMap(current_table, id_name);
@@ -53,13 +55,12 @@ table_entry find(char* id_name)
 
 	while (node != symbolTableList->firstLink)
 	{
-		id_entry = lookup(node->symbol_table, id_name);
+		id_entry = lookupByTable(node->symbol_table, id_name);
 		if (id_entry != NULL)
 			return id_entry;
 		else
 			node = node->prev;
 	}
-	semantic_error("Undeclared identifier");
 	return NULL;
 }
 
@@ -108,6 +109,38 @@ void _free_current_table_with_contents_from_list()
 	removeBackList(symbolTableList);
 }
 
+void find_predefinitions()
+{
+	int i;
+	struct hashLink* currLink, * nextLink = NULL;
+	table_ptr current_table = _get_current_table();
+
+	if (current_table == NULL)
+		return;
+
+	for (i = 0; i < current_table->tableSize; i++) {
+		currLink = current_table->table[i];
+		if (currLink != 0)
+			nextLink = currLink->next;
+		while (currLink != 0) {
+			if (currLink->value->Role == PreDefinition)
+				fprintf(semantic_analyzer_output_file, "Found a predefinition without a full definition\n");
+			currLink = nextLink;
+			if (currLink != 0)
+				nextLink = currLink->next;
+		}
+	}
+}
+
+int check_types_equality(ListNode* id_parameters, ListNode* args)
+{
+	return 0;
+}
+
+lookupByTable(TYPE symbolTable, char* id_name)
+{
+	return atMap(symbolTable, id_name);
+}
 
 //TEST
 void AssafTest()

@@ -3,6 +3,7 @@ char* eTokensStrings[];
 #include "Parser.h"
 #include <string.h>
 #include "../Semantic Structures/SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
+#include "../Semantic Structures/Hashmap/Hashmap.h"
 #include "Semantic functions.h"
 #include "../Lexical Analyzer/Token/Token.h"
 
@@ -940,6 +941,7 @@ void parse_STMT() {
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {STMT -> id VAR_OR_CALL}\n");
 		table_entry id= lookup(current_token->lexeme);
+		if(id == EmptyStruct)
 		parse_VAR_OR_CALL(id);
 		break;
 	case CURLY_BRACKET_OPEN_tok:
@@ -997,8 +999,11 @@ void parse_VAR_OR_CALL(table_entry id) {
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}\n");
 		back_token();
 		/*Semantic*/
-		ListNode* var_tag_result = parse_VAR_TAG();
-		result = check_dim_equality(id->ListOfArrayDimensions, var_tag_result);
+		Type leftSide = parse_VAR_TAG(id);
+		if(id->Type != leftSide)
+		{
+			semantic_error("trying accsses a wrong type from the real type");
+		}
 		/*Semantic*/
 		current_follow = follow;
 		current_follow_size = 2;
@@ -1006,17 +1011,16 @@ void parse_VAR_OR_CALL(table_entry id) {
 			return;
 		/*Semantic*/
 		Type rightSide = parse_EXPR();
-		if (!result)
+		if (rightSide != TypeError && leftSide != TypeError)
 		{
-			if (rightSide != TypeError)
-			{
-				if ((id->Type == Integer) && (rightSide != Integer))
-				{
-					semantic_error(" Right side not match Left side");
-				}
+			if (!((leftSide == Integer && rightSide == Integer) || (leftSide == Float && (rightSide == Integer) || (rightSide == Float)) || (leftSide == IntArray && rightSide == IntArray) || (leftSide == FloatArray && (rightSide == IntArray) || (rightSide == FloatArray))))
+			{ 
+				semantic_error("Right side's type does not match left side's type");
 			}
 		}
-
+		else
+		{
+		}
 		/*Semantic*/
 		break;
 	default:

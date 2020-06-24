@@ -3,7 +3,7 @@
 #include <string.h>
 #include "../Semantic Structures/SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
 #include "Semantic functions.h"
-
+#include "../Semantic Structures/EXPRLIST/Expr_list.h"
 FILE* parser_output_file;
 int match(eTOKENS expected_token);
 void error();

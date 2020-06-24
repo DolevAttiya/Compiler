@@ -2,9 +2,10 @@
 # ifndef HashMap
 # define HashMap
 #include "../SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
+
 # define KeyType char*
 # define ValueType SYMBOL_TABLE_ENTRY*
-
+static const struct ValueType EmptyStruct;
 /*
  this is useful for you in answering the questions. if your write your code such
  that you call stringHash1 when HASHING_FUNCTION==1 and stringHash2 when

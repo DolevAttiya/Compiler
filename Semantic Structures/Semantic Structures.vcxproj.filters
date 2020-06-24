@@ -10,6 +10,9 @@
     <Filter Include="LINKED_LIST">
       <UniqueIdentifier>{0ca3d84d-b21e-47d3-b90d-38cd81654402}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EXPRLIST">
+      <UniqueIdentifier>{16708dbc-fb6c-47cb-b683-b1d095075eb1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.c">
@@ -24,6 +27,9 @@
     <ClCompile Include="Linked List\Linked List.c">
       <Filter>LINKED_LIST</Filter>
     </ClCompile>
+    <ClCompile Include="EXPRLIST\Expr_list.c">
+      <Filter>EXPRLIST</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SYMBOL_TABLE_ENTRY\SYMBOL_TABLE_ENTRY.h">
@@ -37,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="Linked List\Linked List.h">
       <Filter>LINKED_LIST</Filter>
+    </ClInclude>
+    <ClInclude Include="EXPRLIST\Expr_list.h">
+      <Filter>EXPRLIST</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

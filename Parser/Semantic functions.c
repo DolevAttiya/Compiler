@@ -215,7 +215,13 @@ int check_types_equality(ListNode* id_parameters, ListNode* args)
 		}
 	}
 }
-
+/*
+in : 2 ListNodes *
+out :
+		0 - both types and size are the same
+		1 - one of the dim is bigger isnt the same
+		2 - not same length of args
+*/
 int check_dim_equality(ListNode* id_parameters, ListNode* args) 
 {
 	if (id_parameters == NULL && args == NULL)

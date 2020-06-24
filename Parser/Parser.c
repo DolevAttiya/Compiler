@@ -657,6 +657,7 @@ Type parse_RETURN_TYPE() {
 		return TypeError;
 	}
 }
+
 /*return List of Params types */
 ListNode* parse_PARAMS() {
 
@@ -686,7 +687,6 @@ ListNode* parse_PARAMS() {
 			fprintf(parser_output_file, "Rule {PARAMS -> epsilon}\n");
 			back_token();
 			/*Semantic*/
-
 			return (ListNode*)calloc(1, sizeof(ListNode));
 			/*Semantic*/
 		}
@@ -701,7 +701,6 @@ ListNode* parse_PARAM_LIST() {
 	fprintf(parser_output_file, "Rule {PARAMS_LIST -> PARAM PARAMS_LIST'}\n");
 	/*Semantic*/
 	ListNode* Head = NULL;
-
 	add_type_to_list_node(&Head, parse_PARAM());
 	parse_PARAM_LIST_TAG(Head);
 	return Head;
@@ -769,6 +768,7 @@ Type parse_PARAM() {
 		}
 		else {
 			//semantic error dup param
+			semantic_error("Duplicated parameter error");
 		}
 	}
 	else if (dimList != NULL)
@@ -794,7 +794,6 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList) {
 	{
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES]}\n");
-
 		/*Semantic*/
 		parse_DIM_SIZES(dimList);
 		if (*param_type == Integer)
@@ -983,7 +982,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 		/*Semantic*/
 		if (id->Role != FullDefinition)
 		{
-			semantic_error("Calling args on not a Function var");
+			semantic_error("Calling args on not a Function var or not declared");
 		}
 		ListNode* args = parse_ARGS();
 		result = check_types_equality(id->ListOfParameterTypes, args);

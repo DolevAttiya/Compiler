@@ -87,26 +87,6 @@ void free_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry)
 	free(entry);
 }
 
-void add_type_to_list_node(ListNode* list_node, Type type)
-{
-	ListNode* NewType = (ListNode*)malloc(sizeof(ListNode));
-	NewType->type = type;
-	if (list_node != NULL) // When there are dimensions in the list
-	{
-		while (list_node->next != NULL)
-		{
-			list_node = list_node->next;
-		}
-		list_node->next = NewType;
-
-	}
-	else // When there are no dimensions in the list
-	{
-		list_node = NewType;
-	}
-	NewType->next = NULL;
-
-}
 
 int get_id_size(SYMBOL_TABLE_ENTRY* entry)
 {
@@ -140,7 +120,54 @@ int get_node_list_size(ListNode* listNode)
 	return count;
 }
 
-void set_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
+void set_dimensions_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
+
 {
 	entry->ListOfArrayDimensions = list;
+}
+
+void set_parameters_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
+{
+	entry->ListOfParameterTypes = list;
+}
+
+void add_node_to_list(ListNode** list, ListNode* newNode)
+{
+	ListNode* currentNode = *list;
+
+	if (*list == NULL)
+	{
+		*list = newNode;
+	}
+	else
+	{
+		while (currentNode->next != NULL)
+		{
+			currentNode = currentNode->next;
+		}
+		currentNode->next = newNode;
+	}
+	newNode->next = NULL;
+}
+
+void add_type_to_list_node(ListNode** list_node, Type type)
+{
+	ListNode* NewType = (ListNode*)malloc(sizeof(ListNode));
+	NewType->type = type;
+
+	if (*list_node != NULL) // When there are dimensions in the list
+	{
+		while ((*list_node)->next != NULL)
+		{
+			*list_node = (*list_node)->next;
+		}
+		(*list_node)->next = NewType;
+
+	}
+	else // When there are no dimensions in the list
+	{
+		*list_node = NewType;
+	}
+	NewType->next = NULL;
+
 }

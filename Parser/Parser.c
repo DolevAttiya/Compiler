@@ -1,12 +1,22 @@
 ﻿#include "../Lexical Analyzer/Token/Token.h"
 char* eTokensStrings[];
 #include "Parser.h"
+#include <string.h>
+#include "../Semantic Structures/SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
+#include "Semantic functions.h"
+#include "../Lexical Analyzer/Token/Token.h"
 
 Token* current_token;
 eTOKENS* current_follow;
 int current_follow_size;
 eTOKENS* expected_token_types;
 int expected_token_types_size;
+
+/*SEMANTIC*/
+void init_semantic_analyzer();
+void clean_semantic_analyzer();
+int ParsingSucceeded;
+/*SEMANTIC*/
 
 int buffer_size=0;
 char* temp_buffer=NULL;
@@ -15,9 +25,16 @@ FILE* parser_output_file;
 
 void parser()
 {
-	//AssafTest();
+	/*SEMANTIC*/
+	init_semantic_analyzer();
+	/*SEMANTIC*/
+
 	parse_PROG();
 	clean_token_storage();
+
+	/*SEMANTIC*/
+	clean_semantic_analyzer();
+	/*SEMANTIC*/
 }
 
 void parse_PROG()
@@ -26,8 +43,13 @@ void parse_PROG()
 	eTOKENS follow[] = { EOF_tok };
 	current_follow = follow;
 	current_follow_size = 1;
-	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}\n");
 
+	/*SEMANTIC*/
+	parse_BB();
+	/*SEMANTIC*/
+
+	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}\n");
+	
 	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}\n");
 	parse_GLOBAL_VARS();
 	do {
@@ -80,16 +102,57 @@ void parse_PROG()
 	current_follow = follow2;
 	current_follow_size = 3;
 	fprintf(parser_output_file, "Rule {FUNC_PREDEFS -> FUNC_PROTYTYPE; FUNC_PREDEFS'}\n");
- 	parse_FUNC_PROTOTYPE();
+
+	/*SEMANTIC*/
+	char* function_name;
+	Type function_type;
+	ListNode* parameters_list;
+	/*SEMANTIC*/
+
+ 	parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list);
+
 	current_follow = follow2;
 	current_follow_size = 3;
+
 	if (match(SEMICOLON_tok))
 	{
+		parse_FB();	/*For the parameters scope*/ //TODO: Take that fix to the original
+		/*SEMANTIC*/
+		if (ParsingSucceeded)
+		{
+			table_entry entry = insert(function_name);
+			if (entry != NULL)
+			{
+				set_id_role(entry, PreDefinition);
+				set_id_type(entry, function_type);
+				set_parameters_list(entry, parameters_list);
+			}
+		}
+		/*SEMANTIC*/
+
 		do {
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
 			parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
-			parse_FUNC_PROTOTYPE();
+			parse_FUNC_PROTOTYPE(&function_name, &function_type ,&parameters_list);
 			current_token = next_token();
+
+			/*SEMANTIC*/
+			if (current_token->kind == SEMICOLON_tok) //TODO: Add to fix
+			{
+				parse_FB();	/*For the parameters scope*/
+				if (ParsingSucceeded)
+				{
+					table_entry entry = insert(function_name);
+					if (entry != NULL)
+					{
+						set_id_role(entry, PreDefinition);
+						set_id_type(entry, function_type);
+						set_parameters_list(entry, parameters_list);
+					}
+				}
+			}
+			/*SEMANTIC*/
+
 		} while (current_token->kind == SEMICOLON_tok);
 
 		fseek(parser_output_file, parser_output_file_last_position, SEEK_SET); //Returns file position to before the last parse_FUNC_PROTOTYPE
@@ -107,7 +170,7 @@ void parse_PROG()
 	else
 	{
 		parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
-		parse_FUNC_PROTOTYPE();
+		parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list);
 		fseek(parser_output_file, parser_output_file_last_position, SEEK_SET); //Returns file position to before the last parse_FUNC_PROTOTYPE
 		while (fgetc(parser_output_file) != EOF)
 			buffer_size++;
@@ -125,7 +188,43 @@ void parse_PROG()
 		fprintf(parser_output_file, temp_buffer); //Append to output file
 		free(temp_buffer);
 	temp_buffer = NULL;
+
+	/*SEMANTIC*/
+	table_entry entry = find(function_name);
+	/*if (entry==NULL)
+	{ TODO: Remove for the fix
+		fprintf(semantic_analyzer_output_file, "No predefinition exists\n");
+	}
+	else*/ 
+	if (entry != NULL)
+	{
+		if (entry->Role == FullDefinition)
+		{
+			fprintf(semantic_analyzer_output_file, "A full definition already exists\n");
+		}
+		else if (entry->Role == PreDefinition)
+		{
+			check_types_equality(entry->ListOfParameterTypes, parameters_list);
+			set_id_role(entry, FullDefinition);
+			free_list(entry->ListOfParameterTypes);
+			set_parameters_list(entry, parameters_list);
+		}
+	}
+	else
+	{
+		table_entry entry = insert(function_name);
+		set_id_role(entry, FullDefinition);
+		set_id_type(entry, function_type);
+		set_parameters_list(entry, parameters_list);
+	}
+	/*SEMANTIC*/
+
 	parse_COMP_STMT();
+
+	/*SEMANTIC*/
+	parse_FB(); // For the parameters scope
+	/*SEMANTIC*/
+
 	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> FUNC_FULL_DEFS | epsilon}\n");
 	current_token = next_token();
 	if (current_token->kind != EOF_tok)
@@ -137,6 +236,12 @@ void parse_PROG()
 	else
 	{
 		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> epsilon}\n");
+
+		find_predefinitions(); //TODO: Add to fix
+
+		/*SEMANTIC*/
+		parse_FB();
+		/*SEMANTIC*/
 	}
 }
 
@@ -168,16 +273,52 @@ void parse_VAR_DEC()
 	current_follow = follow;
 	current_follow_size = 7;
 
+	/*SEMANTIC*/
+	ParsingSucceeded = 1;
+	/*SEMANTIC*/
+
 	fprintf(parser_output_file, "Rule {VAR_DEC -> TYPE id VAR_DEC'}\n");
-	parse_TYPE();
+
+	/*SEMANTIC*/
+	Type type = parse_TYPE();
+	/*SEMANTIC*/
+
 	current_follow = follow;
 	current_follow_size = 7;
 	if (!match(ID_tok))
+	{
+		ParsingSucceeded = 0;
 		return;
-	parse_VAR_DEC_TAG();	
+	}
+
+	/*SEMANTIC*/
+	char* id_name = current_token->lexeme;
+	/*SEMANTIC*/
+
+	/*SEMANTIC*/
+	ListNode* DimensionsList = NULL;
+	/*SEMANTIC*/
+
+	parse_VAR_DEC_TAG(&type, &DimensionsList);
+
+	/*SEMANTIC*/
+	if(ParsingSucceeded)
+	{
+		table_entry entry = insert(id_name);
+		if (entry != NULL)
+		{
+			set_id_role(entry, Variable);
+			set_id_type(entry, type);
+			if (type == IntArray || type == FloatArray)
+			{
+				set_dimensions_list(entry, DimensionsList);
+			}
+		}
+	}
+	/*SEMANTIC*/
 }
 
-void parse_VAR_DEC_TAG()
+void parse_VAR_DEC_TAG(Type* type, ListNode** DimensionsList)
 {
 	eTOKENS follow[] = { INT_tok, FLOAT_tok, VOID_tok, ID_tok, CURLY_BRACKET_OPEN_tok, IF_tok, RETURN_tok };
 	current_follow = follow;
@@ -186,6 +327,10 @@ void parse_VAR_DEC_TAG()
 	eTOKENS tokens[] = { SEMICOLON_tok, BRACKET_OPEN_tok };
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
+
+	/*SEMANTIC*/
+	*DimensionsList = NULL;
+	/*SEMANTIC*/
 
 	fprintf(parser_output_file, "Rule {VAR_DEC' -> ; | [DIM_SIZES] ;}\n");
 
@@ -196,16 +341,40 @@ void parse_VAR_DEC_TAG()
 		break;
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_DEC' -> [DIM_SIZES] ;}\n");
-		parse_DIM_SIZES();
+		parse_DIM_SIZES(DimensionsList);
 		current_follow = follow;
 		current_follow_size = 7;
 		if (!match(BRACKET_CLOSE_tok))
+		{
+			/*SEMANTIC*/
+			ParsingSucceeded = 0;
+			/*SEMANTIC*/
+
 			return;
+		}
 		if (!match(SEMICOLON_tok))
+		{
+			/*SEMANTIC*/
+			ParsingSucceeded = 0;
+			/*SEMANTIC*/
+
 			return;
+		}
+		/*SEMANTIC*/
+		if (*type == Integer)
+			*type = IntArray;
+		else if (*type == Float)
+			*type == FloatArray;
+		/*SEMANTIC*/
+
 		break;
 	default:
 		error();
+
+		/*SEMANTIC*/
+		ParsingSucceeded = 0;
+		/*SEMANTIC*/
+
 		break;
 	}
 }
@@ -226,28 +395,59 @@ Type parse_TYPE()
 	{
 	case INT_tok:
 		fprintf(parser_output_file, "Rule {TYPE -> int}\n");
+
+		/*SEMANTIC*/
+		return Integer;
+		/*SEMANTIC*/
+
 		break;
 	case FLOAT_tok:
 		fprintf(parser_output_file, "Rule {TYPE -> float}\n");
+
+		/*SEMANTIC*/
+		return Float;
+		/*SEMANTIC*/
+
 		break;
 	default:
 		error();
+
+		/*SEMANTIC*/
+		ParsingSucceeded = 0;
+		return TypeError;
+		/*SEMANTIC*/
+
 		break;
 	}
 }
 
-ListNode* parse_DIM_SIZES()
+void parse_DIM_SIZES(ListNode** DimensionsList)
 {
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
 	fprintf(parser_output_file, "Rule {DIM_SIZES -> int_num DIM_SIZES'}\n");
 	if (!match(INT_NUM_tok))
+	{
+		/*SEMANTIC*/
+		ParsingSucceeded = 0;
+		free_list(DimensionsList);
+		/*SEMANTIC*/
+
 		return;
-	parse_DIM_SIZES_TAG();
+	}
+	else
+	{
+		/*SEMANTIC*/
+		ListNode* NewDimension = (ListNode*)calloc(1, sizeof(ListNode));
+		NewDimension->dimension = atoi(current_token->lexeme);
+		add_node_to_list(DimensionsList, NewDimension);
+		/*SEMANTIC*/
+	}
+	parse_DIM_SIZES_TAG(DimensionsList);
 }
 
-void parse_DIM_SIZES_TAG()
+void parse_DIM_SIZES_TAG(ListNode** DimensionsList)
 {
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
@@ -263,7 +463,7 @@ void parse_DIM_SIZES_TAG()
 	{
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {DIM_SIZES' -> , DIM_SIZES}\n");
-		parse_DIM_SIZES();
+		parse_DIM_SIZES(DimensionsList);
 		break;
 	case BRACKET_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {DIM_SIZES' -> epsilon}\n");
@@ -271,28 +471,76 @@ void parse_DIM_SIZES_TAG()
 		break;
 	default:
 		error();
+		ParsingSucceeded = 0;
+		free_list(DimensionsList);
 		break;
 	}
 }
 
-void parse_FUNC_PROTOTYPE()
+void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** ParametersList)
 {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_OPEN_tok };
 	current_follow = follow;
 	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {FUNC_PROTOTYPE -> RETURN_TYPE id (PARAMS)}\n");
-	parse_RETURN_TYPE();
+
+	/*SEMANTIC*/
+	ParsingSucceeded = 1;
+	if (*function_type = parse_RETURN_TYPE() == TypeError)
+	{
+		ParsingSucceeded = 0;
+	}
+	/*SEMANTIC*/
+
 	current_follow = follow;
 	current_follow_size = 2;
 	if (!match(ID_tok))
+	{
+
+		/*SEMANTIC*/
+		ParsingSucceeded = 0;
+		/*SEMANTIC*/
+
 		return;
+	}
+
+	/*SEMANTIC*/
+	*function_name = current_token->lexeme;
+	/*SEMANTIC*/
+
 	if (!match(PARENTHESIS_OPEN_tok))
+	{
+
+		/*SEMANTIC*/
+		ParsingSucceeded = 0;
+		/*SEMANTIC*/
+
 		return;
-	parse_PARAMS();
+	}
+
+	/*SEMANTIC*/
+	parse_BB();
+	/*SEMANTIC*/
+
+	if (!(*ParametersList = parse_PARAMS()))
+	{
+		/*SEMANTIC*/
+		ParsingSucceeded = 0;
+		/*SEMANTIC*/
+	}
+
 	current_follow = follow;
 	current_follow_size = 2;
 	if (!match(PARENTHESIS_CLOSE_tok))
+	{
+		/*SEMANTIC*/
+		ParsingSucceeded = 0;
+		/*SEMANTIC*/
+
 		return;
+	}
+
+
 }
 
 void parse_FUNC_FULL_DEFS()
@@ -336,8 +584,47 @@ void parse_FUNC_FULL_DEFS_TAG()
 void parse_FUNC_WITH_BODY()
 {
 	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}\n");
-	parse_FUNC_PROTOTYPE();
+	
+	/*SEMANTIC*/
+	char* function_name;
+	Type function_type;
+	ListNode* parameters_list;
+	/*SEMANTIC*/
+
+	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list);
+	table_entry entry = lookup(function_name);
+	/*if (entry == NULL)
+	{
+		fprintf(semantic_analyzer_output_file, "No predefinition exists\n");
+	}
+	else */
+	if (entry != NULL)
+	{
+		if (entry->Role == FullDefinition)
+		{
+			fprintf(semantic_analyzer_output_file, "A full definition already exists\n");
+		}
+		else if (entry->Role == PreDefinition)
+		{
+			check_types_equality(entry->ListOfParameterTypes, parameters_list);
+			set_id_role(entry, FullDefinition);
+			free_list(entry->ListOfParameterTypes);
+			set_parameters_list(entry, parameters_list);
+		}
+	}
+	else
+	{
+		table_entry entry = insert(function_name);
+		set_id_role(entry, FullDefinition);
+		set_id_type(entry, function_type);
+		set_parameters_list(entry, parameters_list);
+	}
+
 	parse_COMP_STMT();
+
+	/*SEMANTIC*/
+	parse_FB(); // For the parameters scope
+	/*SEMANTIC*/
 }
 
 
@@ -372,7 +659,7 @@ Type parse_RETURN_TYPE() {
 }
 /*return List of Params types */
 ListNode* parse_PARAMS() {
-	
+
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -403,7 +690,8 @@ ListNode* parse_PARAMS() {
 			fprintf(parser_output_file, "Rule {PARAMS -> epsilon}\n");
 			back_token();
 			/*Semantic*/
-			return (ListNode*) calloc(1,sizeof(ListNode));
+
+			return (ListNode*)calloc(1, sizeof(ListNode));
 			/*Semantic*/
 		}
 		error();
@@ -417,7 +705,8 @@ ListNode* parse_PARAM_LIST() {
 	fprintf(parser_output_file, "Rule {PARAMS_LIST -> PARAM PARAMS_LIST'}\n");
 	/*Semantic*/
 	ListNode* Head = NULL;
-	add_type_to_list_node(Head, parse_PARAM());
+
+	add_type_to_list_node(&Head, parse_PARAM());
 	parse_PARAM_LIST_TAG(Head);
 	return Head;
 	/*Semantic*/
@@ -427,7 +716,7 @@ void parse_PARAM_LIST_TAG(ListNode* Head) {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
-	eTOKENS tokens[] = {/*Firsts*/ COMMA_tok,/*Follows*/ PARENTHESIS_CLOSE_tok};
+	eTOKENS tokens[] = {/*Firsts*/ COMMA_tok,/*Follows*/ PARENTHESIS_CLOSE_tok };
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
 	current_token = next_token();
@@ -439,7 +728,7 @@ void parse_PARAM_LIST_TAG(ListNode* Head) {
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {PARAMS_LIST' -> , PARAM PARAMS_LIST'}\n");
 		/*Semantic*/
-		add_type_to_list_node(Head, parse_PARAM());
+		add_type_to_list_node(&Head, parse_PARAM());
 		/*Semantic*/
 		parse_PARAM_LIST_TAG(Head);
 		break;
@@ -468,21 +757,26 @@ Type parse_PARAM() {
 	current_follow_size = 2;
 	if (!match(ID_tok))//need to add to the symbol table
 		return NULL;// if match didn't work does the type is error_type ?
-	parse_PARAM_TAG(&param_type,&dimList);
+	parse_PARAM_TAG(&param_type, &dimList);
 	/*Semantic*/
-	if (param_type != ErrorType && dimList!= NULL)
+	if (param_type != TypeError && dimList != NULL)
 	{
+		back_token();
+		current_token = next_token();
 		table_entry id = insert(current_token->lexeme);
-		set_id_role(id, Variable);
-		set_list(id, dimList);
-		set_id_type(id, param_type);
-		return get_id_type(id);
+		if (id != NULL)
+		{
+			set_id_role(id, Variable);
+			set_dimensions_list(id, dimList);
+			set_id_type(id, param_type);
+			return get_id_type(id);
+		}
 	}
-	else if (dimList!=NULL)
+	else if (dimList != NULL)
 	{
 		free_list(&dimList);
 	}
-	return ErrorType;
+	return TypeError;
 	/*Semantic*/
 }
 
@@ -508,7 +802,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList) {
 			*param_type = IntArray;
 		else
 		{
-			if (*param_type != ErrorType)
+			if (*param_type != TypeError)
 				*param_type = FloatArray;
 			else
 				return; // TODO so do i delete the ID if he is set to error type ?
@@ -530,7 +824,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList) {
 		}
 		error();
 		/*Semantic*/
-		*param_type = ErrorType;
+		*param_type = TypeError;
 		*dimList = NULL;
 		/*Semantic*/
 		break;
@@ -1202,4 +1496,25 @@ void parse_VAR_OR_CALL_TAG() {
 		error();
 		break;
 	}
+}
+
+void init_semantic_analyzer()
+{
+	symbolTableList = createLinkedList();
+	ParsingSucceeded = 1;
+}
+
+void clean_semantic_analyzer()
+{
+	//TODO: Add a freeing function for the symbolTableList
+}
+
+void parse_BB()
+{
+	make_table();
+}
+
+void parse_FB()
+{
+	pop_table();
 }

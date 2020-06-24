@@ -35,11 +35,16 @@ Type get_id_type(SYMBOL_TABLE_ENTRY* entry)
 {
 	return entry->Type;
 }
+int  get_id_list_size(SYMBOL_TABLE_ENTRY* entry)
+{
+	return entry->ListSize;
+}
 
 void add_array_dimension_to_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry, int dimension)
 {
 	ListNode* NewDimension = allocate_new_node_for_list(entry);
 	NewDimension->dimension = dimension;
+	entry->ListSize += 1;
 }
 
 ListNode* get_dimensions_of_array(SYMBOL_TABLE_ENTRY* entry)
@@ -51,6 +56,7 @@ void add_parameter_type_to_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry, Type ty
 {
 	ListNode* NewParameterType = allocate_new_node_for_list(entry);
 	NewParameterType->type = type;
+	entry->ListSize += 1;
 }
 
 ListNode* get_parameter_types(SYMBOL_TABLE_ENTRY* entry)
@@ -61,6 +67,7 @@ ListNode* get_parameter_types(SYMBOL_TABLE_ENTRY* entry)
 SYMBOL_TABLE_ENTRY* create_new_symbol_table_entry()
 {
 	SYMBOL_TABLE_ENTRY* entry = (SYMBOL_TABLE_ENTRY*)calloc(1, sizeof(SYMBOL_TABLE_ENTRY));
+	entry->ListSize = 0;
 	return entry;
 }
 
@@ -78,6 +85,59 @@ void free_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry)
 	}
 
 	free(entry);
+}
+
+void add_type_to_list_node(ListNode* list_node, Type type)
+{
+	ListNode* NewType = (ListNode*)malloc(sizeof(ListNode));
+	NewType->type = type;
+	if (list_node != NULL) // When there are dimensions in the list
+	{
+		while (list_node->next != NULL)
+		{
+			list_node = list_node->next;
+		}
+		list_node->next = NewType;
+
+	}
+	else // When there are no dimensions in the list
+	{
+		list_node = NewType;
+	}
+	NewType->next = NULL;
+
+}
+
+int get_id_size(SYMBOL_TABLE_ENTRY* entry)
+{
+	if (entry->Type==Integer || entry->Type == Float)
+	{
+		return 0;
+	}
+	else if (entry->Type == IntArray || entry->Type == FloatArray)
+	{
+		if (entry->ListSize == 0)
+		{
+			entry->ListSize= get_node_list_size(entry->ListOfArrayDimensions) + get_node_list_size(entry->ListOfParameterTypes);
+			return entry->ListSize;
+		}
+
+	}
+		
+}
+int get_node_list_size(ListNode* listNode)
+{
+	int count = 0;
+	if (listNode != NULL)
+	{
+		count++;
+		while (listNode->next != NULL)
+		{
+			count++;
+			listNode = listNode->next;
+		}
+	}
+	return count;
 }
 
 void set_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)

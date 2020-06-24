@@ -137,6 +137,34 @@ int check_types_equality(ListNode* id_parameters, ListNode* args)
 	return 0;
 }
 
+
+/*in: ListNode to check for errors
+out: 0 - if no error
+	 1 - if the List is null
+	 2 - if there is an errorType + Semantic print error
+
+*/
+int search_type_error(ListNode* to_check)
+{
+	if (to_check == NULL)
+		return 1;
+	if (to_check->type == ErrorType)
+	{
+		semantic_error("one of the parameter is a error parameter");
+		return 2;
+	}
+	while(to_check->next!=NULL)
+	{
+		to_check = to_check->next;
+		if (to_check->type == ErrorType)
+		{
+			semantic_error("one of the parameter is a error parameter");
+			return 2;
+		}
+	}
+	return 0;
+}
+
 lookupByTable(TYPE symbolTable, char* id_name)
 {
 	return atMap(symbolTable, id_name);
@@ -149,4 +177,85 @@ void AssafTest()
 	insert("hello");
 	lookup("hello");
 	pop_table();
+}
+
+/*
+in : 2 ListNodes *
+out : 
+		0 - both types and size are the same
+		1 - one of the types isnt the same
+		2 - not same length of args
+*/
+int check_types_equality(ListNode* id_parameters, ListNode* args) 
+{
+	if (id_parameters == NULL && args == NULL)
+		return 0;
+	else {
+		if (id_parameters == NULL || args == NULL)
+		{
+			semantic_error("not same sizes");
+			return 2;
+		}
+		else
+		{
+			if (id_parameters->type != args->type)
+			{
+				semantic_error("there is a diffrent parameter");
+				return 1;
+			}
+			while (id_parameters->next != NULL && args->next != NULL)
+			{
+				id_parameters = id_parameters->next;
+				args= args->next;
+				if (id_parameters->type != args->type)
+				{
+					semantic_error("there is a diffrent parameter");
+					return 1;
+				}
+			}
+			if ((id_parameters->next == NULL && args->next != NULL) || (id_parameters->next != NULL && args->next == NULL))
+			{
+				semantic_error("not same sizes");
+				return 2;
+			}
+			return 0;
+		}
+	}
+}
+
+int check_dim_equality(ListNode* id_parameters, ListNode* args) 
+{
+	if (id_parameters == NULL && args == NULL)
+		return 0;
+	else {
+		if (id_parameters == NULL || args == NULL)
+		{
+			semantic_error("not same sizes");
+			return 2;
+		}
+		else
+		{
+			if (id_parameters->dimension > args->dimension)
+			{
+				semantic_error("there is a bigger size than exepted");
+				return 1;
+			}
+			while (id_parameters->next != NULL && args->next != NULL)
+			{
+				id_parameters = id_parameters->next;
+				args = args->next;
+				if (id_parameters->dimension > args->dimension)
+				{
+					semantic_error("there is a bigger size than exepted");
+					return 1;
+				}
+			}
+			if ((id_parameters->next == NULL && args->next != NULL) || (id_parameters->next != NULL && args->next == NULL))
+			{
+				semantic_error("not same sizes");
+				return 2;
+			}
+			return 0;
+		}
+	}
 }

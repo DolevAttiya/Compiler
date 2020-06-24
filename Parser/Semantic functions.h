@@ -15,3 +15,7 @@ table_entry find(char* id_name);
 int check_types_equality(ListNode* id_parameters, ListNode* args);
 void find_predefinitions();
 void AssafTest();
+void semantic_error(char* message);
+int check_types_equality(ListNode*, ListNode*);
+int check_dim_equality(ListNode*, ListNode*);
+int search_type_error(ListNode* to_check);

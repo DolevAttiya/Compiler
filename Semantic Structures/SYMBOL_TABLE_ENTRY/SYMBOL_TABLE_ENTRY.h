@@ -11,6 +11,7 @@ typedef enum Role
 
 typedef enum Type
 {
+	ErrorType,
 	Integer,
 	Float,
 	IntArray,
@@ -37,6 +38,7 @@ typedef struct SYMBOL_TABLE_ENTRY
 		ListNode* ListOfArrayDimensions;
 		ListNode* ListOfParameterTypes;
 	};
+	int ListSize;
 } SYMBOL_TABLE_ENTRY;
 
 
@@ -47,6 +49,8 @@ const char* get_id_name(SYMBOL_TABLE_ENTRY* entry);
 void set_id_role(SYMBOL_TABLE_ENTRY* entry, Role role);
 
 Role get_id_role(SYMBOL_TABLE_ENTRY* entry);
+
+int get_id_size(SYMBOL_TABLE_ENTRY* entry);
 
 void set_id_type(SYMBOL_TABLE_ENTRY* entry, Type type);
 
@@ -65,6 +69,8 @@ int is_parameter_name_exist(SYMBOL_TABLE_ENTRY* entry, char* parameter_name);
 SYMBOL_TABLE_ENTRY* create_new_symbol_table_entry();
 
 void free_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry);
+ 
+void add_type_to_list_node(ListNode* list_node, Type type);
 
 void add_node_to_list(ListNode* list, ListNode* newNode);
 

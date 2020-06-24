@@ -941,7 +941,6 @@ void parse_STMT() {
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {STMT -> id VAR_OR_CALL}\n");
 		table_entry id= lookup(current_token->lexeme);
-		if(id == EmptyStruct)
 		parse_VAR_OR_CALL(id);
 		break;
 	case CURLY_BRACKET_OPEN_tok:
@@ -982,6 +981,10 @@ void parse_VAR_OR_CALL(table_entry id) {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS)}\n");
 		/*Semantic*/
+		if (id == EmptyStruct)
+		{
+			semantic_error("Undeclered function");
+		}
 		if (id->Role != FullDefinition)
 		{
 			semantic_error("Calling args on not a Function var or not declared");
@@ -999,10 +1002,19 @@ void parse_VAR_OR_CALL(table_entry id) {
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}\n");
 		back_token();
 		/*Semantic*/
-		Type leftSide = parse_VAR_TAG(id);
-		if(id->Type != leftSide)
+		if (id == EmptyStruct)
 		{
-			semantic_error("trying accsses a wrong type from the real type");
+			semantic_error("Undeclered varable");
+		}
+		if (id->Role != Variable)
+		{
+			semantic_error("The id is not a varable");
+		}
+		
+		Type leftSide = parse_VAR_TAG(id);
+		if(IntArray==leftSide || FloatArray == leftSide)
+		{
+			semantic_error("trying accsses a wrong type from the real type on the left side");
 		}
 		/*Semantic*/
 		current_follow = follow;
@@ -1011,15 +1023,21 @@ void parse_VAR_OR_CALL(table_entry id) {
 			return;
 		/*Semantic*/
 		Type rightSide = parse_EXPR();
+		if (IntArray == rightSide || FloatArray == rightSide)
+		{
+			semantic_error("trying accsses a wrong type from the real type on the right side");
+		}
 		if (rightSide != TypeError && leftSide != TypeError)
 		{
-			if (!((leftSide == Integer && rightSide == Integer) || (leftSide == Float && (rightSide == Integer) || (rightSide == Float)) || (leftSide == IntArray && rightSide == IntArray) || (leftSide == FloatArray && (rightSide == IntArray) || (rightSide == FloatArray))))
-			{ 
+
+			if (!((leftSide == Integer && rightSide == Integer) || (leftSide == Float && (rightSide == Integer) || (rightSide == Float))))
+			{
 				semantic_error("Right side's type does not match left side's type");
 			}
 		}
 		else
-		{
+		{ 
+			// Error ?
 		}
 		/*Semantic*/
 		break;

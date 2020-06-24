@@ -64,43 +64,6 @@ table_entry find(char* id_name)
 	return NULL;
 }
 
-int check_types_equality(ListNode* id_parameters, ListNode* args)
-{
-	if (id_parameters == NULL && args == NULL)
-		return 0;
-	else {
-		if (id_parameters == NULL || args == NULL)
-		{
-			semantic_error("not same sizes");
-			return 2;
-		}
-		else
-		{
-			if (id_parameters->type != args->type)
-			{
-				semantic_error("there is a diffrent parameter");
-				return 1;
-			}
-			while (id_parameters->next != NULL && args->next != NULL)
-			{
-				id_parameters = id_parameters->next;
-				args = args->next;
-				if (id_parameters->type != args->type)
-				{
-					semantic_error("there is a diffrent parameter");
-					return 1;
-				}
-			}
-			if ((id_parameters->next == NULL && args->next != NULL) || (id_parameters->next != NULL && args->next == NULL))
-			{
-				semantic_error("not same sizes");
-				return 2;
-			}
-			return 0;
-		}
-	}
-}
-
 //INTERNAL FUNCTIONS
 void semantic_error(char *message)
 {

@@ -11,6 +11,7 @@ typedef enum Role
 
 typedef enum Type
 {
+	ErrorType,
 	Integer,
 	Float,
 	IntArray,
@@ -76,5 +77,3 @@ void set_dimensions_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list);
 void set_parameters_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list);
 
 void free_list(ListNode** list);
-
-void add_type_to_list_node(ListNode** list_node, Type type);

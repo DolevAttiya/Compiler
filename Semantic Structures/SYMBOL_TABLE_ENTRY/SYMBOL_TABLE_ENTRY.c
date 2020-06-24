@@ -87,7 +87,6 @@ void free_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry)
 	free(entry);
 }
 
-
 int get_id_size(SYMBOL_TABLE_ENTRY* entry)
 {
 	if (entry->Type==Integer || entry->Type == Float)
@@ -119,6 +118,7 @@ int get_node_list_size(ListNode* listNode)
 	}
 	return count;
 }
+
 
 void set_dimensions_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
 
@@ -171,3 +171,4 @@ void add_type_to_list_node(ListNode** list_node, Type type)
 	NewType->next = NULL;
 
 }
+

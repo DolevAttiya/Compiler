@@ -136,6 +136,7 @@ lookupByTable(TYPE symbolTable, char* id_name)
 	return atMap(symbolTable, id_name);
 }
 
+
 /*in: ListNode to check for errors
 out: 0 - if no error
 	 1 - if the List is null
@@ -146,15 +147,15 @@ int search_type_error(ListNode* to_check)
 {
 	if (to_check == NULL)
 		return 1;
-	if (to_check->type == TypeError)
+	if (to_check->type == ErrorType)
 	{
 		semantic_error("one of the parameter is a error parameter");
 		return 2;
 	}
-	while (to_check->next != NULL)
+	while(to_check->next!=NULL)
 	{
 		to_check = to_check->next;
-		if (to_check->type == TypeError)
+		if (to_check->type == ErrorType)
 		{
 			semantic_error("one of the parameter is a error parameter");
 			return 2;
@@ -162,7 +163,6 @@ int search_type_error(ListNode* to_check)
 	}
 	return 0;
 }
-
 //TEST
 void AssafTest()
 {
@@ -222,6 +222,7 @@ out :
 		1 - one of the dim is bigger isnt the same
 		2 - not same length of args
 */
+
 int check_dim_equality(ListNode* id_parameters, ListNode* args) 
 {
 	if (id_parameters == NULL && args == NULL)

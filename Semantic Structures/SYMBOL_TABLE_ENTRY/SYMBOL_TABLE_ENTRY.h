@@ -64,16 +64,16 @@ void add_parameter_type_to_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry, Type ty
 
 ListNode* get_parameter_types(SYMBOL_TABLE_ENTRY* entry);
 
-int is_parameter_name_exist(SYMBOL_TABLE_ENTRY* entry, char* parameter_name);
-
 SYMBOL_TABLE_ENTRY* create_new_symbol_table_entry();
 
 void free_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry);
  
 void add_type_to_list_node(ListNode* list_node, Type type);
 
-void add_node_to_list(ListNode* list, ListNode* newNode);
+void add_node_to_list(ListNode** list, ListNode* newNode);
 
-void set_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list);
+void set_dimensions_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list);
+
+void set_parameters_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list);
 
 void free_list(ListNode** list);

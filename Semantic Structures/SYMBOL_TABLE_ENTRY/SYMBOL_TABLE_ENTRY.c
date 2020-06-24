@@ -140,7 +140,32 @@ int get_node_list_size(ListNode* listNode)
 	return count;
 }
 
-void set_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
+
+void set_dimensions_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
 {
 	entry->ListOfArrayDimensions = list;
+}
+
+void set_parameters_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
+{
+	entry->ListOfParameterTypes = list;
+}
+
+void add_node_to_list(ListNode** list, ListNode* newNode)
+{
+	ListNode* currentNode = *list;
+
+	if (*list == NULL)
+	{
+		*list = newNode;
+	}
+	else
+	{
+		while (currentNode->next != NULL)
+		{
+			currentNode = currentNode->next;
+		}
+		currentNode->next = newNode;
+	}
+	newNode->next = NULL;
 }

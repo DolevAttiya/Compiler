@@ -207,7 +207,7 @@ void parse_PROG()
 		{
 			check_types_equality(entry->ListOfParameterTypes, parameters_list);
 			set_id_role(entry, FullDefinition);
-			free_list(entry->ListOfParameterTypes);
+			free_list(&entry->ListOfParameterTypes);
 			set_parameters_list(entry, parameters_list);
 		}
 	}

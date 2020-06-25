@@ -2,7 +2,7 @@
 #include "Semantic functions.h"
 #define symbol_table value
 
-lookupByTable(TYPE symbolTable,char* id_name);
+table_entry lookupByTable(TYPE symbolTable,char* id_name);
 void semantic_error(char* message);
 table_entry _get_current_table();
 void _free_current_table_with_contents_from_list();
@@ -56,7 +56,7 @@ table_entry find(char* id_name)
 	while (node != symbolTableList->firstLink)
 	{
 		id_entry = lookupByTable(node->symbol_table, id_name);
-		if (id_entry != NULL)
+		if (id_entry != NULL && id_entry != EmptyStruct)
 			return id_entry;
 		else
 			node = node->prev;
@@ -131,7 +131,7 @@ void find_predefinitions()
 	}
 }
 
-lookupByTable(TYPE symbolTable, char* id_name)
+table_entry lookupByTable(TYPE symbolTable, char* id_name)
 {
 	return atMap(symbolTable, id_name);
 }

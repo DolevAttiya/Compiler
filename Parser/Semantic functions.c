@@ -141,7 +141,7 @@ lookupByTable(TYPE symbolTable, char* id_name)
 out: 0 - if no error
 	 1 - if the List is null
 	 2 - if there is an errorType + Semantic print error
-
+	 2 - if there is an DupplicatedError + Semantic print error
 */
 int search_type_error(ListNode* to_check)
 {
@@ -152,6 +152,11 @@ int search_type_error(ListNode* to_check)
 		semantic_error("one of the parameter is a error parameter");
 		return 2;
 	}
+	else  if(to_check->type == DupplicateError)
+	{
+		semantic_error("There is a dupplicated parameter");
+		return 3;
+	}
 	while(to_check->next!=NULL)
 	{
 		to_check = to_check->next;
@@ -159,6 +164,11 @@ int search_type_error(ListNode* to_check)
 		{
 			semantic_error("one of the parameter is a error parameter");
 			return 2;
+		}
+		else  if (to_check->type == DupplicateError)
+		{
+			semantic_error("There is a dupplicated parameter");
+			return 3;
 		}
 	}
 	return 0;

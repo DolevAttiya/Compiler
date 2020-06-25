@@ -768,8 +768,7 @@ Type parse_PARAM() {
 			return get_id_type(id);
 		}
 		else {
-			//semantic error dup param
-			semantic_error("Duplicated parameter error");
+			return DupplicateError;
 		}
 	}
 	else if (dimList != NULL)

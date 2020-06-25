@@ -16,7 +16,8 @@ typedef enum Type
 	IntArray,
 	FloatArray,
 	Void,
-	TypeError
+	TypeError,
+	DupplicateError
 } Type;
 
 typedef struct ListNode

@@ -151,6 +151,10 @@ void parse_PROG()
 					}
 				}
 			}
+			else
+			{
+				//search_error(parameters_list); TODO: Change to real code
+			}
 			/*SEMANTIC*/
 
 		} while (current_token->kind == SEMICOLON_tok);
@@ -592,6 +596,9 @@ void parse_FUNC_WITH_BODY()
 	/*SEMANTIC*/
 
 	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list);
+
+	//search_error(&parameters_list) //TODO: Change to real code
+
 	table_entry entry = lookup(function_name);
 	/*if (entry == NULL)
 	{

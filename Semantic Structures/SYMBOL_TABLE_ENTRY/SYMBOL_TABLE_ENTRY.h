@@ -11,7 +11,6 @@ typedef enum Role
 
 typedef enum Type
 {
-	ErrorType,
 	Integer,
 	Float,
 	IntArray,

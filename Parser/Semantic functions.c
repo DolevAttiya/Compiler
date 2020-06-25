@@ -147,7 +147,7 @@ int search_type_error(ListNode* to_check)
 {
 	if (to_check == NULL)
 		return 1;
-	if (to_check->type == ErrorType)
+	if (to_check->type == TypeError)
 	{
 		semantic_error("one of the parameter is a error parameter");
 		return 2;
@@ -155,7 +155,7 @@ int search_type_error(ListNode* to_check)
 	while(to_check->next!=NULL)
 	{
 		to_check = to_check->next;
-		if (to_check->type == ErrorType)
+		if (to_check->type == TypeError)
 		{
 			semantic_error("one of the parameter is a error parameter");
 			return 2;

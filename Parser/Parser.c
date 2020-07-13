@@ -131,6 +131,9 @@ void parse_PROG()
 		/*SEMANTIC*/
 
 		do {
+			// while (current_token->kind == SEMICOLON_tok || current_token->kind == cruly brakets_tok || EOF ) {count ++; current_token = next_token();}
+			// if (current_token->kind ==SEMICOLON_tok && !EOF) {flag = 1} else {flag=0}
+			//while (count--) {backtoken()}
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
 			parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
 			parse_FUNC_PROTOTYPE(&function_name, &function_type ,&parameters_list);

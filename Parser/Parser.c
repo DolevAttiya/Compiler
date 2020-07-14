@@ -109,14 +109,14 @@ void parse_PROG()
 	ListNode* parameters_list;
 	/*SEMANTIC*/
 
- 	parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list);
+ 	parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list, PreDefinition);
 
 	current_follow = follow2;
 	current_follow_size = 3;
 
 	if (match(SEMICOLON_tok))
 	{
-		parse_FB();	/*For the parameters scope*/ //TODO: Take that fix to the original
+		parse_FB();	/*For the parameters scope*/
 		/*SEMANTIC*/
 		if (ParsingSucceeded)
 		{
@@ -130,17 +130,30 @@ void parse_PROG()
 		}
 		/*SEMANTIC*/
 
+		int count;
+		Role role_for_params_parser;
+
 		do {
-			// while (current_token->kind == SEMICOLON_tok || current_token->kind == cruly brakets_tok || EOF ) {count ++; current_token = next_token();}
-			// if (current_token->kind ==SEMICOLON_tok && !EOF) {flag = 1} else {flag=0}
-			//while (count--) {backtoken()}
+			count = 0;
+			while (current_token->kind != SEMICOLON_tok && current_token->kind != CURLY_BRACKET_OPEN_tok && current_token->kind != EOF )
+			{
+				count ++; 
+				current_token = next_token();
+			}
+			if (current_token->kind == SEMICOLON_tok)
+				role_for_params_parser = PreDefinition;
+			else
+				role_for_params_parser = FullDefinition;
+			while (count--)
+				back_token();
+
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
 			parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
-			parse_FUNC_PROTOTYPE(&function_name, &function_type ,&parameters_list);
+			parse_FUNC_PROTOTYPE(&function_name, &function_type ,&parameters_list, role_for_params_parser);
 			current_token = next_token();
 
 			/*SEMANTIC*/
-			if (current_token->kind == SEMICOLON_tok) //TODO: Add to fix
+			if (current_token->kind == SEMICOLON_tok)
 			{
 				parse_FB();	/*For the parameters scope*/
 				if (ParsingSucceeded)
@@ -156,7 +169,28 @@ void parse_PROG()
 			}
 			else
 			{
-				//search_error(parameters_list); TODO: Change to real code
+				table_entry entry = lookup(function_name);
+				if (entry != NULL)
+				{
+					if (entry->Role == FullDefinition)
+					{
+						fprintf(semantic_analyzer_output_file, "A full definition already exists\n");
+					}
+					else if (entry->Role == PreDefinition)
+					{
+						check_types_equality(entry->ListOfParameterTypes, parameters_list);
+						set_id_role(entry, FullDefinition);
+						free_list(entry->ListOfParameterTypes);
+						set_parameters_list(entry, parameters_list);
+					}
+				}
+				else
+				{
+					table_entry entry = insert(function_name);
+					set_id_role(entry, FullDefinition);
+					set_id_type(entry, function_type);
+					set_parameters_list(entry, parameters_list);
+				}
 			}
 			/*SEMANTIC*/
 
@@ -177,7 +211,7 @@ void parse_PROG()
 	else
 	{
 		parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
-		parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list);
+		parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list, FullDefinition);
 		fseek(parser_output_file, parser_output_file_last_position, SEEK_SET); //Returns file position to before the last parse_FUNC_PROTOTYPE
 		while (fgetc(parser_output_file) != EOF)
 			buffer_size++;
@@ -198,11 +232,6 @@ void parse_PROG()
 
 	/*SEMANTIC*/
 	table_entry entry = find(function_name);
-	/*if (entry==NULL)
-	{ TODO: Remove for the fix
-		fprintf(semantic_analyzer_output_file, "No predefinition exists\n");
-	}
-	else*/ 
 	if (entry != NULL)
 	{
 		if (entry->Role == FullDefinition)
@@ -244,7 +273,7 @@ void parse_PROG()
 	{
 		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> epsilon}\n");
 
-		find_predefinitions(); //TODO: Add to fix
+		find_predefinitions(); 
 
 		/*SEMANTIC*/
 		parse_FB();
@@ -484,7 +513,7 @@ void parse_DIM_SIZES_TAG(ListNode** DimensionsList)
 	}
 }
 
-void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** ParametersList)
+void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** ParametersList, Role role_for_parameters_parser)
 {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_OPEN_tok };
 	current_follow = follow;
@@ -529,7 +558,7 @@ void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** 
 	parse_BB();
 	/*SEMANTIC*/
 
-	if (!(*ParametersList = parse_PARAMS()))
+	if (!(*ParametersList = parse_PARAMS(role_for_parameters_parser)))
 	{
 		/*SEMANTIC*/
 		ParsingSucceeded = 0;
@@ -598,16 +627,9 @@ void parse_FUNC_WITH_BODY()
 	ListNode* parameters_list;
 	/*SEMANTIC*/
 
-	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list);
-
-	//search_error(&parameters_list) //TODO: Change to real code
+	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list, FullDefinition);
 
 	table_entry entry = lookup(function_name);
-	/*if (entry == NULL)
-	{
-		fprintf(semantic_analyzer_output_file, "No predefinition exists\n");
-	}
-	else */
 	if (entry != NULL)
 	{
 		if (entry->Role == FullDefinition)
@@ -669,7 +691,7 @@ Type parse_RETURN_TYPE() {
 	}
 }
 
-ListNode* parse_PARAMS() {
+ListNode* parse_PARAMS(Role role_for_parameters_parser) {
 
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
@@ -814,7 +836,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList) {
 			if (*param_type != TypeError)
 				*param_type = FloatArray;
 			else
-				return; // TODO so do i delete the ID if he is set to error type ?
+				return;
 		}
 		/*Semantic*/
 		current_follow = follow;

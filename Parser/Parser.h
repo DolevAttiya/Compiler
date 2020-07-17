@@ -30,9 +30,9 @@ void parse_FUNC_WITH_BODY();
 
 Type parse_RETURN_TYPE();
 ListNode* parse_PARAMS(Role role_for_parameters_parser);
-ListNode* parse_PARAM_LIST();
-void parse_PARAM_LIST_TAG(ListNode* Head);
-Type parse_PARAM();
+ListNode* parse_PARAM_LIST(Role role_for_parameters_parser);
+void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser);
+Type parse_PARAM(Role role_for_parameters_parser);
 void parse_PARAM_TAG(Type* param_type, ListNode** dimList);
 void parse_COMP_STMT();
 void parse_VAR_DEC_LIST();

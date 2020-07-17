@@ -23,13 +23,13 @@ void parse_DIM_SIZES(ListNode** DimensionsList);
 void parse_DIM_SIZES_TAG(ListNode** DimensionsList);
 //void parse_FUNC_PREDEFS();
 //void parse_FUNC_PREDEFS_TAG();
-void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type, ListNode** ParametersList);
+void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type, ListNode** ParametersList, Role role_for_parameters_parser);
 void parse_FUNC_FULL_DEFS();
 void parse_FUNC_FULL_DEFS_TAG();
 void parse_FUNC_WITH_BODY();
 
 Type parse_RETURN_TYPE();
-ListNode* parse_PARAMS();
+ListNode* parse_PARAMS(Role role_for_parameters_parser);
 ListNode* parse_PARAM_LIST();
 void parse_PARAM_LIST_TAG(ListNode* Head);
 Type parse_PARAM();

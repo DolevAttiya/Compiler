@@ -42,9 +42,9 @@ void parse_STMT_LIST_TAG();
 void parse_STMT();
 void parse_VAR_OR_CALL(SYMBOL_TABLE_ENTRY*);
 void parse_IF_STMT();
-ListNode* parse_ARGS();
+void parse_ARGS(ListNode*);
 
-ListNode* parse_ARG_LIST();
+void parse_ARG_LIST(ListNode*);
 void parse_ARG_LIST_TAG();
 void parse_RETURN_STMT();
 void parse_RETURN_STMT_TAG();

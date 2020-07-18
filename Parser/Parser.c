@@ -1026,8 +1026,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 		{
 			semantic_error("Calling args on not a Function var or not declared");
 		}
-		ListNode* args = parse_ARGS();
-		result = check_types_equality(id->ListOfParameterTypes, args);
+		parse_ARGS(id->ListOfParameterTypes);
 		/*Semantic*/
 		current_follow = follow;
 		current_follow_size = 2;
@@ -1099,7 +1098,7 @@ void parse_IF_STMT() {
 		return;
 	parse_STMT();
 }
-linkedList* parse_ARGS() {
+void parse_ARGS(ListNode* list_of_params_types) {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -1118,27 +1117,21 @@ linkedList* parse_ARGS() {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {ARGS -> ARG_LIST}\n");
 		back_token();
-		/*Semantic*/
-		ListNode* to_check = parse_ARG_LIST();
-		if (!search_type_error(to_check))
-			return to_check;
-		else
-			return NULL;
-		/*Semantic*/
+		parse_ARG_LIST(list_of_params_types);
 		break;
 	default:
 		if (parse_Follow() != 0)
 		{
 			fprintf(parser_output_file, "Rule {ARGS -> epsilon}\n");
+			/*Semantic*/
+			if (list_of_params_types != NULL)
+			{
+				semantic_error("there is a diffrence between the list");
+			}
+			/*Semantic*/
 			back_token();
-			/*Semantic*/
-			return (ListNode*)calloc(1, sizeof(ListNode));
-			/*Semantic*/
 		}
 		error();
-		/*Semantic*/
-		return NULL;
-		/*Semantic*/
 	}
 }
 
@@ -1202,7 +1195,7 @@ char* get_tokens_names()
 	return tokens;
 }
 
-linkedList* parse_ARG_LIST() {
+void parse_ARG_LIST() {
 	fprintf(parser_output_file, "Rule {ARG_LIST -> EXPR ARG_LIST'}\n");
 	parse_EXPR();
 	parse_ARG_LIST_TAG();

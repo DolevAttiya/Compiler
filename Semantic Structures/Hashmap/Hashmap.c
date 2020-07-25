@@ -8,7 +8,6 @@
 #include <string.h>
 #include <assert.h>
 #include "hashMap.h"
-static const struct ValueType EmptyStruct;
     /* struct hashLink {
        KeyType key; //the key is what you use to look up a hashLink
        ValueType value; //the value stored with the hashLink, a pointer to int in the case of concordance

@@ -2,7 +2,7 @@
 #include "Semantic functions.h"
 #define symbol_table value
 
-lookupByTable(TYPE symbolTable,char* id_name);
+table_entry lookupByTable(TYPE symbolTable,char* id_name);
 void semantic_error(char* message);
 table_entry _get_current_table();
 void _free_current_table_with_contents_from_list();
@@ -56,7 +56,7 @@ table_entry find(char* id_name)
 	while (node != symbolTableList->firstLink)
 	{
 		id_entry = lookupByTable(node->symbol_table, id_name);
-		if (id_entry != NULL)
+		if (id_entry != NULL && id_entry != EmptyStruct)
 			return id_entry;
 		else
 			node = node->prev;
@@ -64,11 +64,10 @@ table_entry find(char* id_name)
 	return NULL;
 }
 
-
 //INTERNAL FUNCTIONS
 void semantic_error(char *message)
 {
-	// Should print to the log file I guess
+	fprintf(semantic_analyzer_output_file, message);
 }
 
 table_entry _get_current_table()
@@ -132,9 +131,9 @@ void find_predefinitions()
 	}
 }
 
-int check_types_equality(ListNode* id_parameters, ListNode* args)
+table_entry lookupByTable(TYPE symbolTable, char* id_name)
 {
-	return 0;
+	return atMap(symbolTable, id_name);
 }
 
 
@@ -142,34 +141,38 @@ int check_types_equality(ListNode* id_parameters, ListNode* args)
 out: 0 - if no error
 	 1 - if the List is null
 	 2 - if there is an errorType + Semantic print error
-
+	 2 - if there is an DupplicatedError + Semantic print error
 */
 int search_type_error(ListNode* to_check)
 {
 	if (to_check == NULL)
 		return 1;
-	if (to_check->type == ErrorType)
+	if (to_check->type == TypeError)
 	{
 		semantic_error("one of the parameter is a error parameter");
 		return 2;
 	}
+	else  if(to_check->type == DupplicateError)
+	{
+		semantic_error("There is a dupplicated parameter");
+		return 3;
+	}
 	while(to_check->next!=NULL)
 	{
 		to_check = to_check->next;
-		if (to_check->type == ErrorType)
+		if (to_check->type == TypeError)
 		{
 			semantic_error("one of the parameter is a error parameter");
 			return 2;
 		}
+		else  if (to_check->type == DupplicateError)
+		{
+			semantic_error("There is a dupplicated parameter");
+			return 3;
+		}
 	}
 	return 0;
 }
-
-lookupByTable(TYPE symbolTable, char* id_name)
-{
-	return atMap(symbolTable, id_name);
-}
-
 //TEST
 void AssafTest()
 {
@@ -222,6 +225,13 @@ int check_types_equality(ListNode* id_parameters, ListNode* args)
 		}
 	}
 }
+/*
+in : 2 ListNodes *
+out :
+		0 - both types and size are the same
+		1 - one of the dim is bigger isnt the same
+		2 - not same length of args
+*/
 
 int check_dim_equality(ListNode* id_parameters, ListNode* args) 
 {

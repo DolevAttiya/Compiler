@@ -52,7 +52,7 @@ int parse_VAR_TAG();
 void parse_EXPR_LIST();
 void parse_EXPR_LIST_TAG();
 void parse_CONDITION();
-Type parse_EXPR();
+Expr parse_EXPR();
 void parse_EXPR_TAG();
 void parse_TERM();
 void parse_TERM_TAG();

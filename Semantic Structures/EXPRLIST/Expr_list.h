@@ -1,10 +1,9 @@
 #pragma once
 #include "../../Semantic Structures/SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
 
-typedef struct ExprList
+typedef struct Expr
 {
-	struct ExprList* next;
 	Type type;
 	int Valueable;
 	int Value;
-}ExprList;
+}Expr;

@@ -268,4 +268,29 @@ int check_dim_equality(ListNode* id_parameters, ListNode* args)
 			return 0;
 		}
 	}
+	void check_table_against_reality(Type table, Type reality)
+	{
+		if (table == FloatArray)
+			if (!(reality == FloatArray || reality == IntArray))
+			{
+				// semantic of FloatArray 
+			}
+		if (table == IntArray)
+			if (!reality == IntArray)
+			{
+				// semantic of IntArray 
+			}
+
+		if (table == Integer)
+			if (!reality == Integer)
+			{
+				// semantic of Integer 
+
+			}
+		if(table == Float)
+			if (!(reality == Float || reality == Integer))
+			{
+				// semantic of Float 
+			}
+	}
 }

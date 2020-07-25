@@ -49,7 +49,7 @@ void parse_ARG_LIST(ListNode*);
 void parse_ARG_LIST_TAG();
 void parse_RETURN_STMT();
 void parse_RETURN_STMT_TAG();
-int parse_VAR_TAG();
+Type parse_VAR_TAG(table_entry id);
 void parse_EXPR_LIST();
 void parse_EXPR_LIST_TAG();
 void parse_CONDITION();

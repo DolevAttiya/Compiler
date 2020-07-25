@@ -4,6 +4,7 @@
 FILE* parser_output_file;
 int match(eTOKENS expected_token);
 void error();
+void semantic_error();
 
 int parse_Follow();
 char* get_tokens_names();
@@ -52,5 +53,5 @@ void parse_EXPR();
 void parse_EXPR_TAG();
 void parse_TERM();
 void parse_TERM_TAG();
-void parse_FACTOR();
-void parse_VAR_OR_CALL_TAG();
+void parse_FACTOR(Type type);
+void parse_VAR_OR_CALL_TAG(table_entry id);

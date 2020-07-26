@@ -233,7 +233,7 @@ out :
 		2 - not same length of args
 */
 
-int check_dim_equality(ListNode* id_parameters, ListNode* args) 
+int check_dim_equality(ListNode* id_parameters, ListNode* args)
 {
 	if (id_parameters == NULL && args == NULL)
 		return 0;
@@ -268,7 +268,8 @@ int check_dim_equality(ListNode* id_parameters, ListNode* args)
 			return 0;
 		}
 	}
-	void check_table_against_reality(Type table, Type reality)
+}
+void check_table_against_reality(Type table, Type reality)
 	{
 		if (table == FloatArray)
 			if (!(reality == FloatArray || reality == IntArray))
@@ -293,4 +294,3 @@ int check_dim_equality(ListNode* id_parameters, ListNode* args)
 				// semantic of Float 
 			}
 	}
-}

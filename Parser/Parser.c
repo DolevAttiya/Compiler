@@ -1060,15 +1060,15 @@ void parse_VAR_OR_CALL(table_entry id) {
 		if (!match(ASSIGNMENT_OP_tok))
 			return;
 		/*Semantic*/
-		Expr rightSide = parse_EXPR();
-		if (IntArray == rightSide.type || FloatArray == rightSide.type)
+		Expr* rightSide = parse_EXPR();
+		if (IntArray == rightSide->type || FloatArray == rightSide->type)
 		{
 			semantic_error("trying accsses a wrong type from the real type on the right side");
 		}
-		if (rightSide.type != TypeError && leftSide != TypeError)
+		if (rightSide->type != TypeError && leftSide != TypeError)
 		{
 
-			if (!((leftSide == Integer && rightSide.type == Integer) || (leftSide == Float && (rightSide.type == Integer) || (rightSide.type == Float))))
+			if (!((leftSide == Integer && rightSide->type == Integer) || (leftSide == Float && (rightSide->type == Integer) || (rightSide->type == Float))))
 			{
 				semantic_error("Right side's type does not match left side's type");
 			}
@@ -1077,6 +1077,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 		{
 			// Error ?
 		}
+		free(rightSide);
 		/*Semantic*/
 		break;
 	default:
@@ -1202,8 +1203,9 @@ void parse_ARG_LIST(ListNode* list_of_params_types) {
 	int current_token_line = current_token->lineNumber;
 	if (list_of_params_types == NULL)
 		semantic_error("difference between definitions");
-	check_table_against_reality(list_of_params_types->type, parse_EXPR());
-	parse_ARG_LIST_TAG(*list_of_params_types->next);
+	Expr* expr = parse_EXPR();
+	check_table_against_reality(list_of_params_types->type,expr->type);
+	parse_ARG_LIST_TAG(list_of_params_types->next);
 }
 
 void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
@@ -1223,7 +1225,8 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		/* Semantic */
 		if (list_of_params_types == NULL)
 			semantic_error("difference between definitions");		
-		check_table_against_reality(list_of_params_types->type, parse_EXPR());
+		Expr* expr = parse_EXPR();
+		check_table_against_reality(list_of_params_types->type, expr->type);
 		/* Semantic */
 		parse_ARG_LIST_TAG(list_of_params_types->next);
 		break;
@@ -1340,12 +1343,12 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	fprintf(parser_output_file, "Rule {EXPR_LIST -> EXPR EXPR_LIST'}\n");
 	if (list_of_dimensions == NULL)
 		semantic_error("List of EXPR must include values");
-	Expr* expr = parse_EXPR(id);
-	if (expr.type != Integer)
+	Expr* expr = parse_EXPR();
+	if (expr->type != Integer)
 		semantic_error("EXPR type must be Integer");
-	else if(expr.Valueable)
+	else if(expr->Valueable)
 	{
-		if (expr.Value >= list_of_dimensions->dimension)
+		if (expr->Value >= list_of_dimensions->dimension)
 			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array");
 	}
 	parse_EXPR_LIST_TAG(list_of_dimensions->next);
@@ -1366,21 +1369,21 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}\n");
 		/* Semantic */
-		counter_param++;
-		if (list_of_params_types->type != Integer)
-			semantic_error(semantic_analyzer_output_file, "Type of expr in array must be integer");
+		//if (list_of_dimension == NULL)
+	//		semantic_error("different num of dimensions");
+		if (list_of_dimensions->type != Integer)
+			semantic_error("Type of expr in array must be integer");
 		parse_EXPR();
-		list_of_params_types->next;
+		list_of_dimensions->next;
 		/* Semantic */
-		parse_EXPR();
-		parse_EXPR_LIST_TAG();
+		parse_EXPR_LIST_TAG(list_of_dimensions);
 		break;
 	case BRACKET_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");
 		back_token();
 		/* Semantic */
-		if (expr_counter != list_of_params_types->dimension)
-			semantic_error("n should be equal to the amount of dimensions in the array")
+	//	if (expr_counter != list_of_dimensions->dimension)
+		//	semantic_error("n should be equal to the amount of dimensions in the array");
 		/* Semantic */
 		break;
 	default:
@@ -1419,7 +1422,7 @@ Expr* parse_EXPR() {
 	{
 		expr->type = Integer;
 		expr->Valueable = 1;
-		expr->Value = term_expr->Value + expr_tag->value;
+		expr->Value = term_expr->Value + expr_tag->Value;
 	}
 	free(term_expr);
 	free(expr_tag);
@@ -1446,18 +1449,18 @@ Expr* parse_EXPR_TAG() {
 		/* Semantic */
 		Expr* term_expr = parse_TERM();
 		Expr* expr_tag = parse_EXPR_TAG();
-		if (term_expr.type == Integer && expr_tag.type == Integer) {
-			expr.type = Integer;
-			expr.Valueable = 1;
-			expr.Value = term_expr.Value + expr_tag.Value;
+		if (term_expr->type == Integer && expr_tag->type == Integer) {
+			expr->type = Integer;
+			expr->Valueable = 1;
+			expr->Value = term_expr->Value + expr_tag->Value;
 		}
-		else if (term_expr.type == TypeError || expr_tag.type == TypeError) {
-			expr.type = TypeError;
-			expr.Valueable = 0;
+		else if (term_expr->type == TypeError || expr_tag->type == TypeError) {
+			expr->type = TypeError;
+			expr->Valueable = 0;
 		}
 		else {
-			expr.type = Float;
-			expr.Valueable = 0;
+			expr->type = Float;
+			expr->Valueable = 0;
 		}
 		free(term_expr);
 		free(expr_tag);
@@ -1481,7 +1484,7 @@ Expr* parse_EXPR_TAG() {
 		return expr;
 	 default:
 		error();
-		expr.type = TypeError;
+		expr->type = TypeError;
 		expr->Valueable = 0;
 		return expr;
 	}
@@ -1495,7 +1498,7 @@ Expr* parse_TERM() {
 	{
 		expr->type = Integer;
 		expr->Valueable = 1;
-		expr->Value = term_expr->Value * expr_tag->value;
+		expr->Value = factor_expr->Value * term_tag_expr->Value;
 	}
 	free(factor_expr);
 	free(term_tag_expr);
@@ -1523,18 +1526,18 @@ Expr* parse_TERM_TAG() {
 		/* Semantic */
 		Expr* factor_expr = parse_FACTOR();
 		Expr* term_tag_expr = parse_TERM_TAG();
-		if (factor_expr.type == Integer && term_tag_expr.type == Integer) {
-			expr.type = Integer;
-			expr.Valueable = 1;
-			expr.Value = factor_expr.Value * term_tag_expr.Value;
+		if (factor_expr->type == Integer && term_tag_expr->type == Integer) {
+			expr->type = Integer;
+			expr->Valueable = 1;
+			expr->Value = factor_expr->Value * term_tag_expr->Value;
 		}
-		else if (factor_expr.type == TypeError || term_tag_expr.type == TypeError) {
-			expr.type = TypeError;
-			expr.Valueable = 0;
+		else if (factor_expr->type == TypeError || term_tag_expr->type == TypeError) {
+			expr->type = TypeError;
+			expr->Valueable = 0;
 		}
 		else {
-			expr.type = Float;
-			expr.Valueable = 0;
+			expr->type = Float;
+			expr->Valueable = 0;
 		}
 		free(factor_expr);
 		free(term_tag_expr);
@@ -1559,7 +1562,7 @@ Expr* parse_TERM_TAG() {
 		return expr;
 	default:
 		error();
-		expr.type = TypeError;
+		expr->type = TypeError;
 		expr->Valueable = 0;
 		return expr;
 	}
@@ -1586,31 +1589,31 @@ Expr* parse_FACTOR() {
 		fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL'}\n");
 		/* Semantic */
 		if (id != NULL) {
-			expr.type = get_id_type(id);
-			expr.Valueable = 0;
+			expr->type = get_id_type(id);
+			expr->Valueable = 0;
 		}
 		/* Semantic */
 		parse_VAR_OR_CALL_TAG(id);
 		break;
 	case INT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> int_num}\n");
-		expr.type = Integer;
-		expr.Valueable = 1;
-		expr.Value = current_token->lexeme;//TODO:  str to int
+		expr->type = Integer;
+		expr->Valueable = 1;
+		expr->Value = current_token->lexeme;//TODO:  str to int
 		break;
 	case FLOAT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> float_num}\n");
-		expr.type = Float;
-		expr.Valueable = 0;
+		expr->type = Float;
+		expr->Valueable = 0;
 		break;
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> (EXPR)}\n");
 		free(expr);
-		expr = parse_EXPR(id);
+		expr = parse_EXPR();
 		current_follow = follow;
 		if (!match(PARENTHESIS_CLOSE_tok))
 		{
-			expr.type = TypeError;
+			expr->type = TypeError;
 			expr->Valueable = 0;
 		}
 		return expr;

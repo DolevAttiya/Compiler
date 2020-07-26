@@ -1618,7 +1618,7 @@ Expr* parse_FACTOR() {
 		fprintf(parser_output_file, "Rule {FACTOR -> int_num}\n");
 		expr->type = Integer;
 		expr->Valueable = 1;
-		expr->Value = current_token->lexeme;//TODO:  str to int
+		expr->Value = atoi(current_token->lexeme);
 		return expr;
 	case FLOAT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> float_num}\n");

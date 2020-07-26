@@ -807,9 +807,9 @@ Type parse_PARAM(Role role_for_parameters_parser) {
 		{
 			if (role_for_parameters_parser == FullDefinition)
 			{
-				char* str;
-				sprintf(str, "Dupplicated in line %d", error_line_number);
-				semantic_error(str);
+				//char* str;
+				//sprintf(str, "Dupplicated in line %d", error_line_number);
+				semantic_error("Dupplicated in line %d");
 				return DupplicateError;
 			}
 		}
@@ -1204,8 +1204,19 @@ void parse_ARG_LIST(ListNode* list_of_params_types) {
 	if (list_of_params_types == NULL)
 		semantic_error("difference between definitions");
 	Expr* expr = parse_EXPR();
-	check_table_against_reality(list_of_params_types->type,expr->type);
-	parse_ARG_LIST_TAG(list_of_params_types->next);
+	if (list_of_params_types == NULL)
+		check_table_against_reality(TypeError,expr->type);
+	else
+		check_table_against_reality(list_of_params_types->type, expr->type);
+	if (list_of_params_types != NULL)
+	{
+		if (list_of_params_types->next != NULL)
+			parse_ARG_LIST_TAG(list_of_params_types->next);
+		else
+			parse_ARG_LIST_TAG(NULL);
+	}
+	else
+		parse_ARG_LIST_TAG(NULL);
 }
 
 void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
@@ -1226,9 +1237,16 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		if (list_of_params_types == NULL)
 			semantic_error("difference between definitions");		
 		Expr* expr = parse_EXPR();
-		check_table_against_reality(list_of_params_types->type, expr->type);
+		if (list_of_params_types == NULL)
+			check_table_against_reality(TypeError, expr->type);
+		else
+			check_table_against_reality(list_of_params_types->type, expr->type);
+		
+		if (list_of_params_types->next != NULL)
+			parse_ARG_LIST_TAG(list_of_params_types->next);
+		else
+			parse_ARG_LIST_TAG(NULL);
 		/* Semantic */
-		parse_ARG_LIST_TAG(list_of_params_types->next);
 		break;
 	case PARENTHESIS_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> Epsilon}\n");
@@ -1594,18 +1612,18 @@ Expr* parse_FACTOR() {
 		}
 		/* Semantic */
 		parse_VAR_OR_CALL_TAG(id);
-		break;
+		return expr;
 	case INT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> int_num}\n");
 		expr->type = Integer;
 		expr->Valueable = 1;
 		expr->Value = current_token->lexeme;//TODO:  str to int
-		break;
+		return expr;
 	case FLOAT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> float_num}\n");
 		expr->type = Float;
 		expr->Valueable = 0;
-		break;
+		return expr;
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> (EXPR)}\n");
 		free(expr);
@@ -1646,7 +1664,10 @@ void parse_VAR_OR_CALL_TAG(table_entry id) {
 	switch (current_token->kind) {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS)}\n");
-		parse_ARGS(id->ListOfParameterTypes);
+		if(id == NULL)// TODO : Print Semantic Error NO IMPLEMENTATION of Function.
+			parse_ARGS(NULL);
+		else
+			parse_ARGS(id->ListOfParameterTypes);
 		current_follow = follow;
 		if(!match(PARENTHESIS_CLOSE_tok))
 			return;

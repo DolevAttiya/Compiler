@@ -230,29 +230,29 @@ void parse_PROG()
 		free(temp_buffer);
 	temp_buffer = NULL;
 
-	/*SEMANTIC*/
-	table_entry entry = find(function_name);
-	if (entry != NULL)
-	{
-		if (entry->Role == FullDefinition)
-		{
-			fprintf(semantic_analyzer_output_file, "A full definition already exists\n");
-		}
-		else if (entry->Role == PreDefinition)
-		{
-			check_types_equality(entry->ListOfParameterTypes, parameters_list);
-			set_id_role(entry, FullDefinition);
-			free_list(entry->ListOfParameterTypes);
-			set_parameters_list(entry, parameters_list);
-		}
-	}
-	else
-	{
-		table_entry entry = insert(function_name);
-		set_id_role(entry, FullDefinition);
-		set_id_type(entry, function_type);
-		set_parameters_list(entry, parameters_list);
-	}
+	/*SEMANTIC*/ //TODO: May need to remove
+	//table_entry entry = find(function_name);
+	//if (entry != NULL)
+	//{
+	//	if (entry->Role == FullDefinition)
+	//	{
+	//		fprintf(semantic_analyzer_output_file, "A full definition already exists\n");
+	//	}
+	//	else if (entry->Role == PreDefinition)
+	//	{
+	//		check_types_equality(entry->ListOfParameterTypes, parameters_list);
+	//		set_id_role(entry, FullDefinition);
+	//		free_list(entry->ListOfParameterTypes);
+	//		set_parameters_list(entry, parameters_list);
+	//	}
+	//}
+	//else
+	//{
+	//	table_entry entry = insert(function_name);
+	//	set_id_role(entry, FullDefinition);
+	//	set_id_type(entry, function_type);
+	//	set_parameters_list(entry, parameters_list);
+	//}
 	/*SEMANTIC*/
 
 	parse_COMP_STMT();

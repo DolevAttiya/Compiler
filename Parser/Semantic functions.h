@@ -20,3 +20,4 @@ void semantic_error(char* message);
 int check_types_equality(ListNode*, ListNode*);
 int check_dim_equality(ListNode*, ListNode*);
 int search_type_error(ListNode* to_check);
+void check_table_against_reality(Type table, Type reality);

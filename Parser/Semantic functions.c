@@ -2,7 +2,7 @@
 #include "Semantic functions.h"
 #define symbol_table value
 
-lookupByTable(TYPE symbolTable,char* id_name);
+table_entry lookupByTable(TYPE symbolTable,char* id_name);
 void semantic_error(char* message);
 table_entry _get_current_table();
 void _free_current_table_with_contents_from_list();
@@ -56,49 +56,12 @@ table_entry find(char* id_name)
 	while (node != symbolTableList->firstLink)
 	{
 		id_entry = lookupByTable(node->symbol_table, id_name);
-		if (id_entry != NULL)
+		if (id_entry != NULL && id_entry != EmptyStruct)
 			return id_entry;
 		else
 			node = node->prev;
 	}
 	return NULL;
-}
-
-int check_types_equality(ListNode* id_parameters, ListNode* args)
-{
-	if (id_parameters == NULL && args == NULL)
-		return 0;
-	else {
-		if (id_parameters == NULL || args == NULL)
-		{
-			semantic_error("not same sizes");
-			return 2;
-		}
-		else
-		{
-			if (id_parameters->type != args->type)
-			{
-				semantic_error("there is a diffrent parameter");
-				return 1;
-			}
-			while (id_parameters->next != NULL && args->next != NULL)
-			{
-				id_parameters = id_parameters->next;
-				args = args->next;
-				if (id_parameters->type != args->type)
-				{
-					semantic_error("there is a diffrent parameter");
-					return 1;
-				}
-			}
-			if ((id_parameters->next == NULL && args->next != NULL) || (id_parameters->next != NULL && args->next == NULL))
-			{
-				semantic_error("not same sizes");
-				return 2;
-			}
-			return 0;
-		}
-	}
 }
 
 //INTERNAL FUNCTIONS
@@ -168,7 +131,7 @@ void find_predefinitions()
 	}
 }
 
-lookupByTable(TYPE symbolTable, char* id_name)
+table_entry lookupByTable(TYPE symbolTable, char* id_name)
 {
 	return atMap(symbolTable, id_name);
 }
@@ -178,7 +141,7 @@ lookupByTable(TYPE symbolTable, char* id_name)
 out: 0 - if no error
 	 1 - if the List is null
 	 2 - if there is an errorType + Semantic print error
-
+	 2 - if there is an DupplicatedError + Semantic print error
 */
 
 int search_type_error(ListNode* to_check)
@@ -191,7 +154,12 @@ int search_type_error(ListNode* to_check)
 		semantic_error("one of the parameter is a error parameter");
 		return 2;
 	}
-	while (to_check->next != NULL)
+	else  if(to_check->type == DupplicateError)
+	{
+		semantic_error("There is a dupplicated parameter");
+		return 3;
+	}
+	while(to_check->next!=NULL)
 	{
 		to_check = to_check->next;
 		if (to_check->type == TypeError)
@@ -199,9 +167,15 @@ int search_type_error(ListNode* to_check)
 			semantic_error("one of the parameter is a error parameter");
 			return 2;
 		}
+		else  if (to_check->type == DupplicateError)
+		{
+			semantic_error("There is a dupplicated parameter");
+			return 3;
+		}
 	}
 	return 0;
 }
+
 /*
 in : 2 ListNodes *
 out : 
@@ -245,8 +219,15 @@ int check_types_equality(ListNode* id_parameters, ListNode* args)
 		}
 	}
 }
+/*
+in : 2 ListNodes *
+out :
+		0 - both types and size are the same
+		1 - one of the dim is bigger isnt the same
+		2 - not same length of args
+*/
 
-int check_dim_equality(ListNode* id_parameters, ListNode* args) 
+int check_dim_equality(ListNode* id_parameters, ListNode* args)
 {
 	if (id_parameters == NULL && args == NULL)
 		return 0;
@@ -283,3 +264,28 @@ int check_dim_equality(ListNode* id_parameters, ListNode* args)
 	}
 }
 
+void check_table_against_reality(Type table, Type reality)
+	{
+		if (table == FloatArray)
+			if (!(reality == FloatArray || reality == IntArray))
+			{
+				// semantic of FloatArray 
+			}
+		if (table == IntArray)
+			if (!reality == IntArray)
+			{
+				// semantic of IntArray 
+			}
+
+		if (table == Integer)
+			if (!reality == Integer)
+			{
+				// semantic of Integer 
+
+			}
+		if(table == Float)
+			if (!(reality == Float || reality == Integer))
+			{
+				// semantic of Float 
+			}
+	}

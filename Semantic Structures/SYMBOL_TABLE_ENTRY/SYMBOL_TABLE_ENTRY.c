@@ -87,27 +87,6 @@ void free_symbol_table_entry(SYMBOL_TABLE_ENTRY* entry)
 	free(entry);
 }
 
-void add_type_to_list_node(ListNode* list_node, Type type)
-{
-	ListNode* NewType = (ListNode*)malloc(sizeof(ListNode));
-	NewType->type = type;
-	if (list_node != NULL) // When there are dimensions in the list
-	{
-		while (list_node->next != NULL)
-		{
-			list_node = list_node->next;
-		}
-		list_node->next = NewType;
-
-	}
-	else // When there are no dimensions in the list
-	{
-		list_node = NewType;
-	}
-	NewType->next = NULL;
-
-}
-
 int get_id_size(SYMBOL_TABLE_ENTRY* entry)
 {
 	if (entry->Type==Integer || entry->Type == Float)
@@ -142,6 +121,7 @@ int get_node_list_size(ListNode* listNode)
 
 
 void set_dimensions_list(SYMBOL_TABLE_ENTRY* entry, ListNode* list)
+
 {
 	entry->ListOfArrayDimensions = list;
 }
@@ -189,5 +169,4 @@ void add_type_to_list_node(ListNode** list_node, Type type)
 		*list_node = NewType;
 	}
 	NewType->next = NULL;
-
 }

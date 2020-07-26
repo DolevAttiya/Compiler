@@ -683,16 +683,16 @@ Type parse_RETURN_TYPE() {
 		fprintf(parser_output_file, "Rule {RETURN_TYPE -> void}\n");
 		back_token();
 		if (!match(VOID_tok))
-			return;
-		break;
+			return TypeError;
+		return Void;
 	default:
 		error();
-		break;
+		return TypeError;
 	}
 }
 
 ListNode* parse_PARAMS(Role role_for_parameters_parser) {
-
+	
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -710,8 +710,8 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser) {
 		fprintf(parser_output_file, "Rule {PARAMS -> PARAMS_LIST}\n");
 		back_token();
 		/*Semantic*/
-		ListNode* to_check = parse_PARAM_LIST();
-		if (!search_type_error(to_check))
+		ListNode* to_check = parse_PARAM_LIST(role_for_parameters_parser);
+		if (!search_type_error(to_check))  //TODO: change to 
 			return to_check;
 		else
 			return NULL;
@@ -733,17 +733,17 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser) {
 	}
 }
 
-ListNode* parse_PARAM_LIST() {
+ListNode* parse_PARAM_LIST(Role role_for_parameters_parser) {
 	fprintf(parser_output_file, "Rule {PARAMS_LIST -> PARAM PARAMS_LIST'}\n");
 	/*Semantic*/
 	ListNode* Head = NULL;
-	add_type_to_list_node(&Head, parse_PARAM());
-	parse_PARAM_LIST_TAG(Head);
+	add_type_to_list_node(&Head, parse_PARAM(role_for_parameters_parser));
+	parse_PARAM_LIST_TAG(Head, role_for_parameters_parser);
 	return Head;
 	/*Semantic*/
 }
 
-void parse_PARAM_LIST_TAG(ListNode* Head) {
+void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser) {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -759,9 +759,9 @@ void parse_PARAM_LIST_TAG(ListNode* Head) {
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {PARAMS_LIST' -> , PARAM PARAMS_LIST'}\n");
 		/*Semantic*/
-		add_type_to_list_node(&Head, parse_PARAM());
+		add_type_to_list_node(&Head, parse_PARAM(role_for_parameters_parser));
 		/*Semantic*/
-		parse_PARAM_LIST_TAG(Head);
+		parse_PARAM_LIST_TAG(Head, role_for_parameters_parser);	
 		break;
 	default:
 		if (parse_Follow() != 0)
@@ -775,7 +775,7 @@ void parse_PARAM_LIST_TAG(ListNode* Head) {
 	}
 }
 
-Type parse_PARAM() {
+Type parse_PARAM(Role role_for_parameters_parser) {
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
@@ -786,8 +786,9 @@ Type parse_PARAM() {
 	/*Semantic*/
 	current_follow = follow;
 	current_follow_size = 2;
-	if (!match(ID_tok))//need to add to the symbol table
-		return NULL;// if match didn't work does the type is error_type ?
+	if (!match(ID_tok))
+		return NULL;
+	int error_line_number = current_token->lineNumber;
 	parse_PARAM_TAG(&param_type, &dimList);
 	/*Semantic*/
 	if (param_type != TypeError && dimList != NULL)
@@ -801,6 +802,16 @@ Type parse_PARAM() {
 			set_dimensions_list(id, dimList);
 			set_id_type(id, param_type);
 			return get_id_type(id);
+		}
+		else
+		{
+			if (role_for_parameters_parser == FullDefinition)
+			{
+				char* str;
+				sprintf(str, "Dupplicated in line %d", error_line_number);
+				semantic_error(str);
+				return DupplicateError;
+			}
 		}
 	}
 	else if (dimList != NULL)
@@ -870,12 +881,18 @@ void parse_COMP_STMT() {
 	fprintf(parser_output_file, "Rule {COMP_STMT -> { VAR_DEC_LIST STMT_LIST }}\n");
 	if (!match(CURLY_BRACKET_OPEN_tok))
 		return;
+	/*Semantic*/
+	parse_BB();
+	/*Semantic*/
 	parse_VAR_DEC_LIST();
 	parse_STMT_LIST();
 	current_follow = follow;
 	current_follow_size = 6;
 	if (!match(CURLY_BRACKET_CLOSE_tok))
 		return;
+	/*Semantic*/
+	parse_FB();
+	/*Semantic*/
 }
 
 void parse_VAR_DEC_LIST() {
@@ -962,7 +979,8 @@ void parse_STMT() {
 	{
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {STMT -> id VAR_OR_CALL}\n");
-		parse_VAR_OR_CALL();
+		table_entry id = lookup(current_token->lexeme);
+		parse_VAR_OR_CALL(id);
 		break;
 	case CURLY_BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {STMT -> COMP_STMT}\n");
@@ -984,22 +1002,32 @@ void parse_STMT() {
 		break;
 	}
 }
-void parse_VAR_OR_CALL() {
+void parse_VAR_OR_CALL(table_entry id) {
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
 	eTOKENS tokens[] = { PARENTHESIS_OPEN_tok, BRACKET_OPEN_tok,ASSIGNMENT_OP_tok };
 	expected_token_types = tokens;
-	expected_token_types_size = 3;
+	expected_token_types_size = 3; 
 	current_token = next_token();
-
+	int result;
 	fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS) | VAR' = EXPR}\n");
 
 	switch (current_token->kind)
 	{
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS)}\n");
-		parse_ARGS();
+		/*Semantic*/
+		if (id == EmptyStruct)
+		{
+			semantic_error("Undeclered function");
+		}
+		if (id->Role != FullDefinition)
+		{
+			semantic_error("Calling args on not a Function var or not declared");
+		}
+		parse_ARGS(id->ListOfParameterTypes);
+		/*Semantic*/
 		current_follow = follow;
 		current_follow_size = 2;
 		if (!match(PARENTHESIS_CLOSE_tok))
@@ -1009,12 +1037,48 @@ void parse_VAR_OR_CALL() {
 	case ASSIGNMENT_OP_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}\n");
 		back_token();
-		parse_VAR_TAG();
+		/*Semantic*/
+		if (id == EmptyStruct)
+		{
+			semantic_error("Undeclered varable");
+		}
+		if (id->Role != Variable)
+		{
+			semantic_error("The id is not a varable");
+		}
+
+		Type leftSide = parse_VAR_TAG(id);
+
+		/*if(get_id_type(id) != IntArray || get_id_type(id) != FloatArray)
+			if (IntArray == leftSide || FloatArray == leftSide)
+			{
+				semantic_error("trying accsses a wrong type from the real type on the left side");
+			}*/
+		/*Semantic*/
 		current_follow = follow;
 		current_follow_size = 2;
 		if (!match(ASSIGNMENT_OP_tok))
 			return;
-		parse_EXPR();
+		/*Semantic*/
+		Expr* rightSide = parse_EXPR();
+		if (IntArray == rightSide->type || FloatArray == rightSide->type)
+		{
+			semantic_error("trying accsses a wrong type from the real type on the right side");
+		}
+		if (rightSide->type != TypeError && leftSide != TypeError)
+		{
+
+			if (!((leftSide == Integer && rightSide->type == Integer) || (leftSide == Float && (rightSide->type == Integer) || (rightSide->type == Float))))
+			{
+				semantic_error("Right side's type does not match left side's type");
+			}
+		}
+		else
+		{
+			// Error ?
+		}
+		free(rightSide);
+		/*Semantic*/
 		break;
 	default:
 		error();
@@ -1037,7 +1101,7 @@ void parse_IF_STMT() {
 		return;
 	parse_STMT();
 }
-void parse_ARGS() {
+void parse_ARGS(ListNode* list_of_params_types) {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -1056,17 +1120,21 @@ void parse_ARGS() {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {ARGS -> ARG_LIST}\n");
 		back_token();
-		parse_ARG_LIST();
+		parse_ARG_LIST(list_of_params_types);
 		break;
 	default:
 		if (parse_Follow() != 0)
 		{
 			fprintf(parser_output_file, "Rule {ARGS -> epsilon}\n");
+			/*Semantic*/
+			if (list_of_params_types != NULL)
+			{
+				semantic_error("there is a diffrence between the list");
+			}
+			/*Semantic*/
 			back_token();
-			break;
 		}
 		error();
-		break;
 	}
 }
 
@@ -1130,12 +1198,17 @@ char* get_tokens_names()
 	return tokens;
 }
 
-void parse_ARG_LIST() {
+void parse_ARG_LIST(ListNode* list_of_params_types) {
 	fprintf(parser_output_file, "Rule {ARG_LIST -> EXPR ARG_LIST'}\n");
-	parse_EXPR();
-	parse_ARG_LIST_TAG();
+	int current_token_line = current_token->lineNumber;
+	if (list_of_params_types == NULL)
+		semantic_error("difference between definitions");
+	Expr* expr = parse_EXPR();
+	check_table_against_reality(list_of_params_types->type,expr->type);
+	parse_ARG_LIST_TAG(list_of_params_types->next);
 }
-void parse_ARG_LIST_TAG() {
+
+void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -1143,19 +1216,27 @@ void parse_ARG_LIST_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 2;
 	current_token = next_token();
-
 	fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST' | Epsilon}\n");
 
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST'}\n");
-		parse_EXPR();
-		parse_ARG_LIST_TAG();
+		/* Semantic */
+		if (list_of_params_types == NULL)
+			semantic_error("difference between definitions");		
+		Expr* expr = parse_EXPR();
+		check_table_against_reality(list_of_params_types->type, expr->type);
+		/* Semantic */
+		parse_ARG_LIST_TAG(list_of_params_types->next);
 		break;
 	case PARENTHESIS_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> Epsilon}\n");
 		back_token();
+		/* Semantic */
+		if(NULL!=list_of_params_types)
+			semantic_error("not equeinvalent number of params");
+		/* Semantic */
 		break;
 	default:
 		error();
@@ -1184,6 +1265,11 @@ void parse_RETURN_STMT_TAG() {
 	switch (current_token->kind)
 	{
 	case ID_tok:
+		/* Semantic */
+		table_entry id = lookup(current_token->lexeme);
+		if (id == EmptyStruct)
+			semantic_error(semantic_analyzer_output_file, "ID is not declared");
+		/* Semantic */
 	case INT_NUM_tok:
 	case FLOAT_NUM_tok:
 	case PARENTHESIS_OPEN_tok:
@@ -1201,7 +1287,8 @@ void parse_RETURN_STMT_TAG() {
 		break;
 	}
 }
-void parse_VAR_TAG() {
+
+Type parse_VAR_TAG(table_entry id) {
 	// Follow of VAR' -  ; } , ) ] rel_op + * =
 	// rel_op -  <  <=  ==  >=  >  != 
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok, 
@@ -1217,15 +1304,17 @@ void parse_VAR_TAG() {
 	current_token = next_token();
 
 	fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST] | Epsilon}\n");
-
+	Type id_type = get_id_type(id);
 	switch (current_token->kind) {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}\n");
-		parse_EXPR_LIST();
+		if (id_type != FloatArray && id_type != IntArray)
+			semantic_error("The id must be declared as array");
+		parse_EXPR_LIST(id->ListOfArrayDimensions);
 		current_follow = follow;
 		if(!match(BRACKET_CLOSE_tok))
-			return;
-		break;
+			return TypeError;
+		return id_type;
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
 	case COMMA_tok:
@@ -1242,18 +1331,29 @@ void parse_VAR_TAG() {
 	case ASSIGNMENT_OP_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
-		break;
+		if (id->ListOfArrayDimensions != NULL)
+			semantic_error("expected no params but shit happens");
+		return id_type;
 	 default:
 		error();
-		break;
+		return TypeError;
 	}
 }
-void parse_EXPR_LIST() {
+void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	fprintf(parser_output_file, "Rule {EXPR_LIST -> EXPR EXPR_LIST'}\n");
-	parse_EXPR();
-	parse_EXPR_LIST_TAG();
+	if (list_of_dimensions == NULL)
+		semantic_error("List of EXPR must include values");
+	Expr* expr = parse_EXPR();
+	if (expr->type != Integer)
+		semantic_error("EXPR type must be Integer");
+	else if(expr->Valueable)
+	{
+		if (expr->Value >= list_of_dimensions->dimension)
+			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array");
+	}
+	parse_EXPR_LIST_TAG(list_of_dimensions->next);
 }
-void parse_EXPR_LIST_TAG() {
+void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 	// Follow of EXPR_LIST' - ]
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
@@ -1262,19 +1362,29 @@ void parse_EXPR_LIST_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 2;
 	current_token = next_token();
-
 	fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST' | Epsilon}\n");
 
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}\n");
+		/* Semantic */
+		//if (list_of_dimension == NULL)
+	//		semantic_error("different num of dimensions");
+		if (list_of_dimensions->type != Integer)
+			semantic_error("Type of expr in array must be integer");
 		parse_EXPR();
-		parse_EXPR_LIST_TAG();
+		list_of_dimensions->next;
+		/* Semantic */
+		parse_EXPR_LIST_TAG(list_of_dimensions);
 		break;
 	case BRACKET_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");
 		back_token();
+		/* Semantic */
+	//	if (expr_counter != list_of_dimensions->dimension)
+		//	semantic_error("n should be equal to the amount of dimensions in the array");
+		/* Semantic */
 		break;
 	default:
 		error();
@@ -1303,12 +1413,22 @@ void parse_CONDITION() {
 		error();
 	}
 }
-void parse_EXPR() {
+Expr* parse_EXPR() {
 	fprintf(parser_output_file, "Rule {EXPR -> TERM EXPR'}\n");
-	parse_TERM();
-	parse_EXPR_TAG();
+	Expr* term_expr = parse_TERM();
+	Expr* expr_tag =  parse_EXPR_TAG();
+	Expr* expr = (Expr*)malloc(sizeof(Expr));
+	if (term_expr->type == Integer && expr_tag == Integer)
+	{
+		expr->type = Integer;
+		expr->Valueable = 1;
+		expr->Value = term_expr->Value + expr_tag->Value;
+	}
+	free(term_expr);
+	free(expr_tag);
+	return expr;
 }
-void parse_EXPR_TAG() {
+Expr* parse_EXPR_TAG() {
 	// Follow of EXPR' - ; } , ) ] rel_op
 	// rel_op -  <  <=  ==  >=  >  != 
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
@@ -1320,15 +1440,32 @@ void parse_EXPR_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 12;
 	current_token = next_token();
-
+	Expr* expr = (Expr*)malloc(sizeof(Expr));
 	fprintf(parser_output_file, "Rule {EXPR' -> + TERM EXPR' | Epsilon}\n");
 
 	switch (current_token->kind) {
 	case ADD_OP_tok:
 		fprintf(parser_output_file, "Rule {EXPR' -> + TERM EXPR'}\n");
-		parse_TERM();
-		parse_EXPR_TAG();
-		break;
+		/* Semantic */
+		Expr* term_expr = parse_TERM();
+		Expr* expr_tag = parse_EXPR_TAG();
+		if (term_expr->type == Integer && expr_tag->type == Integer) {
+			expr->type = Integer;
+			expr->Valueable = 1;
+			expr->Value = term_expr->Value + expr_tag->Value;
+		}
+		else if (term_expr->type == TypeError || expr_tag->type == TypeError) {
+			expr->type = TypeError;
+			expr->Valueable = 0;
+		}
+		else {
+			expr->type = Float;
+			expr->Valueable = 0;
+		}
+		free(term_expr);
+		free(expr_tag);
+		return expr;
+		/* Semantic */
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
 	case COMMA_tok:
@@ -1342,18 +1479,32 @@ void parse_EXPR_TAG() {
 	case NOT_EQUAL_tok:
 		fprintf(parser_output_file, "Rule {EXPR' -> Epsilon}\n");
 		back_token();
-		break;
+		expr->type = Integer;
+		expr->Valueable = 1;
+		return expr;
 	 default:
 		error();
-		break;
+		expr->type = TypeError;
+		expr->Valueable = 0;
+		return expr;
 	}
 }
-void parse_TERM() {
+Expr* parse_TERM() {
 	fprintf(parser_output_file, "Rule {TERM -> FACTOR TERM'}\n");
-	parse_FACTOR();
-	parse_TERM_TAG();
+	Expr* factor_expr = parse_FACTOR();
+	Expr* term_tag_expr = parse_TERM_TAG();
+	Expr* expr = (Expr*)malloc(sizeof(Expr));
+	if (factor_expr->type == Integer && term_tag_expr == Integer)
+	{
+		expr->type = Integer;
+		expr->Valueable = 1;
+		expr->Value = factor_expr->Value * term_tag_expr->Value;
+	}
+	free(factor_expr);
+	free(term_tag_expr);
+	return expr;
 }
-void parse_TERM_TAG() {
+Expr* parse_TERM_TAG() {
 	// Follow of TERM' - ; } , ) ] rel_op +
 	// rel_op -  <  <=  ==  >=  >  != 
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
@@ -1366,15 +1517,32 @@ void parse_TERM_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 13;
 	current_token = next_token();
-
+	Expr* expr = (Expr*)malloc(sizeof(Expr));
 	fprintf(parser_output_file, "Rule {TERM' ->  * FACTOR TERM' | Epsilon}\n");
 
 	switch (current_token->kind) {
 	case MUL_OP_tok:
 		fprintf(parser_output_file, "Rule {TERM' ->  * FACTOR TERM'}\n");
-		parse_FACTOR();
-		parse_TERM_TAG();
-		break;
+		/* Semantic */
+		Expr* factor_expr = parse_FACTOR();
+		Expr* term_tag_expr = parse_TERM_TAG();
+		if (factor_expr->type == Integer && term_tag_expr->type == Integer) {
+			expr->type = Integer;
+			expr->Valueable = 1;
+			expr->Value = factor_expr->Value * term_tag_expr->Value;
+		}
+		else if (factor_expr->type == TypeError || term_tag_expr->type == TypeError) {
+			expr->type = TypeError;
+			expr->Valueable = 0;
+		}
+		else {
+			expr->type = Float;
+			expr->Valueable = 0;
+		}
+		free(factor_expr);
+		free(term_tag_expr);
+		return expr;
+		/* Semantic */
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
 	case COMMA_tok:
@@ -1389,51 +1557,75 @@ void parse_TERM_TAG() {
 	case ADD_OP_tok:
 		fprintf(parser_output_file, "Rule {TERM' ->  Epsilon}\n");
 		back_token();
-		break;
+		expr->type = Integer;
+		expr->Valueable = 1;
+		return expr;
 	default:
 		error();
-		break;
+		expr->type = TypeError;
+		expr->Valueable = 0;
+		return expr;
 	}
 }
-void parse_FACTOR() {
+
+Expr* parse_FACTOR() {
 	// First of FACTOR - id int_num float_num (
 	// Follow of FACTOR - ; } , ) ] rel_op + *
 	// rel_op -  <  <=  ==  >=  >  != 
+
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
-						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok, ADD_OP_tok, MUL_OP_tok};
+						 LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok, GREATER_EQUAL_tok, NOT_EQUAL_tok, ADD_OP_tok, MUL_OP_tok };
 	current_follow = follow;
 	current_follow_size = 13;
 	eTOKENS expected_tokens[] = { ID_tok, INT_NUM_tok, FLOAT_NUM_tok, PARENTHESIS_OPEN_tok };
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 4;
 	current_token = next_token();
-
 	fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL' | int_num | float_num | (EXPR)}\n");
-
+	Expr* expr = (Expr*)malloc(sizeof(Expr)); 
+	table_entry id = lookup(current_token->lexeme);
 	switch (current_token->kind) {
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL'}\n");
-		parse_VAR_OR_CALL_TAG();
+		/* Semantic */
+		if (id != NULL) {
+			expr->type = get_id_type(id);
+			expr->Valueable = 0;
+		}
+		/* Semantic */
+		parse_VAR_OR_CALL_TAG(id);
 		break;
 	case INT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> int_num}\n");
+		expr->type = Integer;
+		expr->Valueable = 1;
+		expr->Value = current_token->lexeme;//TODO:  str to int
 		break;
 	case FLOAT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> float_num}\n");
+		expr->type = Float;
+		expr->Valueable = 0;
 		break;
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> (EXPR)}\n");
-		parse_EXPR();
+		free(expr);
+		expr = parse_EXPR();
 		current_follow = follow;
-		if(!match(PARENTHESIS_CLOSE_tok))
-			return;
-		break;
+		if (!match(PARENTHESIS_CLOSE_tok))
+		{
+			expr->type = TypeError;
+			expr->Valueable = 0;
+		}
+		return expr;
 	default:
 		error();
-		break;
+		expr->type = TypeError;
+		expr->Valueable = 0;
+		return expr;
 	}
 }
-void parse_VAR_OR_CALL_TAG() {
+
+void parse_VAR_OR_CALL_TAG(table_entry id) {
 	// Follow of VAR_OR_CALL' - ; } , ) ] rel_op + *
 	// rel_op -  <  <=  ==  >=  >  != 
 	// First of VAR' - [
@@ -1454,7 +1646,7 @@ void parse_VAR_OR_CALL_TAG() {
 	switch (current_token->kind) {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS)}\n");
-		parse_ARGS();
+		parse_ARGS(id->ListOfParameterTypes);
 		current_follow = follow;
 		if(!match(PARENTHESIS_CLOSE_tok))
 			return;
@@ -1475,13 +1667,14 @@ void parse_VAR_OR_CALL_TAG() {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> VAR'}\n");
 		back_token();
-		parse_VAR_TAG();
+		parse_VAR_TAG(id);
 		break;
 	default:
 		error();
 		break;
 	}
 }
+
 
 void init_semantic_analyzer()
 {

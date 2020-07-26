@@ -1060,15 +1060,15 @@ void parse_VAR_OR_CALL(table_entry id) {
 		if (!match(ASSIGNMENT_OP_tok))
 			return;
 		/*Semantic*/
-		Type rightSide = parse_EXPR();
-		if (IntArray == rightSide || FloatArray == rightSide)
+		Expr rightSide = parse_EXPR();
+		if (IntArray == rightSide.type || FloatArray == rightSide.type)
 		{
 			semantic_error("trying accsses a wrong type from the real type on the right side");
 		}
-		if (rightSide != TypeError && leftSide != TypeError)
+		if (rightSide.type != TypeError && leftSide != TypeError)
 		{
 
-			if (!((leftSide == Integer && rightSide == Integer) || (leftSide == Float && (rightSide == Integer) || (rightSide == Float))))
+			if (!((leftSide == Integer && rightSide.type == Integer) || (leftSide == Float && (rightSide.type == Integer) || (rightSide.type == Float))))
 			{
 				semantic_error("Right side's type does not match left side's type");
 			}
@@ -1410,8 +1410,7 @@ void parse_CONDITION() {
 		error();
 	}
 }
-
-Expr* parse_EXPR(table_entry id) {
+Expr* parse_EXPR() {
 	fprintf(parser_output_file, "Rule {EXPR -> TERM EXPR'}\n");
 	Expr* term_expr = parse_TERM();
 	Expr* expr_tag =  parse_EXPR_TAG();

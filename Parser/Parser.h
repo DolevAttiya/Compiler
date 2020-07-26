@@ -53,7 +53,7 @@ Type parse_VAR_TAG(table_entry id);
 void parse_EXPR_LIST(ListNode* list_of_dimensions);
 void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions);
 void parse_CONDITION();
-Expr* parse_EXPR(table_entry id);
+Expr* parse_EXPR();
 Expr* parse_EXPR_TAG();
 Expr* parse_TERM();
 Expr* parse_TERM_TAG();

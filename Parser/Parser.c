@@ -1070,7 +1070,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 
 			if (!((leftSide == Integer && rightSide->type == Integer) || (leftSide == Float && (rightSide->type == Integer) || (rightSide->type == Float))))
 			{
-				semantic_error("Right side's type does not match left side's type");
+			semantic_error("Right side's type does not match left side's type");
 			}
 		}
 		else
@@ -1202,7 +1202,7 @@ void parse_ARG_LIST(ListNode* list_of_params_types) {
 	fprintf(parser_output_file, "Rule {ARG_LIST -> EXPR ARG_LIST'}\n");
 	int current_token_line = current_token->lineNumber;
 	if (list_of_params_types == NULL)
-		semantic_error("difference between definitions");
+		semantic_error("difference between definitions");// TODO: Handle a call without a definition
 	Expr* expr = parse_EXPR();
 	if (list_of_params_types == NULL)
 		check_table_against_reality(TypeError,expr->type);
@@ -1442,10 +1442,20 @@ Expr* parse_EXPR() {
 		expr->Valueable = 1;
 		expr->Value = term_expr->Value + expr_tag->Value;
 	}
+	else if (term_expr->type == TypeError || expr_tag == TypeError)
+	{
+		expr->type = TypeError;
+		expr->Valueable = 0;
+	}
+	else {
+		expr->type = Float;
+		expr->Valueable = 0;
+	}
 	free(term_expr);
 	free(expr_tag);
 	return expr;
 }
+
 Expr* parse_EXPR_TAG() {
 	// Follow of EXPR' - ; } , ) ] rel_op
 	// rel_op -  <  <=  ==  >=  >  != 
@@ -1601,7 +1611,7 @@ Expr* parse_FACTOR() {
 	current_token = next_token();
 	fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL' | int_num | float_num | (EXPR)}\n");
 	Expr* expr = (Expr*)malloc(sizeof(Expr)); 
-	table_entry id = lookup(current_token->lexeme);
+	table_entry id = find(current_token->lexeme);
 	switch (current_token->kind) {
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL'}\n");

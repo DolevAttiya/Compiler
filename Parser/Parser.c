@@ -1369,7 +1369,10 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 		if (expr->Value >= list_of_dimensions->dimension)
 			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array");
 	}
-	parse_EXPR_LIST_TAG(list_of_dimensions->next);
+	if (list_of_dimensions->next == NULL)
+		parse_EXPR_LIST_TAG(NULL);
+	else
+		parse_EXPR_LIST_TAG(list_of_dimensions->next);
 }
 void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 	// Follow of EXPR_LIST' - ]
@@ -1387,8 +1390,8 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}\n");
 		/* Semantic */
-		//if (list_of_dimension == NULL)
-	//		semantic_error("different num of dimensions");
+		if (list_of_dimensions == NULL)
+			semantic_error("different num of dimensions");
 		if (list_of_dimensions->type != Integer)
 			semantic_error("Type of expr in array must be integer");
 		parse_EXPR();
@@ -1399,10 +1402,8 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 	case BRACKET_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");
 		back_token();
-		/* Semantic */
-	//	if (expr_counter != list_of_dimensions->dimension)
-		//	semantic_error("n should be equal to the amount of dimensions in the array");
-		/* Semantic */
+		if (list_of_dimensions != NULL)
+			semantic_error("not equeivalent number of dimensions");
 		break;
 	default:
 		error();
@@ -1674,11 +1675,16 @@ void parse_VAR_OR_CALL_TAG(table_entry id) {
 	switch (current_token->kind) {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS)}\n");
-		if(id == NULL)// TODO : Print Semantic Error NO IMPLEMENTATION of Function.
+		if (id == NULL)
+		{
+			semantic_error("no implementation of function");
 			parse_ARGS(NULL);
+		}
 		else
+		{
 			parse_ARGS(id->ListOfParameterTypes);
-		current_follow = follow;
+		}
+	current_follow = follow;
 		if(!match(PARENTHESIS_CLOSE_tok))
 			return;
 		break;

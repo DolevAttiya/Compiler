@@ -265,27 +265,21 @@ int check_dim_equality(ListNode* id_parameters, ListNode* args)
 }
 
 void check_table_against_reality(Type table, Type reality)
-	{
-		if (table == FloatArray)
-			if (!(reality == FloatArray || reality == IntArray))
-			{
-				// semantic of FloatArray 
-			}
-		if (table == IntArray)
-			if (!reality == IntArray)
-			{
-				// semantic of IntArray 
-			}
-
-		if (table == Integer)
-			if (!reality == Integer)
-			{
-				// semantic of Integer 
-
-			}
-		if(table == Float)
-			if (!(reality == Float || reality == Integer))
-			{
-				// semantic of Float 
-			}
-	}
+{
+	if (table == FloatArray)
+		if (!(reality == FloatArray || reality == IntArray))
+			semantic_error("expected type FloatArray, got %s", &reality);
+	if (table == IntArray)
+		if (!reality == IntArray)
+			semantic_error("Expected type IntArray, got %s", &reality);
+	if (table == Integer)
+		if (!reality == Integer)
+		{
+			semantic_error("Expected type Integer, got %s", &reality);
+		}
+	if (table == Float)
+		if (!(reality == Float || reality == Integer))
+		{
+			semantic_error("Expected type Float, got %s", &reality);
+		}
+}

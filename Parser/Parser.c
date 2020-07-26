@@ -979,7 +979,7 @@ void parse_STMT() {
 	{
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {STMT -> id VAR_OR_CALL}\n");
-		table_entry id = lookup(current_token->lexeme);
+		table_entry id = find(current_token->lexeme);
 		parse_VAR_OR_CALL(id);
 		break;
 	case CURLY_BRACKET_OPEN_tok:

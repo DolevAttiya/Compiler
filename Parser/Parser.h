@@ -45,19 +45,19 @@ void parse_VAR_OR_CALL(SYMBOL_TABLE_ENTRY*);
 void parse_IF_STMT();
 void parse_ARGS(ListNode*);
 
-void parse_ARG_LIST(ListNode*);
-void parse_ARG_LIST_TAG();
+void parse_ARG_LIST(ListNode* list_of_params_types);
+void parse_ARG_LIST_TAG(ListNode* list_of_params_types);
 void parse_RETURN_STMT();
 void parse_RETURN_STMT_TAG();
 Type parse_VAR_TAG(table_entry id);
-void parse_EXPR_LIST();
-void parse_EXPR_LIST_TAG();
+void parse_EXPR_LIST(ListNode* list_of_dimensions);
+void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions);
 void parse_CONDITION();
-Type parse_EXPR();
-void parse_EXPR_TAG();
-void parse_TERM();
-void parse_TERM_TAG();
-void parse_FACTOR(Type type);
+Expr* parse_EXPR(table_entry id);
+Expr* parse_EXPR_TAG();
+Expr* parse_TERM();
+Expr* parse_TERM_TAG();
+Expr* parse_FACTOR();
 void parse_VAR_OR_CALL_TAG(table_entry id);
 
 void parse_BB();

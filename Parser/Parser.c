@@ -1340,7 +1340,7 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	fprintf(parser_output_file, "Rule {EXPR_LIST -> EXPR EXPR_LIST'}\n");
 	if (list_of_dimensions == NULL)
 		semantic_error("List of EXPR must include values");
-	Expr expr = parse_EXPR(id);
+	Expr* expr = parse_EXPR(id);
 	if (expr.type != Integer)
 		semantic_error("EXPR type must be Integer");
 	else if(expr.Valueable)
@@ -1411,15 +1411,22 @@ void parse_CONDITION() {
 	}
 }
 
-Expr parse_EXPR(table_entry id) {
+Expr* parse_EXPR(table_entry id) {
 	fprintf(parser_output_file, "Rule {EXPR -> TERM EXPR'}\n");
-	Expr term_expr = parse_TERM();
-	Expr expr_tag =  parse_EXPR_TAG();
+	Expr* term_expr = parse_TERM();
+	Expr* expr_tag =  parse_EXPR_TAG();
+	Expr* expr = (Expr*)malloc(sizeof(Expr));
 	if (term_expr->type == Integer && expr_tag == Integer)
+	{
 		expr->type = Integer;
+		expr->Valueable = 1;
+		expr->Value = term_expr->Value + expr_tag->value;
+	}
+	free(term_expr);
+	free(expr_tag);
 	return expr;
 }
-Expr parse_EXPR_TAG() {
+Expr* parse_EXPR_TAG() {
 	// Follow of EXPR' - ; } , ) ] rel_op
 	// rel_op -  <  <=  ==  >=  >  != 
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
@@ -1431,15 +1438,32 @@ Expr parse_EXPR_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 12;
 	current_token = next_token();
-
+	Expr* expr = (Expr*)malloc(sizeof(Expr));
 	fprintf(parser_output_file, "Rule {EXPR' -> + TERM EXPR' | Epsilon}\n");
 
 	switch (current_token->kind) {
 	case ADD_OP_tok:
 		fprintf(parser_output_file, "Rule {EXPR' -> + TERM EXPR'}\n");
-		parse_TERM();
-		parse_EXPR_TAG();
-		break;
+		/* Semantic */
+		Expr* term_expr = parse_TERM();
+		Expr* expr_tag = parse_EXPR_TAG();
+		if (term_expr.type == Integer && expr_tag.type == Integer) {
+			expr.type = Integer;
+			expr.Valueable = 1;
+			expr.Value = term_expr.Value + expr_tag.Value;
+		}
+		else if (term_expr.type == TypeError || expr_tag.type == TypeError) {
+			expr.type = TypeError;
+			expr.Valueable = 0;
+		}
+		else {
+			expr.type = Float;
+			expr.Valueable = 0;
+		}
+		free(term_expr);
+		free(expr_tag);
+		return expr;
+		/* Semantic */
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
 	case COMMA_tok:
@@ -1453,18 +1477,32 @@ Expr parse_EXPR_TAG() {
 	case NOT_EQUAL_tok:
 		fprintf(parser_output_file, "Rule {EXPR' -> Epsilon}\n");
 		back_token();
-		break;
+		expr->type = Integer;
+		expr->Valueable = 1;
+		return expr;
 	 default:
 		error();
-		break;
+		expr.type = TypeError;
+		expr->Valueable = 0;
+		return expr;
 	}
 }
-Expr parse_TERM() {
+Expr* parse_TERM() {
 	fprintf(parser_output_file, "Rule {TERM -> FACTOR TERM'}\n");
-	parse_FACTOR();
-	parse_TERM_TAG();
+	Expr* factor_expr = parse_FACTOR();
+	Expr* term_tag_expr = parse_TERM_TAG();
+	Expr* expr = (Expr*)malloc(sizeof(Expr));
+	if (factor_expr->type == Integer && term_tag_expr == Integer)
+	{
+		expr->type = Integer;
+		expr->Valueable = 1;
+		expr->Value = term_expr->Value * expr_tag->value;
+	}
+	free(factor_expr);
+	free(term_tag_expr);
+	return expr;
 }
-Expr parse_TERM_TAG() {
+Expr* parse_TERM_TAG() {
 	// Follow of TERM' - ; } , ) ] rel_op +
 	// rel_op -  <  <=  ==  >=  >  != 
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok,
@@ -1477,22 +1515,30 @@ Expr parse_TERM_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 13;
 	current_token = next_token();
-	Expr expr;
+	Expr* expr = (Expr*)malloc(sizeof(Expr));
 	fprintf(parser_output_file, "Rule {TERM' ->  * FACTOR TERM' | Epsilon}\n");
 
 	switch (current_token->kind) {
 	case MUL_OP_tok:
 		fprintf(parser_output_file, "Rule {TERM' ->  * FACTOR TERM'}\n");
 		/* Semantic */
-		Expr factor_expr = parse_FACTOR();
-		Expr expr_tag = parse_TERM_TAG();
-		if (factor_expr.type == Integer && expr_tag.type == Integer)
+		Expr* factor_expr = parse_FACTOR();
+		Expr* term_tag_expr = parse_TERM_TAG();
+		if (factor_expr.type == Integer && term_tag_expr.type == Integer) {
 			expr.type = Integer;
-		else if (factor_expr.type == TypeError || expr_tag.type == TypeError)
+			expr.Valueable = 1;
+			expr.Value = factor_expr.Value * term_tag_expr.Value;
+		}
+		else if (factor_expr.type == TypeError || term_tag_expr.type == TypeError) {
 			expr.type = TypeError;
-		else expr.type = Float;
-		expr.Valueable = 0;
-		expr.Value = factor_expr.Value * expr_tag.Value;
+			expr.Valueable = 0;
+		}
+		else {
+			expr.type = Float;
+			expr.Valueable = 0;
+		}
+		free(factor_expr);
+		free(term_tag_expr);
 		return expr;
 		/* Semantic */
 	case SEMICOLON_tok:
@@ -1509,16 +1555,18 @@ Expr parse_TERM_TAG() {
 	case ADD_OP_tok:
 		fprintf(parser_output_file, "Rule {TERM' ->  Epsilon}\n");
 		back_token();
-		/* TODO - not sure what to do here */
-		break;
+		expr->type = Integer;
+		expr->Valueable = 1;
+		return expr;
 	default:
 		error();
 		expr.type = TypeError;
+		expr->Valueable = 0;
 		return expr;
 	}
 }
 
-Expr parse_FACTOR() {
+Expr* parse_FACTOR() {
 	// First of FACTOR - id int_num float_num (
 	// Follow of FACTOR - ; } , ) ] rel_op + *
 	// rel_op -  <  <=  ==  >=  >  != 
@@ -1532,7 +1580,7 @@ Expr parse_FACTOR() {
 	expected_token_types_size = 4;
 	current_token = next_token();
 	fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL' | int_num | float_num | (EXPR)}\n");
-	Expr expr; 
+	Expr* expr = (Expr*)malloc(sizeof(Expr)); 
 	table_entry id = lookup(current_token->lexeme);
 	switch (current_token->kind) {
 	case ID_tok:
@@ -1547,32 +1595,30 @@ Expr parse_FACTOR() {
 		break;
 	case INT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> int_num}\n");
-		if (id != NULL) {
-			expr.type = Integer;
-			expr.Valueable = 1;
-			expr.Value = current_token->lexeme;
-		}
+		expr.type = Integer;
+		expr.Valueable = 1;
+		expr.Value = current_token->lexeme;//TODO:  str to int
 		break;
 	case FLOAT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> float_num}\n");
-		if (id != NULL) {
-			expr.type = Float;
-			expr.Valueable = 1;
-			expr.Value = current_token->lexeme;
-		}
+		expr.type = Float;
+		expr.Valueable = 0;
 		break;
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> (EXPR)}\n");
+		free(expr);
 		expr = parse_EXPR(id);
 		current_follow = follow;
 		if (!match(PARENTHESIS_CLOSE_tok))
 		{
 			expr.type = TypeError;
+			expr->Valueable = 0;
 		}
 		return expr;
 	default:
 		error();
 		expr->type = TypeError;
+		expr->Valueable = 0;
 		return expr;
 	}
 }

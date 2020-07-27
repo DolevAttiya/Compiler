@@ -1437,7 +1437,7 @@ Expr* parse_EXPR() {
 	Expr* term_expr = parse_TERM();
 	Expr* expr_tag =  parse_EXPR_TAG();
 	Expr* expr = (Expr*)malloc(sizeof(Expr));
-	if (term_expr->type == Integer && expr_tag == Integer)
+	if (term_expr->type == Integer && expr_tag->type == Integer)
 	{
 		expr->type = Integer;
 		expr->Valueable = 1;
@@ -1523,7 +1523,7 @@ Expr* parse_TERM() {
 	Expr* factor_expr = parse_FACTOR();
 	Expr* term_tag_expr = parse_TERM_TAG();
 	Expr* expr = (Expr*)malloc(sizeof(Expr));
-	if (factor_expr->type == Integer && term_tag_expr == Integer)
+	if (factor_expr->type == Integer && term_tag_expr->type == Integer)
 	{
 		expr->type = Integer;
 		expr->Valueable = 1;

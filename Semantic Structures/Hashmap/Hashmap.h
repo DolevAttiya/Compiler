@@ -13,7 +13,7 @@ static const struct ValueType EmptyStruct;
  hashing functions that your code uses. you are not required to use this value
  though.
  */
-# define HASHING_FUNCTION 2
+# define HASHING_FUNCTION 1
 
 # define LOAD_FACTOR_THRESHOLD 0.75
 
@@ -62,7 +62,7 @@ void deleteMap(struct hashMap* ht);
  if a hashLink already exists in the table for the key provided you should
  replace that hashLink (really this only requires replacing the value v).
  */
-void insertMap(struct hashMap* ht, KeyType k, ValueType v);
+struct hashMap* insertMap(struct hashMap* ht, KeyType k, ValueType v);
 
 /*
  this returns the value stored in a hashLink specified by the key k.

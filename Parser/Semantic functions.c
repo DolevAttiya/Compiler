@@ -4,7 +4,7 @@
 
 table_entry lookupByTable(TYPE symbolTable,char* id_name);
 void semantic_error(char* message);
-table_entry _get_current_table();
+table_ptr _get_current_table();
 void _free_current_table_with_contents_from_list();
 
 
@@ -24,7 +24,8 @@ table_entry insert(char* id_name)
 	{
 		entry = create_new_symbol_table_entry();
 		set_id_name(entry, id_name);
-		insertMap(current_table, id_name, entry);
+		current_table = insertMap(current_table, id_name, entry);
+		symbolTableList->lastLink->prev->value = current_table;
 		return entry;
 	}
 }
@@ -37,7 +38,7 @@ table_entry lookup(char* id_name)
 
 table_ptr make_table() 
 { 
-	table_ptr tab = createMap(1);
+	table_ptr tab = createMap(3);
 	addBackList(symbolTableList, tab);
 	return tab; 
 }
@@ -70,7 +71,7 @@ void semantic_error(char *message)
 	fprintf(semantic_analyzer_output_file, message);
 }
 
-table_entry _get_current_table()
+table_ptr _get_current_table()
 {
 	if (symbolTableList->size != 0)
 		return symbolTableList->lastLink->prev->symbol_table;

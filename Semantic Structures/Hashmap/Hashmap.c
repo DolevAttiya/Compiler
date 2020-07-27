@@ -151,7 +151,7 @@ void _setTableSize(struct hashMap* ht, int newTableSize) {
  also, you must monitor the load factor and resize when the load factor is greater than
  or equal LOAD_FACTOR_THRESHOLD (defined in hashMap.h).
  */
-void insertMap(struct hashMap* ht, KeyType k, ValueType v) {
+hashMap* insertMap(struct hashMap* ht, KeyType k, ValueType v) {
     int hashIndex;
     struct hashLink* newHashLink = (struct hashLink*)malloc(sizeof(struct hashLink));
     char* newKeyType = (char*)malloc(strlen(k) + 1);     //Allocate memory for new char string
@@ -184,7 +184,8 @@ void insertMap(struct hashMap* ht, KeyType k, ValueType v) {
 
     /* Test table load and resize if necessary */
     if (tableLoad(ht) >= LOAD_FACTOR_THRESHOLD)
-        _setTableSize(ht, ht->tableSize * 2);
+        _setTableSize(ht, ht->tableSize * 2+1);
+    return ht;
 }
 
 /*

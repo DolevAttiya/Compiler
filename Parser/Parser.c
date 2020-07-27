@@ -49,12 +49,12 @@ void parse_PROG()
 	/*SEMANTIC*/
 
 	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}\n");
-	
+
 	fprintf(parser_output_file, "Rule {GLOBAL_VARS -> VAR_DEC GLOBAL_VARS'}\n");
 	parse_GLOBAL_VARS();
 	do {
 		fprintf(parser_output_file, "Rule {GLOBAL_VARS' -> VAR_DEC GLOBAL_VARS' | epsilon}\n");
-	
+
 		current_token = next_token(); //Checks if first token is 'void'
 		if (current_token->kind == VOID_tok || current_token->kind == EOF_tok)
 		{
@@ -96,7 +96,7 @@ void parse_PROG()
 			//break
 		}
 
-	} while(1);
+	} while (1);
 
 	eTOKENS follow2[] = { INT_tok, FLOAT_tok, VOID_tok };
 	current_follow = follow2;
@@ -109,7 +109,7 @@ void parse_PROG()
 	ListNode* parameters_list;
 	/*SEMANTIC*/
 
- 	parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list, PreDefinition);
+	parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list, PreDefinition);
 
 	current_follow = follow2;
 	current_follow_size = 3;
@@ -132,12 +132,15 @@ void parse_PROG()
 
 		int count;
 		Role role_for_params_parser;
-
+		table_entry entry;
 		do {
-			count = 0;
-			while (current_token->kind != SEMICOLON_tok && current_token->kind != CURLY_BRACKET_OPEN_tok && current_token->kind != EOF )
+			count = 2;
+			current_token = next_token();
+			current_token = next_token();
+			char* current_function_name = current_token->lexeme;
+			while (current_token->kind != SEMICOLON_tok && current_token->kind != CURLY_BRACKET_OPEN_tok && current_token->kind != EOF)
 			{
-				count ++; 
+				count++;
 				current_token = next_token();
 			}
 			if (current_token->kind == SEMICOLON_tok)
@@ -146,10 +149,22 @@ void parse_PROG()
 				role_for_params_parser = FullDefinition;
 			while (count--)
 				back_token();
-
+			if (role_for_params_parser == PreDefinition)
+			{
+				entry = insert(current_function_name);
+			}
+			else
+			{
+				entry = lookup(current_function_name);
+				if (entry == NULL)
+				{
+					entry = insert(current_function_name);
+					set_id_role(entry, FullDefinition);
+				}
+			}
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
 			parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
-			parse_FUNC_PROTOTYPE(&function_name, &function_type ,&parameters_list, role_for_params_parser);
+			parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list, role_for_params_parser);
 			current_token = next_token();
 
 			/*SEMANTIC*/
@@ -158,7 +173,7 @@ void parse_PROG()
 				parse_FB();	/*For the parameters scope*/
 				if (ParsingSucceeded)
 				{
-					table_entry entry = insert(function_name);
+					entry = insert(function_name);
 					if (entry != NULL)
 					{
 						set_id_role(entry, PreDefinition);
@@ -169,26 +184,11 @@ void parse_PROG()
 			}
 			else
 			{
-				table_entry entry = lookup(function_name);
-				if (entry != NULL)
+				if (entry->Role == PreDefinition)
 				{
-					if (entry->Role == FullDefinition)
-					{
-						fprintf(semantic_analyzer_output_file, "A full definition already exists\n");
-					}
-					else if (entry->Role == PreDefinition)
-					{
-						check_types_equality(entry->ListOfParameterTypes, parameters_list);
-						set_id_role(entry, FullDefinition);
-						free_list(entry->ListOfParameterTypes);
-						set_parameters_list(entry, parameters_list);
-					}
-				}
-				else
-				{
-					table_entry entry = insert(function_name);
+					check_types_equality(entry->ListOfParameterTypes, parameters_list);
 					set_id_role(entry, FullDefinition);
-					set_id_type(entry, function_type);
+					free_list(entry->ListOfParameterTypes);
 					set_parameters_list(entry, parameters_list);
 				}
 			}
@@ -224,10 +224,10 @@ void parse_PROG()
 	}
 
 	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS -> FUNC_WITH_BODY FUNC_FULL_DEFS'}\n");
-	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}\n");  
-	if(temp_buffer!=NULL)
+	fprintf(parser_output_file, "Rule {FUNC_WITH_BODY -> FUNC_PROTOTYPE COMP_STMT}\n");
+	if (temp_buffer != NULL)
 		fprintf(parser_output_file, temp_buffer); //Append to output file
-		free(temp_buffer);
+	free(temp_buffer);
 	temp_buffer = NULL;
 
 	/*SEMANTIC*/ //TODO: May need to remove
@@ -266,14 +266,14 @@ void parse_PROG()
 	if (current_token->kind != EOF_tok)
 	{
 		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> FUNC_FULL_DEFS}\n");
-		back_token();    
+		back_token();
 		parse_FUNC_FULL_DEFS();
 	}
 	else
 	{
 		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> epsilon}\n");
 
-		find_predefinitions(); 
+		find_predefinitions();
 
 		/*SEMANTIC*/
 		parse_FB();

@@ -1018,7 +1018,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS)}\n");
 		/*Semantic*/
-		if (id == EmptyStruct)
+		if (id == NULL)
 		{
 			semantic_error("Undeclered function");
 		}
@@ -1038,13 +1038,13 @@ void parse_VAR_OR_CALL(table_entry id) {
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}\n");
 		back_token();
 		/*Semantic*/
-		if (id == EmptyStruct)
+		if (id == NULL)
 		{
-			semantic_error("Undeclered varable");
+			semantic_error("Undeclered variable");
 		}
 		if (id->Role != Variable)
 		{
-			semantic_error("The id is not a varable");
+			semantic_error("The id is not a variable");
 		}
 
 		Type leftSide = parse_VAR_TAG(id);
@@ -1198,25 +1198,24 @@ char* get_tokens_names()
 	return tokens;
 }
 
-void parse_ARG_LIST(ListNode* list_of_params_types) {
+void parse_ARG_LIST(ListNode* list_of_params_types) { //funcs
 	fprintf(parser_output_file, "Rule {ARG_LIST -> EXPR ARG_LIST'}\n");
 	int current_token_line = current_token->lineNumber;
-	if (list_of_params_types == NULL)
+	if (list_of_params_types == NULL)// there is at list one argument but not in the func with body
 		semantic_error("difference between definitions");// TODO: Handle a call without a definition
 	Expr* expr = parse_EXPR();
 	if (list_of_params_types == NULL)
-		check_table_against_reality(TypeError,expr->type);
-	else
-		check_table_against_reality(list_of_params_types->type, expr->type);
-	if (list_of_params_types != NULL)
 	{
-		if (list_of_params_types->next != NULL)
-			parse_ARG_LIST_TAG(list_of_params_types->next);
-		else
-			parse_ARG_LIST_TAG(NULL);
+		check_table_against_reality(TypeError, expr->type);// TODO SEMANTIC ERROR
+		parse_ARG_LIST_TAG(NULL);
+
 	}
 	else
-		parse_ARG_LIST_TAG(NULL);
+	{
+		check_table_against_reality(list_of_params_types->type, expr->type);
+		parse_ARG_LIST_TAG(list_of_params_types->next);
+
+	}
 }
 
 void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
@@ -1235,17 +1234,14 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST'}\n");
 		/* Semantic */
 		if (list_of_params_types == NULL)
-			semantic_error("difference between definitions");		
+			semantic_error("difference between definitions");
 		Expr* expr = parse_EXPR();
-		if (list_of_params_types == NULL)
-			check_table_against_reality(TypeError, expr->type);
+		if (list_of_params_types == NULL)// because we are already in type error lets print it
+			semantic_error("not equeinvalent number of params");// TODO SEMANTIC ERROR
 		else
 			check_table_against_reality(list_of_params_types->type, expr->type);
-		
-		if (list_of_params_types->next != NULL)
-			parse_ARG_LIST_TAG(list_of_params_types->next);
-		else
-			parse_ARG_LIST_TAG(NULL);
+
+		parse_ARG_LIST_TAG(list_of_params_types->next);
 		/* Semantic */
 		break;
 	case PARENTHESIS_CLOSE_tok:
@@ -1284,8 +1280,8 @@ void parse_RETURN_STMT_TAG() {
 	{
 	case ID_tok:
 		/* Semantic */
-		table_entry id = lookup(current_token->lexeme);
-		if (id == EmptyStruct)
+		table_entry id = find(current_token->lexeme);
+		if (id == NULL)
 			semantic_error(semantic_analyzer_output_file, "ID is not declared");
 		/* Semantic */
 	case INT_NUM_tok:
@@ -1306,7 +1302,7 @@ void parse_RETURN_STMT_TAG() {
 	}
 }
 
-Type parse_VAR_TAG(table_entry id) {
+Type parse_VAR_TAG(table_entry id) { // arrays
 	// Follow of VAR' -  ; } , ) ] rel_op + * =
 	// rel_op -  <  <=  ==  >=  >  != 
 	eTOKENS follow[] = { SEMICOLON_tok, CURLY_BRACKET_CLOSE_tok, COMMA_tok, PARENTHESIS_CLOSE_tok, BRACKET_CLOSE_tok, 
@@ -1320,17 +1316,22 @@ Type parse_VAR_TAG(table_entry id) {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 15;
 	current_token = next_token();
-
+	Type id_type;
 	fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST] | Epsilon}\n");
-	Type id_type = get_id_type(id);
+	if (id != NULL)
+		id_type = get_id_type(id);
+	else id_type = TypeError;
 	switch (current_token->kind) {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}\n");
 		if (id_type != FloatArray && id_type != IntArray)
 			semantic_error("The id must be declared as array");
-		parse_EXPR_LIST(id->ListOfArrayDimensions);
+		if(id!=NULL)
+			parse_EXPR_LIST(id->ListOfArrayDimensions);
+		else 
+			parse_EXPR_LIST(NULL);
 		current_follow = follow;
-		if(!match(BRACKET_CLOSE_tok))
+		if (!match(BRACKET_CLOSE_tok))
 			return TypeError;
 		return id_type;
 	case SEMICOLON_tok:
@@ -1352,7 +1353,7 @@ Type parse_VAR_TAG(table_entry id) {
 		if (id->ListOfArrayDimensions != NULL)
 			semantic_error("expected no params but shit happens");
 		return id_type;
-	 default:
+	default:
 		error();
 		return TypeError;
 	}
@@ -1369,10 +1370,8 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 		if (expr->Value >= list_of_dimensions->dimension)
 			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array");
 	}
-	if (list_of_dimensions->next == NULL)
-		parse_EXPR_LIST_TAG(NULL);
-	else
-		parse_EXPR_LIST_TAG(list_of_dimensions->next);
+	
+	parse_EXPR_LIST_TAG(list_of_dimensions->next);
 }
 void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 	// Follow of EXPR_LIST' - ]
@@ -1392,13 +1391,14 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		/* Semantic */
 		if (list_of_dimensions == NULL)
 			semantic_error("different num of dimensions");
-		if (list_of_dimensions->type != Integer)
+		Expr* expr = parse_EXPR();
+		if (expr->type != Integer)
 			semantic_error("Type of expr in array must be integer");
-		parse_EXPR();
-		list_of_dimensions->next;
+		if (list_of_dimensions == NULL)
+			parse_EXPR_LIST_TAG(NULL);
+		else
+			parse_EXPR_LIST_TAG(list_of_dimensions->next);
 		/* Semantic */
-		parse_EXPR_LIST_TAG(list_of_dimensions);
-		break;
 	case BRACKET_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");
 		back_token();
@@ -1435,13 +1435,17 @@ void parse_CONDITION() {
 Expr* parse_EXPR() {
 	fprintf(parser_output_file, "Rule {EXPR -> TERM EXPR'}\n");
 	Expr* term_expr = parse_TERM();
-	Expr* expr_tag =  parse_EXPR_TAG();
+	Expr* expr_tag =  parse_EXPR_TAG();//TODO If EPSILON
 	Expr* expr = (Expr*)malloc(sizeof(Expr));
 	if (term_expr->type == Integer && expr_tag->type == Integer)
 	{
 		expr->type = Integer;
-		expr->Valueable = 1;
-		expr->Value = term_expr->Value + expr_tag->Value;
+		if (term_expr->Valueable == 1 && expr_tag->Valueable == 1)
+		{
+			expr->Valueable = 1;
+			expr->Value = term_expr->Value + expr_tag->Value;
+		}
+		expr->Valueable = 0;
 	}
 	else if (term_expr->type == TypeError || expr_tag == TypeError)
 	{
@@ -1480,8 +1484,13 @@ Expr* parse_EXPR_TAG() {
 		Expr* expr_tag = parse_EXPR_TAG();
 		if (term_expr->type == Integer && expr_tag->type == Integer) {
 			expr->type = Integer;
-			expr->Valueable = 1;
-			expr->Value = term_expr->Value + expr_tag->Value;
+			if (term_expr->Valueable == 1 && expr_tag->Valueable == 1)
+			{
+				expr->Valueable = 1;
+				expr->Value = term_expr->Value + expr_tag->Value;
+			}
+			else
+				expr->Valueable = 0;
 		}
 		else if (term_expr->type == TypeError || expr_tag->type == TypeError) {
 			expr->type = TypeError;
@@ -1510,6 +1519,7 @@ Expr* parse_EXPR_TAG() {
 		back_token();
 		expr->type = Integer;
 		expr->Valueable = 1;
+		expr->Value = 0;
 		return expr;
 	 default:
 		error();
@@ -1526,8 +1536,23 @@ Expr* parse_TERM() {
 	if (factor_expr->type == Integer && term_tag_expr->type == Integer)
 	{
 		expr->type = Integer;
-		expr->Valueable = 1;
-		expr->Value = factor_expr->Value * term_tag_expr->Value;
+		if (factor_expr->Valueable == 1 && term_tag_expr->Valueable == 1)
+		{
+			expr->Value = factor_expr->Value * term_tag_expr->Value;
+			expr->Valueable = 1;
+		}
+		else
+			expr->Valueable = 0;
+	}
+	else if (factor_expr->type == TypeError || term_tag_expr->type == TypeError)
+	{
+		expr->type = TypeError;
+		expr->Valueable = 0;
+	}
+	else
+	{
+		expr->type = Float;
+		expr->Valueable = 0;
 	}
 	free(factor_expr);
 	free(term_tag_expr);
@@ -1557,8 +1582,13 @@ Expr* parse_TERM_TAG() {
 		Expr* term_tag_expr = parse_TERM_TAG();
 		if (factor_expr->type == Integer && term_tag_expr->type == Integer) {
 			expr->type = Integer;
-			expr->Valueable = 1;
-			expr->Value = factor_expr->Value * term_tag_expr->Value;
+			if (factor_expr->Valueable == 1 && term_tag_expr->Valueable == 1)
+			{
+				expr->Valueable = 1;
+				expr->Value = factor_expr->Value * term_tag_expr->Value;
+			}
+			else 
+				expr->Valueable = 0;
 		}
 		else if (factor_expr->type == TypeError || term_tag_expr->type == TypeError) {
 			expr->type = TypeError;
@@ -1588,6 +1618,7 @@ Expr* parse_TERM_TAG() {
 		back_token();
 		expr->type = Integer;
 		expr->Valueable = 1;
+		expr->Value = 1;
 		return expr;
 	default:
 		error();
@@ -1612,17 +1643,22 @@ Expr* parse_FACTOR() {
 	current_token = next_token();
 	fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL' | int_num | float_num | (EXPR)}\n");
 	Expr* expr = (Expr*)malloc(sizeof(Expr)); 
-	table_entry id = find(current_token->lexeme);
 	switch (current_token->kind) {
 	case ID_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL'}\n");
 		/* Semantic */
+		table_entry id = find(current_token->lexeme);
 		if (id != NULL) {
 			expr->type = get_id_type(id);
 			expr->Valueable = 0;
 		}
+		else
+		{
+			expr->type = TypeError;
+			expr->Valueable = 0;
+		}
 		/* Semantic */
-		parse_VAR_OR_CALL_TAG(id);
+		Type  result = parse_VAR_OR_CALL_TAG(id);
 		return expr;
 	case INT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> int_num}\n");
@@ -1654,7 +1690,7 @@ Expr* parse_FACTOR() {
 	}
 }
 
-void parse_VAR_OR_CALL_TAG(table_entry id) {
+Type parse_VAR_OR_CALL_TAG(table_entry id) {
 	// Follow of VAR_OR_CALL' - ; } , ) ] rel_op + *
 	// rel_op -  <  <=  ==  >=  >  != 
 	// First of VAR' - [
@@ -1669,7 +1705,7 @@ void parse_VAR_OR_CALL_TAG(table_entry id) {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 15;
 	current_token = next_token();
-
+	Type type;
 	fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS) | VAR'}\n");
 
 	switch (current_token->kind) {
@@ -1679,15 +1715,17 @@ void parse_VAR_OR_CALL_TAG(table_entry id) {
 		{
 			semantic_error("no implementation of function");
 			parse_ARGS(NULL);
+			type = TypeError;
 		}
 		else
 		{
 			parse_ARGS(id->ListOfParameterTypes);
+			type = id->Type;
 		}
 	current_follow = follow;
 		if(!match(PARENTHESIS_CLOSE_tok))
-			return;
-		break;
+			return TypeError;
+		return type;
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
 	case COMMA_tok:
@@ -1704,11 +1742,19 @@ void parse_VAR_OR_CALL_TAG(table_entry id) {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> VAR'}\n");
 		back_token();
-		parse_VAR_TAG(id);
-		break;
+		if (id == NULL)
+		{
+			semantic_error("Undeclared variable");
+			type = parse_VAR_TAG(NULL);
+		}
+		else
+		{
+			type = parse_VAR_TAG(id);
+		}
+		return type;
 	default:
 		error();
-		break;
+		return TypeError;
 	}
 }
 

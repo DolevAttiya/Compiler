@@ -41,7 +41,7 @@ void parse_VAR_DEC_LIST_TAG();
 void parse_STMT_LIST();
 void parse_STMT_LIST_TAG();
 void parse_STMT();
-void parse_VAR_OR_CALL(SYMBOL_TABLE_ENTRY*);
+void parse_VAR_OR_CALL(table_entry id);
 void parse_IF_STMT();
 void parse_ARGS(ListNode*);
 
@@ -58,7 +58,7 @@ Expr* parse_EXPR_TAG();
 Expr* parse_TERM();
 Expr* parse_TERM_TAG();
 Expr* parse_FACTOR();
-void parse_VAR_OR_CALL_TAG(table_entry id);
+Type parse_VAR_OR_CALL_TAG(table_entry id);
 
 void parse_BB();
 void parse_FB();

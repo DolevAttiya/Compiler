@@ -17,7 +17,7 @@ table_entry insert(char* id_name)
 	entry = lookup(id_name);
 	if (entry != NULL)
 	{
-		fprintf(semantic_analyzer_output_file,"Duplicate declaration\n");
+		fprintf(semantic_analyzer_output_file,"Duplicate declaration\n"); //TODO: Assaf - Change to semantic_error()
 		return NULL;
 	}
 	else
@@ -66,7 +66,7 @@ table_entry find(char* id_name)
 }
 
 //INTERNAL FUNCTIONS
-void semantic_error(char *message)
+void semantic_error(char *message) // TODO: Assaf - Add a line number to the output using a global variable semantic_error_line_number
 {
 	fprintf(semantic_analyzer_output_file, message);
 }
@@ -269,18 +269,18 @@ void check_table_against_reality(Type table, Type reality)
 {
 	if (table == FloatArray)
 		if (!(reality == FloatArray || reality == IntArray))
-			semantic_error("expected type FloatArray, got %s", &reality);
+			semantic_error("expected type FloatArray, got %s", reality);
 	if (table == IntArray)
 		if (!reality == IntArray)
-			semantic_error("Expected type IntArray, got %s", &reality);
+			semantic_error("Expected type IntArray, got %s", reality);
 	if (table == Integer)
 		if (!reality == Integer)
 		{
-			semantic_error("Expected type Integer, got %s", &reality);
+			semantic_error("Expected type Integer, got %s", reality);
 		}
 	if (table == Float)
 		if (!(reality == Float || reality == Integer))
 		{
-			semantic_error("Expected type Float, got %s", &reality);
+			semantic_error("Expected type Float, got %s", reality);
 		}
 }

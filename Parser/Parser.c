@@ -877,7 +877,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types) {
 	if (!match(ID_tok))
 		return NULL;
 	int error_line_number = current_token->lineNumber;
-	parse_PARAM_TAG(&param_type, &dimList);
+	parse_PARAM_TAG(&param_type, &dimList, role_for_parameters_parser, predef_types);
 	/*Semantic*/
 	if (param_type != TypeError && dimList != -1)
 	{
@@ -909,13 +909,14 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types) {
 	/*Semantic*/
 }
 
-void parse_PARAM_TAG(Type* param_type, ListNode** dimList) {
+void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_parameters_parser, ListNode* predef_types) {
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
 	eTOKENS tokens[] = {/*Firsts*/ BRACKET_OPEN_tok,/*Follows*/ COMMA_tok, PARENTHESIS_CLOSE_tok };
 	expected_token_types = tokens;
 	expected_token_types_size = 3;
+	int potential_semantic_error_line_number = current_token->lineNumber;
 	current_token = next_token();
 
 	fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES] | epsilon}\n");
@@ -924,10 +925,15 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList) {
 	{
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES]}\n");
-
 		/*Semantic*/
+		if (role_for_parameters_parser == FullDefinition && (predef_types->type == Integer) || (predef_types->type == Float))
+		{
+			semantic_error_line_number = current_token->lineNumber;
+			semantic_error("The Parameter is not an array as mentioned in predefinition");
+		}
 		parse_DIM_SIZES(dimList);
 		if (*param_type == Integer)
+
 			*param_type = IntArray;
 		else
 		{
@@ -947,6 +953,11 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList) {
 			fprintf(parser_output_file, "Rule {PARAM' -> epsilon}\n");
 			/*Semantic*/
 			// if() TODO need to get back to in order to check if param` is epsilon and if so what i need to do
+			if (role_for_parameters_parser == FullDefinition && predef_types != NULL)
+			{
+				semantic_error_line_number = potential_semantic_error_line_number;
+				semantic_error("param in predefinition is an array but in full definition is not");
+			}
 			*dimList = NULL;
 			/*Semantic*/
 			back_token();

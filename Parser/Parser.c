@@ -1164,9 +1164,9 @@ void parse_VAR_OR_CALL(table_entry id) {
 		if (rightSide->type != TypeError && leftSide != TypeError)
 		{
 
-			if (!(leftSide == Integer && rightSide->type == Integer) || (leftSide == Float && (rightSide->type == Integer || rightSide->type == Float)))
+			if (!((leftSide == Integer && rightSide->type == Integer) || (leftSide == Float && (rightSide->type == Integer || rightSide->type == Float))))
 			{
-			semantic_error("Right side's type does not match left side's type\n");
+				semantic_error("Right side's type does not match left side's type\n");
 			}
 		}
 		else

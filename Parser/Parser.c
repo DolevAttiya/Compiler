@@ -576,7 +576,7 @@ void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** 
 	table_entry entry = lookup(*function_name);
 	parse_BB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", ++scope);
 	/*SEMANTIC*/
-	if (role_for_parameters_parser == FullDefinition && entry!=NULL)
+	if (role_for_parameters_parser == FullDefinition && entry!=NULL && entry->ListOfParameterTypes!=NULL)
 	{
 		// there was a predef with or without paramteres
 		/*if (entry->ListOfParameterTypes == NULL)
@@ -953,10 +953,10 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 			fprintf(parser_output_file, "Rule {PARAM' -> epsilon}\n");
 			/*Semantic*/
 			// if() TODO need to get back to in order to check if param` is epsilon and if so what i need to do
-			if (role_for_parameters_parser == FullDefinition && predef_types != NULL && predef_types->dimension != NULL)
+			if (role_for_parameters_parser == FullDefinition && predef_types != NULL && predef_types->dimension != -1)
 			{
 				semantic_error_line_number = potential_semantic_error_line_number;
-				semantic_error("param in predefinition is an array but in full definition is not");
+				semantic_error("param in predefinition is an array but in full definition is not\n");
 			}
 			*dimList = NULL;
 			/*Semantic*/

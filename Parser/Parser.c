@@ -1410,16 +1410,16 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 	current_token = next_token();
 	Type id_type;
 	fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST] | Epsilon}\n");
-	if (id != NULL)
+	if (id!=NULL && id!=-1)
 		id_type = get_id_type(id);
 	else id_type = TypeError;
 	switch (current_token->kind) {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}\n");
-		ListNode* down_the_tree;
+		ListNode* down_the_tree = NULL;
 		if (id_type != FloatArray && id_type != IntArray)
 			semantic_error("The id must be declared as array\n");
-		if(id!=NULL)
+		if(id!=NULL && id!=-1)
 			down_the_tree = id->ListOfArrayDimensions;
 		else 
 			down_the_tree = NULL;
@@ -1444,7 +1444,7 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 	case ASSIGNMENT_OP_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
-		if (id != NULL&&id->ListOfArrayDimensions != NULL)
+		if (id != NULL && id!=-1 && id->ListOfArrayDimensions != NULL)
 			semantic_error("expected no params but shit happens\n");
 		return id_type;
 	default:
@@ -1462,11 +1462,11 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	else if(expr->Valueable)
 	{
 		
-		if (list_of_dimensions != NULL && list_of_dimensions != -1 &&expr->Value >= list_of_dimensions->dimension)
+		if (list_of_dimensions != NULL && expr->Value >= list_of_dimensions->dimension)
 			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
 	}
 	ListNode* down_the_tree;
-	if (list_of_dimensions == NULL || list_of_dimensions == -1)
+	if (list_of_dimensions == NULL)
 		down_the_tree = list_of_dimensions;
 	else
 		down_the_tree = list_of_dimensions->next;
@@ -1561,7 +1561,7 @@ Expr* parse_EXPR() {
 		}
 		expr->Valueable = 0;
 	}
-	else if (term_expr->type == TypeError || expr_tag == TypeError)
+	else if (term_expr->type == TypeError || expr_tag->type == TypeError)
 	{
 		expr->type = TypeError;
 		expr->Valueable = 0;
@@ -1772,7 +1772,7 @@ Expr* parse_FACTOR() {
 			expr->Valueable = 0;
 		}
 		/* Semantic */
-		Type  result = parse_VAR_OR_CALL_TAG(id);
+		Type result = parse_VAR_OR_CALL_TAG(id);
 		return expr;
 	case INT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> int_num}\n");

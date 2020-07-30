@@ -109,6 +109,7 @@ void parse_PROG()
 	ListNode* parameters_list;
 	/*SEMANTIC*/
 
+	int local_line_number = current_token->lineNumber;
 	parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list, PreDefinition);
 
 	current_follow = follow2;
@@ -116,10 +117,11 @@ void parse_PROG()
 
 	if (match(SEMICOLON_tok))
 	{
-		parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);	/*For the parameters scope*/
+		parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);	/*For the parameters scope*/ //TODO: Remove prints when finished
 		/*SEMANTIC*/
 		if (ParsingSucceeded)
 		{
+			semantic_error_line_number = local_line_number;
 			table_entry entry = insert(function_name);
 			if (entry != NULL)
 			{
@@ -170,6 +172,7 @@ void parse_PROG()
 			}
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
 			parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
+			local_line_number = current_token->lineNumber;
 			parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list, role_for_params_parser);
 			current_token = next_token();
 
@@ -179,6 +182,7 @@ void parse_PROG()
 				parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);	/*For the parameters scope*/
 				if (ParsingSucceeded)
 				{
+					semantic_error_line_number = local_line_number;
 					entry = insert(function_name);
 					if (entry != NULL)
 					{
@@ -333,6 +337,7 @@ void parse_VAR_DEC()
 
 	current_follow = follow;
 	current_follow_size = 7;
+	int local_line_number = current_token->lineNumber;
 	if (!match(ID_tok))
 	{
 		ParsingSucceeded = 0;
@@ -352,6 +357,7 @@ void parse_VAR_DEC()
 	/*SEMANTIC*/
 	if(ParsingSucceeded)
 	{
+		semantic_error_line_number = local_line_number;
 		table_entry entry = insert(id_name);
 		if (entry != NULL)
 		{
@@ -668,7 +674,7 @@ void parse_FUNC_WITH_BODY()
 	/*SEMANTIC*/
 	current_token = next_token();
 	current_token = next_token();
-	semantic_error_line_number = current_token->lineNumber;
+	int local_line_number = current_token->lineNumber;
 	char* current_function_name = current_token->lexeme;
 	table_entry entry = lookup(current_function_name);
 	back_token();
@@ -676,6 +682,8 @@ void parse_FUNC_WITH_BODY()
 	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list, FullDefinition);
 	if (entry != NULL)
 	{
+		semantic_error_line_number = local_line_number;
+
 		if (entry->Role == FullDefinition)
 		{
 			semantic_error("Full definition of function already exists\n");

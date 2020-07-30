@@ -1438,7 +1438,10 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		current_follow = follow;
 		if (!match(BRACKET_CLOSE_tok))
 			return TypeError;
-		return id_type;
+		if (id_type == FloatArray)
+			return Float;
+		else
+			return Integer;
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
 	case COMMA_tok:

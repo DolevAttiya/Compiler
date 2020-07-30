@@ -743,10 +743,9 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser, ListNode* predef_types) 
 	eTOKENS tokens[] = {/*Firsts*/ INT_tok, FLOAT_tok,/*Follows*/ PARENTHESIS_CLOSE_tok };
 	expected_token_types = tokens;
 	expected_token_types_size = 3;
+	int error_potential_line_number = current_token->lineNumber;
 	current_token = next_token();
-
 	fprintf(parser_output_file, "Rule {PARAMS -> PARAMS_LIST | epsilon}\n");
-
 	switch (current_token->kind)
 	{
 	case INT_tok:
@@ -754,11 +753,7 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser, ListNode* predef_types) 
 		fprintf(parser_output_file, "Rule {PARAMS -> PARAMS_LIST}\n");
 		back_token();
 		/*Semantic*/
-		ListNode* to_check = parse_PARAM_LIST(role_for_parameters_parser, predef_types);
-		//if (!search_type_error(to_check))  //TODO: change to 
-		return to_check;
-		//else
-		//	return NULL;
+		return parse_PARAM_LIST(role_for_parameters_parser, predef_types);
 		/*Semantic*/
 		break;
 	default:
@@ -767,7 +762,13 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser, ListNode* predef_types) 
 			fprintf(parser_output_file, "Rule {PARAMS -> epsilon}\n");
 			back_token();
 			/*Semantic*/
-			return NULL;//(ListNode*)calloc(1, sizeof(ListNode));
+			if (role_for_parameters_parser == FullDefinition && predef_types != NULL && predef_types->dimension != -1)
+			{
+				back_token();
+				semantic_error_line_number = error_potential_line_number;
+				semantic_error("There are less params then in predefinition");
+			}
+			return NULL;
 			/*Semantic*/
 		}
 		error();
@@ -802,6 +803,7 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 	eTOKENS tokens[] = {/*Firsts*/ COMMA_tok,/*Follows*/ PARENTHESIS_CLOSE_tok };
 	expected_token_types = tokens;
 	expected_token_types_size = 2;
+	int error_potential_line_number = current_token->lineNumber;
 	current_token = next_token();
 
 	fprintf(parser_output_file, "Rule {PARAMS_LIST' -> , PARAM PARAMS_LIST' | epsilon}\n");
@@ -827,7 +829,7 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 		if (parse_Follow() != 0)
 		{
 			if (role_for_parameters_parser == FullDefinition && predef_types != NULL && predef_types->dimension != -1) {
-				//TODO get line number 
+				semantic_error_line_number = error_potential_line_number;
 				semantic_error("Less params then declered in predefinition\n");
 			}
 			fprintf(parser_output_file, "Rule {PARAMS_LIST' -> epsilon}\n");
@@ -847,7 +849,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types) {
 	/*Semantic*/
 	if (role_for_parameters_parser == FullDefinition && predef_types == NULL)
 	{
-		//TODO get line number 
+		semantic_error_line_number = current_token->lineNumber; 
 		semantic_error("More params then declered in predefinition\n");
 	}
 	Type param_type = parse_TYPE();
@@ -856,7 +858,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types) {
 	{
 		if (param_type != predef_types->type && param_type != TypeError && predef_types->type != TypeError)
 		{
-			//TODO get line number 
+			semantic_error_line_number = current_token->lineNumber;
 			semantic_error("Param type from decleration and implementation does not match\n");
 		}
 	}
@@ -885,7 +887,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types) {
 		{
 			if (role_for_parameters_parser == FullDefinition)
 			{
-				//TODO get line number 
+				semantic_error_line_number = error_line_number;
 				semantic_error("Dupplicated in line\n");
 				return DupplicateError;
 			}
@@ -936,6 +938,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList) {
 		{
 			fprintf(parser_output_file, "Rule {PARAM' -> epsilon}\n");
 			/*Semantic*/
+			// if() TODO need to get back to in order to check if param` is epsilon and if so what i need to do
 			*dimList = NULL;
 			/*Semantic*/
 			back_token();

@@ -109,6 +109,7 @@ void parse_PROG()
 	ListNode* parameters_list;
 	/*SEMANTIC*/
 
+	int local_line_number = current_token->lineNumber;
 	parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list, PreDefinition);
 
 	current_follow = follow2;
@@ -116,10 +117,11 @@ void parse_PROG()
 
 	if (match(SEMICOLON_tok))
 	{
-		parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);	/*For the parameters scope*/
+		parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);	/*For the parameters scope*/ //TODO: Remove prints when finished
 		/*SEMANTIC*/
 		if (ParsingSucceeded)
 		{
+			semantic_error_line_number = local_line_number;
 			table_entry entry = insert(function_name);
 			if (entry != NULL)
 			{
@@ -170,6 +172,7 @@ void parse_PROG()
 			}
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
 			parser_output_file_last_position = ftell(parser_output_file);//save file seeker location
+			local_line_number = current_token->lineNumber;
 			parse_FUNC_PROTOTYPE(&function_name, &function_type, &parameters_list, role_for_params_parser);
 			current_token = next_token();
 
@@ -179,6 +182,7 @@ void parse_PROG()
 				parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);	/*For the parameters scope*/
 				if (ParsingSucceeded)
 				{
+					semantic_error_line_number = local_line_number;
 					entry = insert(function_name);
 					if (entry != NULL)
 					{
@@ -333,6 +337,7 @@ void parse_VAR_DEC()
 
 	current_follow = follow;
 	current_follow_size = 7;
+	int local_line_number = current_token->lineNumber;
 	if (!match(ID_tok))
 	{
 		ParsingSucceeded = 0;
@@ -352,6 +357,7 @@ void parse_VAR_DEC()
 	/*SEMANTIC*/
 	if(ParsingSucceeded)
 	{
+		semantic_error_line_number = local_line_number;
 		table_entry entry = insert(id_name);
 		if (entry != NULL)
 		{
@@ -668,7 +674,7 @@ void parse_FUNC_WITH_BODY()
 	/*SEMANTIC*/
 	current_token = next_token();
 	current_token = next_token();
-	semantic_error_line_number = current_token->lineNumber;
+	int local_line_number = current_token->lineNumber;
 	char* current_function_name = current_token->lexeme;
 	table_entry entry = lookup(current_function_name);
 	back_token();
@@ -676,6 +682,8 @@ void parse_FUNC_WITH_BODY()
 	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list, FullDefinition);
 	if (entry != NULL)
 	{
+		semantic_error_line_number = local_line_number;
+
 		if (entry->Role == FullDefinition)
 		{
 			semantic_error("Full definition of function already exists\n");
@@ -1413,16 +1421,16 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 	current_token = next_token();
 	Type id_type;
 	fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST] | Epsilon}\n");
-	if (id != NULL)
+	if (id!=NULL && id!=-1)
 		id_type = get_id_type(id);
 	else id_type = TypeError;
 	switch (current_token->kind) {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}\n");
-		ListNode* down_the_tree;
+		ListNode* down_the_tree = NULL;
 		if (id_type != FloatArray && id_type != IntArray)
 			semantic_error("The id must be declared as array\n");
-		if(id!=NULL)
+		if(id!=NULL && id!=-1)
 			down_the_tree = id->ListOfArrayDimensions;
 		else 
 			down_the_tree = NULL;
@@ -1447,7 +1455,7 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 	case ASSIGNMENT_OP_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
-		if (id != NULL&&id->ListOfArrayDimensions != NULL)
+		if (id != NULL && id!=-1 && id->ListOfArrayDimensions != NULL)
 			semantic_error("expected no params but shit happens\n");
 		return id_type;
 	default:
@@ -1465,11 +1473,11 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	else if(expr->Valueable)
 	{
 		
-		if (list_of_dimensions != NULL && list_of_dimensions != -1 &&expr->Value >= list_of_dimensions->dimension)
+		if (list_of_dimensions != NULL && expr->Value >= list_of_dimensions->dimension)
 			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
 	}
 	ListNode* down_the_tree;
-	if (list_of_dimensions == NULL || list_of_dimensions == -1)
+	if (list_of_dimensions == NULL)
 		down_the_tree = list_of_dimensions;
 	else
 		down_the_tree = list_of_dimensions->next;
@@ -1564,7 +1572,7 @@ Expr* parse_EXPR() {
 		}
 		expr->Valueable = 0;
 	}
-	else if (term_expr->type == TypeError || expr_tag == TypeError)
+	else if (term_expr->type == TypeError || expr_tag->type == TypeError)
 	{
 		expr->type = TypeError;
 		expr->Valueable = 0;
@@ -1775,7 +1783,7 @@ Expr* parse_FACTOR() {
 			expr->Valueable = 0;
 		}
 		/* Semantic */
-		Type  result = parse_VAR_OR_CALL_TAG(id);
+		Type result = parse_VAR_OR_CALL_TAG(id);
 		return expr;
 	case INT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> int_num}\n");

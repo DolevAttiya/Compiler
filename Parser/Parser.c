@@ -5,7 +5,7 @@ char* eTokensStrings[];
 #include "../Semantic Structures/SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
 #include "Semantic functions.h"
 #include "../Lexical Analyzer/Token/Token.h"
-
+int scope = 0;
 Token* current_token;
 eTOKENS* current_follow;
 int current_follow_size;
@@ -45,7 +45,7 @@ void parse_PROG()
 	current_follow_size = 1;
 
 	/*SEMANTIC*/
-	parse_BB();
+	parse_BB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", ++scope);
 	/*SEMANTIC*/
 
 	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}\n");
@@ -116,7 +116,7 @@ void parse_PROG()
 
 	if (match(SEMICOLON_tok))
 	{
-		parse_FB();	/*For the parameters scope*/
+		parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);	/*For the parameters scope*/
 		/*SEMANTIC*/
 		if (ParsingSucceeded)
 		{
@@ -164,7 +164,7 @@ void parse_PROG()
 				else
 				{
 					if(entry->Role != PreDefinition)
-						fprintf(semantic_analyzer_output_file, "Duplicate declaration\n");
+						fprintf(semantic_analyzer_output_file, "Duplicate Function declaration\n");
 				}
 			}
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
@@ -175,7 +175,7 @@ void parse_PROG()
 			/*SEMANTIC*/
 			if (current_token->kind == SEMICOLON_tok)
 			{
-				parse_FB();	/*For the parameters scope*/
+				parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);	/*For the parameters scope*/
 				if (ParsingSucceeded)
 				{
 					entry = insert(function_name);
@@ -268,7 +268,7 @@ void parse_PROG()
 	parse_COMP_STMT();
 
 	/*SEMANTIC*/
-	parse_FB(); // For the parameters scope
+	parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope); // For the parameters scope
 	/*SEMANTIC*/
 
 	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> FUNC_FULL_DEFS | epsilon}\n");
@@ -286,9 +286,10 @@ void parse_PROG()
 		find_predefinitions();
 
 		/*SEMANTIC*/
-		parse_FB();
+		parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);
 		/*SEMANTIC*/
 	}
+	scope = 0;
 }
 
 void parse_GLOBAL_VARS()
@@ -565,24 +566,26 @@ void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** 
 	}
 
 	/*SEMANTIC*/
-	parse_BB();
+	parse_BB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", ++scope);
 	/*SEMANTIC*/
 
 	table_entry entry = lookup(*function_name);
 
 	if (role_for_parameters_parser == FullDefinition && entry!=NULL)
 	{
+		// there was a predef with or without paramteres
 		/*if (entry->ListOfParameterTypes == NULL)
 		{
 
 		}*/
-		*ParametersList = parse_PARAMS(role_for_parameters_parser/*, entry->ListOfParameterTypes*/);
+		*ParametersList = parse_PARAMS(role_for_parameters_parser, entry->ListOfParameterTypes);
 	}
 	else // func_pre_def || entry == NULL
 	{
-		ListNode* pre_list = NULL;
-		if (role_for_parameters_parser == FullDefinition) // entry == NULL
+		ListNode* pre_list = NULL; // in case entry is NULL
+		if (role_for_parameters_parser == FullDefinition) // entry is NULL
 		{
+			// AKA there was not pre def, so if this is the case there is no need to check for the entry pre deff cause there isn`t one
 			pre_list = (ListNode*)malloc(sizeof(ListNode*));
 			pre_list->dimension = -1;
 			// if role_for_parameters_parser == FullDefinition check if pre_list->dimension == -1 
@@ -590,7 +593,7 @@ void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** 
 			// else check if type != result type
 			// if so prinnt error
 		}
-		*ParametersList = parse_PARAMS(role_for_parameters_parser/*, pre_list*/);
+		*ParametersList = parse_PARAMS(role_for_parameters_parser, pre_list);
 		free(pre_list);
 	}
 
@@ -662,10 +665,13 @@ void parse_FUNC_WITH_BODY()
 	Type function_type;
 	ListNode* parameters_list;
 	/*SEMANTIC*/
-
+	current_token = next_token();
+	current_token = next_token();
+	char* current_function_name = current_token->lexeme;
+	table_entry entry = lookup(current_function_name);
+	back_token();
+	back_token();
 	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list, FullDefinition);
-
-	table_entry entry = lookup(function_name);
 	if (entry != NULL)
 	{
 		if (entry->Role == FullDefinition)
@@ -691,7 +697,7 @@ void parse_FUNC_WITH_BODY()
 	parse_COMP_STMT();
 
 	/*SEMANTIC*/
-	parse_FB(); // For the parameters scope
+	parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope); // For the parameters scope
 	/*SEMANTIC*/
 }
 
@@ -727,7 +733,7 @@ Type parse_RETURN_TYPE() {
 	}
 }
 
-ListNode* parse_PARAMS(Role role_for_parameters_parser/*, ListNode* predef_vals*/) {
+ListNode* parse_PARAMS(Role role_for_parameters_parser, ListNode* predef_types) {
 	
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
@@ -746,7 +752,7 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser/*, ListNode* predef_vals*
 		fprintf(parser_output_file, "Rule {PARAMS -> PARAMS_LIST}\n");
 		back_token();
 		/*Semantic*/
-		ListNode* to_check = parse_PARAM_LIST(role_for_parameters_parser/*, predef_vals*/);
+		ListNode* to_check = parse_PARAM_LIST(role_for_parameters_parser, predef_types);
 		//if (!search_type_error(to_check))  //TODO: change to 
 		return to_check;
 		//else
@@ -769,17 +775,25 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser/*, ListNode* predef_vals*
 	}
 }
 
-ListNode* parse_PARAM_LIST(Role role_for_parameters_parser/*, ListNode* predef_vals*/) {
+ListNode* parse_PARAM_LIST(Role role_for_parameters_parser, ListNode* predef_types) {
 	fprintf(parser_output_file, "Rule {PARAMS_LIST -> PARAM PARAMS_LIST'}\n");
 	/*Semantic*/
 	ListNode* Head = NULL;
-	add_type_to_list_node(&Head, parse_PARAM(role_for_parameters_parser /*,predef_vals*/));
-	parse_PARAM_LIST_TAG(Head, role_for_parameters_parser/*, predef_vals->next*/);
-	return Head;
+	add_type_to_list_node(&Head, parse_PARAM(role_for_parameters_parser ,predef_types));
+	ListNode* down_the_list = NULL;
+	if (predef_types == NULL)
+		down_the_list == NULL;
+	else
+		if (predef_types->dimension != -1)
+			down_the_list = predef_types->next;
+		else
+			down_the_list = predef_types;
 	/*Semantic*/
+	parse_PARAM_LIST_TAG(Head, role_for_parameters_parser, down_the_list);
+	return Head;
 }
 
-void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser/*, ListNode* predef_vals*/) {
+void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListNode* predef_types) {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -795,14 +809,25 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser/*, Lis
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {PARAMS_LIST' -> , PARAM PARAMS_LIST'}\n");
 		/*Semantic*/
-		add_type_to_list_node(&Head, parse_PARAM(role_for_parameters_parser/*, predef_vals*/));
+		add_type_to_list_node(&Head, parse_PARAM(role_for_parameters_parser, predef_types));
+		ListNode* down_the_list = NULL;
+		if (predef_types == NULL)
+			down_the_list == NULL;
+		else
+			if (predef_types->dimension != -1)
+				down_the_list = predef_types->next;
+			else
+				down_the_list = predef_types;
 		/*Semantic*/
-		parse_PARAM_LIST_TAG(Head, role_for_parameters_parser/*, predef_vals->next*/);
+		parse_PARAM_LIST_TAG(Head, role_for_parameters_parser, down_the_list);
 		break;
 	default:
 		if (parse_Follow() != 0)
 		{
-			// TODO check if x is null, if so semantic error less param then declered in pre def
+			if (role_for_parameters_parser == FullDefinition && predef_types != NULL && predef_types->dimension != -1) {
+				//TODO get line number 
+				semantic_error("Less params then declered in predefinition\n");
+			}
 			fprintf(parser_output_file, "Rule {PARAMS_LIST' -> epsilon}\n");
 			back_token();
 			break;
@@ -812,15 +837,27 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser/*, Lis
 	}
 }
 
-Type parse_PARAM(Role role_for_parameters_parser/* , ListNode* predef_vals*/) {
+Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types) {
 	eTOKENS follow[] = { COMMA_tok, PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {PARAM -> TYPE id PARAM'}\n");
 	/*Semantic*/
-	// TODO check if x is null, if so print semantic error, more params then declered in pre def
+	if (role_for_parameters_parser == FullDefinition && predef_types == NULL)
+	{
+		//TODO get line number 
+		semantic_error("More params then declered in predefinition\n");
+	}
 	Type param_type = parse_TYPE();
-	// TODO check if x.type is diffrent then param_type print miss match type.
+
+	if (role_for_parameters_parser == FullDefinition && predef_types != NULL && predef_types->dimension != -1) // -1 means there is no pre def so there is nothing to check on
+	{
+		if (param_type != predef_types->type && param_type != TypeError && predef_types->type != TypeError)
+		{
+			//TODO get line number 
+			semantic_error("Param type from decleration and implementation does not match\n");
+		}
+	}
 	ListNode* dimList = NULL;
 	/*Semantic*/
 	current_follow = follow;
@@ -846,9 +883,8 @@ Type parse_PARAM(Role role_for_parameters_parser/* , ListNode* predef_vals*/) {
 		{
 			if (role_for_parameters_parser == FullDefinition)
 			{
-				//char* str;
-				//sprintf(str, "Dupplicated in line %d", error_line_number);
-				semantic_error("Dupplicated in line");
+				//TODO get line number 
+				semantic_error("Dupplicated in line\n");
 				return DupplicateError;
 			}
 		}
@@ -921,7 +957,7 @@ void parse_COMP_STMT() {
 	if (!match(CURLY_BRACKET_OPEN_tok))
 		return;
 	/*Semantic*/
-	parse_BB();
+	parse_BB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", ++scope);
 	/*Semantic*/
 	parse_VAR_DEC_LIST();
 	parse_STMT_LIST();
@@ -930,7 +966,7 @@ void parse_COMP_STMT() {
 	if (!match(CURLY_BRACKET_CLOSE_tok))
 		return;
 	/*Semantic*/
-	parse_FB();
+	parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);
 	/*Semantic*/
 }
 
@@ -1056,16 +1092,23 @@ void parse_VAR_OR_CALL(table_entry id) {
 	{
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS)}\n");
+		ListNode* down_the_tree;
 		/*Semantic*/
 		if (id == NULL)
 		{
-			semantic_error("Undeclered function");
+			semantic_error("Undeclered function\n");
+			down_the_tree = -1;
 		}
-		if (id->Role != FullDefinition)
-		{
-			semantic_error("Calling args on not a Function var or not declared");
+		else {
+			if (id->Role != FullDefinition)
+			{
+				semantic_error("Calling args on not a Function var or not declared\n");
+			}
+			down_the_tree = id->ListOfParameterTypes;
+
 		}
-		parse_ARGS(id->ListOfParameterTypes);
+
+		parse_ARGS(down_the_tree);
 		/*Semantic*/
 		current_follow = follow;
 		current_follow_size = 2;
@@ -1079,11 +1122,11 @@ void parse_VAR_OR_CALL(table_entry id) {
 		/*Semantic*/
 		if (id == NULL)
 		{
-			semantic_error("Undeclered variable");
+			semantic_error("Undeclered variable\n");
 		}
 		else if (id->Role != Variable)
 		{
-			semantic_error("The id is not a variable");
+			semantic_error("The id is not a variable\n");
 		}
 
 		Type leftSide = parse_VAR_TAG(id);
@@ -1102,14 +1145,14 @@ void parse_VAR_OR_CALL(table_entry id) {
 		Expr* rightSide = parse_EXPR();
 		if (IntArray == rightSide->type || FloatArray == rightSide->type)
 		{
-			semantic_error("trying accsses a wrong type from the real type on the right side");
+			semantic_error("trying accsses a wrong type from the real type on the right side\n");
 		}
 		if (rightSide->type != TypeError && leftSide != TypeError)
 		{
 
 			if (!(leftSide == Integer && rightSide->type == Integer) || (leftSide == Float && (rightSide->type == Integer || rightSide->type == Float)))
 			{
-			semantic_error("Right side's type does not match left side's type");
+			semantic_error("Right side's type does not match left side's type\n");
 			}
 		}
 		else
@@ -1166,9 +1209,9 @@ void parse_ARGS(ListNode* list_of_params_types) {
 		{
 			fprintf(parser_output_file, "Rule {ARGS -> epsilon}\n");
 			/*Semantic*/
-			if (list_of_params_types != NULL)
+			if (list_of_params_types != NULL && list_of_params_types != -1)
 			{
-				semantic_error("there is a diffrence between the list");
+				semantic_error("there are less params then expected\n");
 			}
 			/*Semantic*/
 			back_token();
@@ -1241,20 +1284,20 @@ void parse_ARG_LIST(ListNode* list_of_params_types) { //funcs
 	fprintf(parser_output_file, "Rule {ARG_LIST -> EXPR ARG_LIST'}\n");
 	int current_token_line = current_token->lineNumber;
 	if (list_of_params_types == NULL)// there is at list one argument but not in the func with body
-		semantic_error("difference between definitions");// TODO: Handle a call without a definition
+		semantic_error("difference between definitions\n");// TODO: Handle a call without a definition
 	Expr* expr = parse_EXPR();
+	ListNode* down_the_list = NULL;
 	if (list_of_params_types == NULL)
-	{
-		check_table_against_reality(TypeError, expr->type);// TODO SEMANTIC ERROR
-		parse_ARG_LIST_TAG(NULL);
-
+		semantic_error("Less argumments then expected");
+	else {
+		if (list_of_params_types != -1)
+		{
+			check_table_against_reality(list_of_params_types->type, expr->type);
+			down_the_list = list_of_params_types->next;
+		}
+		else { down_the_list = -1; }
 	}
-	else
-	{
-		check_table_against_reality(list_of_params_types->type, expr->type);
-		parse_ARG_LIST_TAG(list_of_params_types->next);
-
-	}
+	parse_ARG_LIST_TAG(down_the_list);
 }
 
 void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
@@ -1266,29 +1309,34 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 	expected_token_types_size = 2;
 	current_token = next_token();
 	fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST' | Epsilon}\n");
-
+	ListNode* down_the_tree;
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
+		
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST'}\n");
 		/* Semantic */
 		if (list_of_params_types == NULL)
-			semantic_error("difference between definitions");
+			semantic_error("difference between definitions\n");
 		Expr* expr = parse_EXPR();
 		if (list_of_params_types == NULL)// because we are already in type error lets print it
-			semantic_error("not equeinvalent number of params");// TODO SEMANTIC ERROR
+			semantic_error("not equeinvalent number of params\n");// TODO SEMANTIC ERROR
 		else
-			check_table_against_reality(list_of_params_types->type, expr->type);
-
-		parse_ARG_LIST_TAG(list_of_params_types->next);
+			if(list_of_params_types != -1)
+				check_table_against_reality(list_of_params_types->type, expr->type);
+		if (list_of_params_types == NULL || list_of_params_types == -1)
+			down_the_tree = list_of_params_types;
+		else 
+			down_the_tree = list_of_params_types->next;
 		/* Semantic */
+		parse_ARG_LIST_TAG(down_the_tree);
 		break;
 	case PARENTHESIS_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> Epsilon}\n");
 		back_token();
 		/* Semantic */
 		if(NULL!=list_of_params_types)
-			semantic_error("not equeinvalent number of params");
+			semantic_error("not equeinvalent number of params\n");
 		/* Semantic */
 		break;
 	default:
@@ -1312,16 +1360,16 @@ void parse_RETURN_STMT_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 6;
 	current_token = next_token();
-
+	table_entry id;
 	fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR | Epsilon}\n");
 
 	switch (current_token->kind)
 	{
 	case ID_tok:
 		/* Semantic */
-		table_entry id = find(current_token->lexeme);
+		id = find(current_token->lexeme);
 		if (id == NULL)
-			semantic_error(semantic_analyzer_output_file, "ID is not declared");
+			semantic_error(semantic_analyzer_output_file, "ID is not declared\n");
 		/* Semantic */
 	case INT_NUM_tok:
 	case FLOAT_NUM_tok:
@@ -1363,12 +1411,14 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 	switch (current_token->kind) {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}\n");
+		ListNode* down_the_tree;
 		if (id_type != FloatArray && id_type != IntArray)
-			semantic_error("The id must be declared as array");
+			semantic_error("The id must be declared as array\n");
 		if(id!=NULL)
-			parse_EXPR_LIST(id->ListOfArrayDimensions);
+			down_the_tree = id->ListOfArrayDimensions;
 		else 
-			parse_EXPR_LIST(NULL);
+			down_the_tree = NULL;
+		parse_EXPR_LIST(down_the_tree);
 		current_follow = follow;
 		if (!match(BRACKET_CLOSE_tok))
 			return TypeError;
@@ -1390,7 +1440,7 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
 		if (id != NULL&&id->ListOfArrayDimensions != NULL)
-			semantic_error("expected no params but shit happens");
+			semantic_error("expected no params but shit happens\n");
 		return id_type;
 	default:
 		error();
@@ -1400,17 +1450,21 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	fprintf(parser_output_file, "Rule {EXPR_LIST -> EXPR EXPR_LIST'}\n");
 	if (list_of_dimensions == NULL)
-		semantic_error("List of EXPR must include values");
+		semantic_error("List of EXPR must include values\n");
 	Expr* expr = parse_EXPR();
 	if (expr->type != Integer)
-		semantic_error("EXPR type must be Integer");
+		semantic_error("EXPR type must be Integer\n");
 	else if(expr->Valueable)
 	{
 		if (expr->Value >= list_of_dimensions->dimension)
-			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array");
+			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
 	}
-	
-	parse_EXPR_LIST_TAG(list_of_dimensions->next);
+	ListNode* down_the_tree;
+	if (list_of_dimensions == NULL || list_of_dimensions == -1)
+		down_the_tree = list_of_dimensions;
+	else
+		down_the_tree = list_of_dimensions->next;
+	parse_EXPR_LIST_TAG(down_the_tree);
 }
 void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 	// Follow of EXPR_LIST' - ]
@@ -1429,20 +1483,27 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}\n");
 		/* Semantic */
 		if (list_of_dimensions == NULL)
-			semantic_error("different num of dimensions");
+			semantic_error("different num of dimensions\n");
 		Expr* expr = parse_EXPR();
 		if (expr->type != Integer)
-			semantic_error("Type of expr in array must be integer");
-		if (list_of_dimensions == NULL)
-			parse_EXPR_LIST_TAG(NULL);
+			semantic_error("Type of expr in array must be integer\n");
+		else if (expr->Valueable)
+		{
+			if (list_of_dimensions != -1 && list_of_dimensions != NULL && expr->Value >= list_of_dimensions->dimension)
+				semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
+		}
+		ListNode* down_the_tree;
+		if (list_of_dimensions == NULL || list_of_dimensions == -1)
+			down_the_tree = list_of_dimensions;
 		else
-			parse_EXPR_LIST_TAG(list_of_dimensions->next);
+			down_the_tree = list_of_dimensions->next;
+		parse_EXPR_LIST_TAG(down_the_tree);
 		/* Semantic */
 	case BRACKET_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");
 		back_token();
 		if (list_of_dimensions != NULL)
-			semantic_error("not equeivalent number of dimensions");
+			semantic_error("not equeivalent number of dimensions\n");
 		break;
 	default:
 		error();
@@ -1750,19 +1811,22 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 	switch (current_token->kind) {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS)}\n");
+		ListNode* down_the_tree;
 		if (id == NULL)
 		{
-			semantic_error("no implementation of function");
-			parse_ARGS(NULL);
+			// Line Number
+			semantic_error("no implementation of function\n");
+			down_the_tree = -1;
 			type = TypeError;
 		}
 		else
 		{
-			parse_ARGS(id->ListOfParameterTypes);
+			down_the_tree = id->ListOfParameterTypes;
 			type = id->Type;
 		}
-	current_follow = follow;
-		if(!match(PARENTHESIS_CLOSE_tok))
+		parse_ARGS(down_the_tree);
+		current_follow = follow;
+		if (!match(PARENTHESIS_CLOSE_tok))
 			return TypeError;
 		return type;
 	case SEMICOLON_tok:
@@ -1780,16 +1844,18 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 	case MUL_OP_tok:
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> VAR'}\n");
+		table_entry id_down_the_tree;
 		back_token();
 		if (id == NULL)
 		{
-			semantic_error("Undeclared variable");
-			type = parse_VAR_TAG(NULL);
+			semantic_error("Undeclared variable\n");
+			id_down_the_tree = NULL;
 		}
 		else
 		{
-			type = parse_VAR_TAG(id);
+			id_down_the_tree = id;
 		}
+		type = parse_VAR_TAG(id_down_the_tree);
 		return type;
 	default:
 		error();

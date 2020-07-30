@@ -1123,6 +1123,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 		if (id == NULL)
 		{
 			semantic_error("Undeclered variable\n");
+			id = -1;
 		}
 		else if (id->Role != Variable)
 		{
@@ -1298,6 +1299,7 @@ void parse_ARG_LIST(ListNode* list_of_params_types) { //funcs
 		else { down_the_list = -1; }
 	}
 	parse_ARG_LIST_TAG(down_the_list);
+	free(expr);
 }
 
 void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
@@ -1330,6 +1332,7 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 			down_the_tree = list_of_params_types->next;
 		/* Semantic */
 		parse_ARG_LIST_TAG(down_the_tree);
+		free(expr);
 		break;
 	case PARENTHESIS_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> Epsilon}\n");
@@ -1376,7 +1379,7 @@ void parse_RETURN_STMT_TAG() {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR}\n");
 		back_token();
-		parse_EXPR();
+		free(parse_EXPR());
 		break;
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
@@ -1456,7 +1459,8 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 		semantic_error("EXPR type must be Integer\n");
 	else if(expr->Valueable)
 	{
-		if (expr->Value >= list_of_dimensions->dimension)
+		
+		if (list_of_dimensions != NULL && list_of_dimensions != -1 &&expr->Value >= list_of_dimensions->dimension)
 			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
 	}
 	ListNode* down_the_tree;
@@ -1465,6 +1469,7 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	else
 		down_the_tree = list_of_dimensions->next;
 	parse_EXPR_LIST_TAG(down_the_tree);
+	free(expr);
 }
 void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 	// Follow of EXPR_LIST' - ]
@@ -1498,6 +1503,8 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		else
 			down_the_tree = list_of_dimensions->next;
 		parse_EXPR_LIST_TAG(down_the_tree);
+		free(expr);
+
 		/* Semantic */
 	case BRACKET_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");
@@ -1514,23 +1521,28 @@ void parse_CONDITION() {
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
+	Expr* expr1, *expr2;
 	eTOKENS expected_tokens[] = { LESS_tok, LESS_EQUAL_tok, EQUAL_tok, GREATER_tok,
 											GREATER_EQUAL_tok, NOT_EQUAL_tok , PARENTHESIS_CLOSE_tok };
 	fprintf(parser_output_file, "Rule {CONDITION -> EXPR rel_op EXPR}\n");
-	parse_EXPR();
+	expr1 = parse_EXPR();
 	current_follow = follow;
 	current_follow_size = 1;
 	current_token = next_token();
 	if ((current_token->kind == LESS_tok) || (current_token->kind == LESS_EQUAL_tok) ||
 		(current_token->kind == EQUAL_tok) || (current_token->kind == GREATER_tok) ||
 		(current_token->kind == GREATER_EQUAL_tok) || (current_token->kind == NOT_EQUAL_tok))
-		parse_EXPR();
+	{
+		expr2 = parse_EXPR();
+		free(expr2);
+	}
 	else
 	{
 		expected_token_types = expected_tokens;
 		expected_token_types_size = 7;
 		error();
 	}
+	free(expr1);
 }
 Expr* parse_EXPR() {
 	fprintf(parser_output_file, "Rule {EXPR -> TERM EXPR'}\n");
@@ -1825,7 +1837,7 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 			type = id->Type;
 		}
 		parse_ARGS(down_the_tree);
-		current_follow = follow;
+		current_follow = follow;	
 		if (!match(PARENTHESIS_CLOSE_tok))
 			return TypeError;
 		return type;
@@ -1849,7 +1861,7 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 		if (id == NULL)
 		{
 			semantic_error("Undeclared variable\n");
-			id_down_the_tree = NULL;
+			id_down_the_tree = -1;
 		}
 		else
 		{

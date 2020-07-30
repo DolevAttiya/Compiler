@@ -573,11 +573,9 @@ void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** 
 	}
 
 	/*SEMANTIC*/
+	table_entry entry = lookup(*function_name);
 	parse_BB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", ++scope);
 	/*SEMANTIC*/
-
-	table_entry entry = lookup(*function_name);
-
 	if (role_for_parameters_parser == FullDefinition && entry!=NULL)
 	{
 		// there was a predef with or without paramteres
@@ -926,11 +924,12 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {PARAM' -> [DIM_SIZES]}\n");
 		/*Semantic*/
-		if (role_for_parameters_parser == FullDefinition && (predef_types->type == Integer) || (predef_types->type == Float))
-		{
-			semantic_error_line_number = current_token->lineNumber;
-			semantic_error("The Parameter is not an array as mentioned in predefinition");
-		}
+		if (role_for_parameters_parser == FullDefinition && predef_types != NULL )
+			if ((predef_types->type == Integer) || (predef_types->type == Float))
+			{
+				semantic_error_line_number = current_token->lineNumber;
+				semantic_error("The Parameter is not an array as mentioned in predefinition\n");
+			}
 		parse_DIM_SIZES(dimList);
 		if (*param_type == Integer)
 
@@ -947,13 +946,14 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 		current_follow_size = 2;
 		if (!match(BRACKET_CLOSE_tok))
 			return;
+		break;
 	default:
 		if (parse_Follow() != 0)
 		{
 			fprintf(parser_output_file, "Rule {PARAM' -> epsilon}\n");
 			/*Semantic*/
 			// if() TODO need to get back to in order to check if param` is epsilon and if so what i need to do
-			if (role_for_parameters_parser == FullDefinition && predef_types != NULL)
+			if (role_for_parameters_parser == FullDefinition && predef_types != NULL && predef_types->dimension != NULL)
 			{
 				semantic_error_line_number = potential_semantic_error_line_number;
 				semantic_error("param in predefinition is an array but in full definition is not");

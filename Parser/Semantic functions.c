@@ -17,7 +17,7 @@ table_entry insert(char* id_name)
 	entry = lookup(id_name);
 	if (entry != NULL)
 	{
-		fprintf(semantic_analyzer_output_file,"Duplicate declaration\n"); //TODO: Assaf - Change to semantic_error()
+		semantic_error("ID already exists\n");
 		return NULL;
 	}
 	else
@@ -66,9 +66,9 @@ table_entry find(char* id_name)
 }
 
 //INTERNAL FUNCTIONS
-void semantic_error(char *message) // TODO: Assaf - Add a line number to the output using a global variable semantic_error_line_number
+void semantic_error(char *message)
 {
-	fprintf(semantic_analyzer_output_file, message);
+	fprintf(semantic_analyzer_output_file, "line %d : %s", message, semantic_error_line_number);
 }
 
 table_ptr _get_current_table()
@@ -124,7 +124,7 @@ void find_predefinitions()
 			nextLink = currLink->next;
 		while (currLink != 0) {
 			if (currLink->value->Role == PreDefinition)
-				fprintf(semantic_analyzer_output_file, "Found a predefinition without a full definition\n");
+				semantic_error("Found a predefinition without a full definition\n"); //TODO: Assaf - need to add line number some how
 			currLink = nextLink;
 			if (currLink != 0)
 				nextLink = currLink->next;
@@ -145,37 +145,37 @@ out: 0 - if no error
 	 2 - if there is an DupplicatedError + Semantic print error
 */
 
-int search_type_error(ListNode* to_check)
-
-{
-	if (to_check == NULL)
-		return 1;
-	if (to_check->type == TypeError)
-	{
-		semantic_error("one of the parameter is a error parameter");
-		return 2;
-	}
-	else  if(to_check->type == DupplicateError)
-	{
-		semantic_error("There is a dupplicated parameter");
-		return 3;
-	}
-	while(to_check->next!=NULL)
-	{
-		to_check = to_check->next;
-		if (to_check->type == TypeError)
-		{
-			semantic_error("one of the parameter is a error parameter");
-			return 2;
-		}
-		else  if (to_check->type == DupplicateError)
-		{
-			semantic_error("There is a dupplicated parameter");
-			return 3;
-		}
-	}
-	return 0;
-}
+//int search_type_error(ListNode* to_check)
+//
+//{
+//	if (to_check == NULL)
+//		return 1;
+//	if (to_check->type == TypeError)
+//	{
+//		semantic_error("one of the parameter is a error parameter");
+//		return 2;
+//	}
+//	else  if(to_check->type == DupplicateError)
+//	{
+//		semantic_error("There is a dupplicated parameter");
+//		return 3;
+//	}
+//	while(to_check->next!=NULL)
+//	{
+//		to_check = to_check->next;
+//		if (to_check->type == TypeError)
+//		{
+//			semantic_error("one of the parameter is a error parameter");
+//			return 2;
+//		}
+//		else  if (to_check->type == DupplicateError)
+//		{
+//			semantic_error("There is a dupplicated parameter");
+//			return 3;
+//		}
+//	}
+//	return 0;
+//}
 
 /*
 in : 2 ListNodes *
@@ -184,42 +184,42 @@ out :
 		1 - one of the types isnt the same
 		2 - not same length of args
 */
-int check_types_equality(ListNode* id_parameters, ListNode* args) 
-{
-	if (id_parameters == NULL && args == NULL)
-		return 0;
-	else {
-		if (id_parameters == NULL || args == NULL)
-		{
-			semantic_error("not same sizes");
-			return 2;
-		}
-		else
-		{
-			if (id_parameters->type != args->type)
-			{
-				semantic_error("there is a diffrent parameter");
-				return 1;
-			}
-			while (id_parameters->next != NULL && args->next != NULL)
-			{
-				id_parameters = id_parameters->next;
-				args= args->next;
-				if (id_parameters->type != args->type)
-				{
-					semantic_error("there is a diffrent parameter");
-					return 1;
-				}
-			}
-			if ((id_parameters->next == NULL && args->next != NULL) || (id_parameters->next != NULL && args->next == NULL))
-			{
-				semantic_error("not same sizes");
-				return 2;
-			}
-			return 0;
-		}
-	}
-}
+//int check_types_equality(ListNode* id_parameters, ListNode* args) 
+//{
+//	if (id_parameters == NULL && args == NULL)
+//		return 0;
+//	else {
+//		if (id_parameters == NULL || args == NULL)
+//		{
+//			semantic_error("not same sizes");
+//			return 2;
+//		}
+//		else
+//		{
+//			if (id_parameters->type != args->type)
+//			{
+//				semantic_error("there is a diffrent parameter");
+//				return 1;
+//			}
+//			while (id_parameters->next != NULL && args->next != NULL)
+//			{
+//				id_parameters = id_parameters->next;
+//				args= args->next;
+//				if (id_parameters->type != args->type)
+//				{
+//					semantic_error("there is a diffrent parameter");
+//					return 1;
+//				}
+//			}
+//			if ((id_parameters->next == NULL && args->next != NULL) || (id_parameters->next != NULL && args->next == NULL))
+//			{
+//				semantic_error("not same sizes");
+//				return 2;
+//			}
+//			return 0;
+//		}
+//	}
+//}
 /*
 in : 2 ListNodes *
 out :
@@ -228,48 +228,48 @@ out :
 		2 - not same length of args
 */
 
-int check_dim_equality(ListNode* id_parameters, ListNode* args)
-{
-	if (id_parameters == NULL && args == NULL)
-		return 0;
-	else {
-		if (id_parameters == NULL || args == NULL)
-		{
-			semantic_error("not same sizes");
-			return 2;
-		}
-		else
-		{
-			if (id_parameters->dimension > args->dimension)
-			{
-				semantic_error("there is a bigger size than exepted");
-				return 1;
-			}
-			while (id_parameters->next != NULL && args->next != NULL)
-			{
-				id_parameters = id_parameters->next;
-				args = args->next;
-				if (id_parameters->dimension > args->dimension)
-				{
-					semantic_error("there is a bigger size than exepted");
-					return 1;
-				}
-			}
-			if ((id_parameters->next == NULL && args->next != NULL) || (id_parameters->next != NULL && args->next == NULL))
-			{
-				semantic_error("not same sizes");
-				return 2;
-			}
-			return 0;
-		}
-	}
-}
+//int check_dim_equality(ListNode* id_parameters, ListNode* args)
+//{
+//	if (id_parameters == NULL && args == NULL)
+//		return 0;
+//	else {
+//		if (id_parameters == NULL || args == NULL)
+//		{
+//			semantic_error("not same sizes");
+//			return 2;
+//		}
+//		else
+//		{
+//			if (id_parameters->dimension > args->dimension)
+//			{
+//				semantic_error("there is a bigger size than exepted");
+//				return 1;
+//			}
+//			while (id_parameters->next != NULL && args->next != NULL)
+//			{
+//				id_parameters = id_parameters->next;
+//				args = args->next;
+//				if (id_parameters->dimension > args->dimension)
+//				{
+//					semantic_error("there is a bigger size than exepted");
+//					return 1;
+//				}
+//			}
+//			if ((id_parameters->next == NULL && args->next != NULL) || (id_parameters->next != NULL && args->next == NULL))
+//			{
+//				semantic_error("not same sizes");
+//				return 2;
+//			}
+//			return 0;
+//		}
+//	}
+//}
 
-void check_table_against_reality(Type table, Type reality)
+void check_table_against_reality(Type table, Type reality) //TODO: Rotem - Map the reality types to printable strings
 {
 	if (table == FloatArray)
 		if (!(reality == FloatArray || reality == IntArray))
-			semantic_error("expected type FloatArray, got %s", reality);
+			semantic_error("Expected type FloatArray, got %s", reality);
 	if (table == IntArray)
 		if (!reality == IntArray)
 			semantic_error("Expected type IntArray, got %s", reality);

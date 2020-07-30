@@ -7,7 +7,6 @@
 FILE* parser_output_file;
 int match(eTOKENS expected_token);
 void error();
-void semantic_error();
 
 int parse_Follow();
 char* get_tokens_names();

@@ -138,6 +138,7 @@ void parse_PROG()
 			current_token = next_token();
 			current_token = next_token();
 			char* current_function_name = current_token->lexeme;
+			semantic_error_line_number = current_token->lineNumber;
 			while (current_token->kind != SEMICOLON_tok && current_token->kind != CURLY_BRACKET_OPEN_tok && current_token->kind != EOF)
 			{
 				count++;
@@ -164,7 +165,7 @@ void parse_PROG()
 				else
 				{
 					if(entry->Role != PreDefinition)
-						fprintf(semantic_analyzer_output_file, "Duplicate Function declaration\n");
+						semantic_error("Full definition of function already exists\n");
 				}
 			}
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
@@ -667,6 +668,7 @@ void parse_FUNC_WITH_BODY()
 	/*SEMANTIC*/
 	current_token = next_token();
 	current_token = next_token();
+	semantic_error_line_number = current_token->lineNumber;
 	char* current_function_name = current_token->lexeme;
 	table_entry entry = lookup(current_function_name);
 	back_token();
@@ -676,7 +678,7 @@ void parse_FUNC_WITH_BODY()
 	{
 		if (entry->Role == FullDefinition)
 		{
-			fprintf(semantic_analyzer_output_file, "A full definition already exists\n");
+			semantic_error("Full definition of function already exists\n");
 		}
 		else if (entry->Role == PreDefinition)
 		{
@@ -696,7 +698,7 @@ void parse_FUNC_WITH_BODY()
 
 	parse_COMP_STMT();
 
-	/*SEMANTIC*/
+	/*SEMANTIC*/ //TODO: Remove prints when finished testing
 	parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope); // For the parameters scope
 	/*SEMANTIC*/
 }
@@ -1866,6 +1868,7 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 
 void init_semantic_analyzer()
 {
+	semantic_error_line_number = 0;
 	symbolTableList = createLinkedList();
 	ParsingSucceeded = 1;
 }

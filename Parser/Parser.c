@@ -1428,20 +1428,25 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}\n");
 		ListNode* down_the_tree = NULL;
-		if (id_type != FloatArray && id_type != IntArray)
-			semantic_error("The id must be declared as array\n");
-		if(id!=NULL && id!=-1)
-			down_the_tree = id->ListOfArrayDimensions;
-		else 
-			down_the_tree = NULL;
-		parse_EXPR_LIST(down_the_tree);
-		current_follow = follow;
-		if (!match(BRACKET_CLOSE_tok))
-			return TypeError;
-		if (id_type == FloatArray)
-			return Float;
+		if (id->ListOfArrayDimensions == NULL && id_type != TypeError)
+			semantic_error("id is not declared as array");
 		else
-			return Integer;
+		{
+			if (id_type != FloatArray && id_type != IntArray)
+				semantic_error("The id must be declared as array\n");
+			if (id != NULL && id != -1)
+				down_the_tree = id->ListOfArrayDimensions;
+			else
+				down_the_tree = NULL;
+			parse_EXPR_LIST(down_the_tree);
+			current_follow = follow;
+			if (!match(BRACKET_CLOSE_tok))
+				return TypeError;
+			if (id_type == FloatArray)
+				return Float;
+			else
+				return Integer;
+		}
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
 	case COMMA_tok:
@@ -1459,7 +1464,7 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
 		if (id != NULL && id!=-1 && id->ListOfArrayDimensions != NULL)
-			semantic_error("expected no params but shit happens\n");
+			semantic_error("not equeivalent number of params\n");
 		return id_type;
 	default:
 		error();
@@ -1475,7 +1480,6 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 		semantic_error("EXPR type must be Integer\n");
 	else if(expr->Valueable)
 	{
-		
 		if (list_of_dimensions != NULL && expr->Value >= list_of_dimensions->dimension)
 			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
 	}

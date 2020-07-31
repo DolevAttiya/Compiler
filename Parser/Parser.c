@@ -5,6 +5,7 @@ char* eTokensStrings[];
 #include "../Semantic Structures/SYMBOL_TABLE_ENTRY/SYMBOL_TABLE_ENTRY.h"
 #include "Semantic functions.h"
 #include "../Lexical Analyzer/Token/Token.h"
+#define table_entry SYMBOL_TABLE_ENTRY *
 #define already_checked_as_error -1
 #define is_empty 0
 #define not_exists 0
@@ -158,6 +159,7 @@ void parse_PROG()
 			if (role_for_params_parser == PreDefinition)
 			{
 				entry = insert(current_function_name);
+				set_id_role(entry, PreDefinition);
 			}
 			else
 			{
@@ -166,6 +168,7 @@ void parse_PROG()
 				{
 					entry = insert(current_function_name);
 					set_id_role(entry, FullDefinition);
+					add_array_dimension_to_symbol_table_entry(entry, already_checked_as_error);
 				}
 				else
 				{
@@ -186,10 +189,10 @@ void parse_PROG()
 				if (ParsingSucceeded)
 				{
 					semantic_error_line_number = local_line_number;
-					entry = insert(function_name);
+					//entry = insert(function_name);
 					if (entry != not_exists)
 					{
-						set_id_role(entry, PreDefinition);
+						//set_id_role(entry, PreDefinition);
 						set_id_type(entry, function_type);
 						set_parameters_list(entry, parameters_list);
 					}
@@ -201,7 +204,7 @@ void parse_PROG()
 				{
 					//check_types_equality(entry->ListOfParameterTypes, parameters_list);
 					set_id_role(entry, FullDefinition);
-					free_list(entry->ListOfParameterTypes);
+					free_list(&(entry->ListOfParameterTypes));
 					set_id_type(entry, function_type);
 					set_parameters_list(entry, parameters_list);
 				}
@@ -579,33 +582,23 @@ void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** 
 	table_entry entry = lookup(*function_name);
 	parse_BB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", ++scope);
 	/*SEMANTIC*/
-	if (role_for_parameters_parser == FullDefinition && entry!=not_exists && entry->ListOfParameterTypes!=is_empty)
-	{
-		// there was a predef with or without paramteres
-		/*if (entry->ListOfParameterTypes == NULL)
-		{
+	if (role_for_parameters_parser == FullDefinition && entry!=not_exists && entry->ListOfParameterTypes!=is_empty && entry->ListOfParameterTypes->dimension != already_checked_as_error)
+	{ /* for full def with pre definition (with or without parameters)*/
 
-		}*/
 		*ParametersList = parse_PARAMS(role_for_parameters_parser, entry->ListOfParameterTypes);
 	}
-	else // func_pre_def || entry == NULL
+	else /*if we are in predef or if we are in full definition without predef 
+		 (in this case the full deff is already is inside the symbol table)*/
 	{
 		ListNode* pre_list = is_empty; // in case entry is NULL
-		if (role_for_parameters_parser == FullDefinition) // entry is NULL
+		if (role_for_parameters_parser == FullDefinition)
 		{
-			// AKA there was not pre def, so if this is the case there is no need to check for the entry pre deff cause there isn`t one
-			pre_list = (ListNode*)malloc(sizeof(ListNode*));
-			pre_list->dimension = already_checked_as_error;
-			// if role_for_parameters_parser == FullDefinition check if pre_list->dimension == -1 
-			// if -1 do not print error
-			// else check if type != result type
-			// if so prinnt error
+			pre_list = entry->ListOfParameterTypes;
 		}
 		*ParametersList = parse_PARAMS(role_for_parameters_parser, pre_list);
-		free(pre_list);
 	}
 
-	if (!(*ParametersList))
+	if (*ParametersList==-1) // parse_PARAMS returned error 
 	{
 		/*SEMANTIC*/
 		ParsingSucceeded = 0;
@@ -677,34 +670,44 @@ void parse_FUNC_WITH_BODY()
 	current_token = next_token();
 	int local_line_number = current_token->lineNumber;
 	char* current_function_name = current_token->lexeme;
+	back_token();
+	back_token();
 	table_entry entry = lookup(current_function_name);
-	back_token();
-	back_token();
-	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list, FullDefinition);
-	if (entry != not_exists)
+	semantic_error_line_number = local_line_number;
+	if (entry == not_exists)
 	{
-		semantic_error_line_number = local_line_number;
-
-		if (entry->Role == FullDefinition)
-		{
-			semantic_error("Full definition of function already exists\n");
-		}
-		else if (entry->Role == PreDefinition)
-		{
-			//check_types_equality(entry->ListOfParameterTypes, parameters_list);
-			set_id_role(entry, FullDefinition);
-			free_list(&(entry->ListOfParameterTypes));
-			set_parameters_list(entry, parameters_list);
-		}
+		entry = insert(current_function_name);
+		set_id_role(entry, FullDefinition);
+		add_array_dimension_to_symbol_table_entry(entry, already_checked_as_error);
 	}
 	else
 	{
-		table_entry entry = insert(function_name);
-		set_id_role(entry, FullDefinition);
-		set_id_type(entry, function_type);
-		set_parameters_list(entry, parameters_list);
+		if (entry->Role != PreDefinition)
+			semantic_error("Full definition of function already exists\n");
 	}
+	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list, FullDefinition);
+	if (entry->Role == PreDefinition)  // there was a pre def for this function
+	{
+		set_id_role(entry, FullDefinition);
+		//semantic_error_line_number = local_line_number;
 
+		/*if (entry->Role == FullDefinition)
+		{
+			semantic_error("Full definition of function already exists\n");
+		}*/
+		/*else*/
+			//check_types_equality(entry->ListOfParameterTypes, parameters_list);	
+	}
+	else // there was not a pre def for this function
+	{
+		/*table_entry entry = insert(function_name);*/
+		/*set_id_role(entry, FullDefinition);*/
+		
+	}
+	free_list(&(entry->ListOfParameterTypes));
+	set_id_type(entry, function_type);
+	set_parameters_list(entry, parameters_list);
+	
 	parse_COMP_STMT();
 
 	/*SEMANTIC*/ //TODO: Remove prints when finished testing
@@ -775,14 +778,14 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser, ListNode* predef_types) 
 			{
 				back_token();
 				semantic_error_line_number = error_potential_line_number;
-				semantic_error("There are less params then in predefinition");
+				semantic_error("There are less params then in predefinition\n");
 			}
 			return is_empty;
 			/*Semantic*/
 		}
 		error();
 		/*Semantic*/
-		return is_empty;
+		return -1;
 		/*Semantic*/
 	}
 }
@@ -897,7 +900,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types) {
 			if (role_for_parameters_parser == FullDefinition)
 			{
 				semantic_error_line_number = error_line_number;
-				semantic_error("Dupplicated in line\n");
+				semantic_error("Dupplicated parameter\n");
 				return DupplicateError;
 			}
 		}
@@ -931,7 +934,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 			if ((predef_types->type == Integer) || (predef_types->type == Float))
 			{
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("The Parameter is not an array as mentioned in predefinition\n");
+				semantic_error("The parameter is not an array as mentioned in predefinition\n");
 			}
 		parse_DIM_SIZES(dimList);
 		if (*param_type == Integer)
@@ -957,9 +960,12 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 			/*Semantic*/
 			// if() TODO need to get back to in order to check if param` is epsilon and if so what i need to do
 			if (role_for_parameters_parser == FullDefinition && predef_types != is_empty && predef_types->dimension != already_checked_as_error)
-			{
-				semantic_error_line_number = potential_semantic_error_line_number;
-				semantic_error("param in predefinition is an array but in full definition is not\n");
+			{ 
+				if (!(predef_types->type == Integer) || (predef_types->type == Float))
+				{
+					semantic_error_line_number = potential_semantic_error_line_number;
+					semantic_error("param in predefinition is an array but in full definition is not\n");
+				}
 			}
 			*dimList = is_empty;
 			/*Semantic*/

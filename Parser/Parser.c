@@ -883,7 +883,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types) {
 	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty/*TODO optional add a flag in order to print only once*/)
 	{
 		semantic_error_line_number = current_token->lineNumber; 
-		semantic_error("There is a param more then in declered predefinition\n");
+		semantic_error("There is a param more then in declered predefinition\n"); //TODO: Dolev - change the string to print parameter number
 	}
 	Type param_type = parse_TYPE();
 

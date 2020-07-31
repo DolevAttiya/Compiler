@@ -1399,7 +1399,8 @@ void parse_RETURN_STMT_TAG() {
 		/* Semantic */
 		id = find(current_token->lexeme);
 		if (id == not_exists)
-			semantic_error(semantic_analyzer_output_file, "ID is not declared\n");
+			//TODO add line number
+			semantic_error("ID is not declared\n");
 		/* Semantic */
 	case INT_NUM_tok:
 	case FLOAT_NUM_tok:
@@ -1435,16 +1436,17 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 	current_token = next_token();
 	Type id_type;
 	fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST] | Epsilon}\n"); 
-	if (id!=already_checked_as_error)
+	if (id==already_checked_as_error)
 		id_type = TypeError;
-		
-	else id_type = get_id_type(id);
+	else
+		id_type = get_id_type(id);
 	switch (current_token->kind) {
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST]}\n");
 		ListNode* down_the_tree = is_empty;
-		if (id != not_exists && id->ListOfArrayDimensions == is_empty && id_type != TypeError)
+		if (id != already_checked_as_error && id->ListOfArrayDimensions == is_empty && id_type != TypeError)
 		{
+			//TODO add line number
 			semantic_error("id is not declared as array");
 			//down_the_tree = NULL; is already NULL 
 		}
@@ -1452,11 +1454,12 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		{
 			
 			if (id_type != FloatArray && id_type != IntArray)
+				//TODO add line number
 				semantic_error("The id must be declared as array\n");
-			if (id != not_exists && id != already_checked_as_error)
+			if (id != already_checked_as_error)
 				down_the_tree = id->ListOfArrayDimensions;
 			else
-				down_the_tree = already_checked_as_error;
+				down_the_tree = already_checked_as_error; //because the id is not declered so we need not to check really the exprestions 
 		}
 			parse_EXPR_LIST(down_the_tree);
 			current_follow = follow;
@@ -1483,7 +1486,8 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 	case ASSIGNMENT_OP_tok:
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
-		if (id != not_exists && id!=already_checked_as_error && id->ListOfArrayDimensions != is_empty)
+		if (id!=already_checked_as_error && id->ListOfArrayDimensions != is_empty)
+			//TODO add line number
 			semantic_error("not equeivalent number of params\n");
 		return id_type;
 	default:
@@ -1494,19 +1498,23 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	fprintf(parser_output_file, "Rule {EXPR_LIST -> EXPR EXPR_LIST'}\n");
 	if (list_of_dimensions == is_empty)
+		//TODO add line number
 		semantic_error("List of EXPR must include values\n");
 	Expr* expr = parse_EXPR();
 	if (expr->type != Integer)
+		//TODO add line number
 		semantic_error("EXPR type must be Integer\n");
 	else if(expr->Valueable)
 	{
 		if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-			semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
-		else if (list_of_dimensions == is_empty)
-			semantic_error("the variable is not an array\n");
+			//TODO add line number
+			semantic_error("If expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
+		else if (list_of_dimensions == is_empty) 
+			//TODO add line number
+			semantic_error("Trying to reach a non array variable \n");
 	}
 	ListNode* down_the_tree;
-	if (list_of_dimensions == is_empty)
+	if (list_of_dimensions == is_empty || list_of_dimensions == already_checked_as_error)
 		down_the_tree = list_of_dimensions;
 	else
 		down_the_tree = list_of_dimensions->next;
@@ -1530,16 +1538,20 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}\n");
 		/* Semantic */
 		if (list_of_dimensions == is_empty)
+			//TODO add line number
 			semantic_error("different num of dimensions\n");
 		Expr* expr = parse_EXPR();
 		if (expr->type != Integer)
+			//TODO add line number
 			semantic_error("Type of expr in array must be integer\n");
 		else if (expr->Valueable)
 		{
 			if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-				semantic_error("if expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
+				//TODO add line number
+				semantic_error("If expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
 			else if (list_of_dimensions == is_empty)
-				semantic_error("the variable dimantion pass the decleration \n");
+				//TODO add line number
+				semantic_error("Trying to reach a non array variable \n");
 			
 		}
 		ListNode* down_the_tree;
@@ -1555,7 +1567,8 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");
 		back_token();
 		if (list_of_dimensions != is_empty)
-			semantic_error("not equeivalent number of dimensions\n");
+			//TODO add line number
+			semantic_error("Trying to pass the array dimintion size\n");
 		break;
 	default:
 		error();
@@ -1592,7 +1605,7 @@ void parse_CONDITION() {
 Expr* parse_EXPR() {
 	fprintf(parser_output_file, "Rule {EXPR -> TERM EXPR'}\n");
 	Expr* term_expr = parse_TERM();
-	Expr* expr_tag =  parse_EXPR_TAG();//TODO If EPSILON
+	Expr* expr_tag =  parse_EXPR_TAG();
 	Expr* expr = (Expr*)malloc(sizeof(Expr));
 	if (term_expr->type == Integer && expr_tag->type == Integer)
 	{
@@ -1805,7 +1818,7 @@ Expr* parse_FACTOR() {
 		fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL'}\n");
 		/* Semantic */
 		table_entry id = find(current_token->lexeme);
-		if (id != not_exists) {
+		if (id != not_exists) { // we do not print error to check what kind of id is it in parse_VAR_OR_CALL_TAG
 			expr->type = get_id_type(id);
 			expr->Valueable = 0;
 		}
@@ -1872,7 +1885,7 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 		if (id == not_exists)
 		{
 			// Line Number
-			semantic_error("no implementation of function\n");
+			semantic_error("a non implementated or declered function\n");
 			down_the_tree = already_checked_as_error;
 			type = TypeError;
 		}
@@ -1901,7 +1914,7 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 	case MUL_OP_tok:
 	case BRACKET_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> VAR'}\n");
-		table_entry id_down_the_tree;
+		table_entry id_down_the_tree = not_exists;
 		back_token();
 		if (id == not_exists)
 		{
@@ -1909,9 +1922,7 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 			id_down_the_tree = already_checked_as_error;
 		}
 		else
-		{
 			id_down_the_tree = id;
-		}
 		type = parse_VAR_TAG(id_down_the_tree);
 		return type;
 	default:

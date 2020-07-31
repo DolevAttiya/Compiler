@@ -776,9 +776,18 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser, ListNode* predef_types) 
 			/*Semantic*/
 			if (role_for_parameters_parser == FullDefinition && predef_types != is_empty && predef_types->dimension != already_checked_as_error)
 			{
+				static int parameter_number = 1;
 				back_token();
-				semantic_error_line_number = error_potential_line_number;
-				semantic_error("There are less params then in predefinition\n");
+				while (predef_types != is_empty)
+				{
+					semantic_error_line_number = error_potential_line_number;
+					char* str = (char*)malloc(sizeof("The #%d  parameter less then in declered predefinition\n") + 11);
+					sprintf(str, "The #%d  parameter less then in declered predefinition\n", parameter_number);
+					semantic_error(str);
+					predef_types = predef_types->next;
+					parameter_number++;
+				}
+				parameter_number = 1;
 			}
 			return is_empty;
 			/*Semantic*/
@@ -809,6 +818,7 @@ ListNode* parse_PARAM_LIST(Role role_for_parameters_parser, ListNode* predef_typ
 }
 
 void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListNode* predef_types) {
+	static int parameter_number = 0;
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -835,14 +845,25 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 			else
 				down_the_list = predef_types;
 		/*Semantic*/
+		parameter_number++;
 		parse_PARAM_LIST_TAG(Head, role_for_parameters_parser, down_the_list);
 		break;
 	default:
 		if (parse_Follow() != 0)
 		{
 			if (role_for_parameters_parser == FullDefinition && predef_types != is_empty && predef_types->dimension != already_checked_as_error) {
-				semantic_error_line_number = error_potential_line_number;
-				semantic_error("Less params then declered in predefinition\n");
+				
+				back_token();
+				while (predef_types != is_empty)
+				{
+					semantic_error_line_number = error_potential_line_number;
+					char* str = (char*)malloc(sizeof("The #%d  does not appear in declered predefinition\n") + 11);
+					sprintf(str, "The #%d  does not appear in declered predefinition\n", parameter_number);
+					semantic_error(str);
+					predef_types = predef_types->next;
+					parameter_number++;
+				}
+				parameter_number = 1;
 			}
 			fprintf(parser_output_file, "Rule {PARAMS_LIST' -> epsilon}\n");
 			back_token();
@@ -859,10 +880,10 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types) {
 	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {PARAM -> TYPE id PARAM'}\n");
 	/*Semantic*/
-	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty)
+	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty/*TODO optional add a flag in order to print only once*/)
 	{
 		semantic_error_line_number = current_token->lineNumber; 
-		semantic_error("More params then declered in predefinition\n");
+		semantic_error("There is a param more then in declered predefinition\n");
 	}
 	Type param_type = parse_TYPE();
 

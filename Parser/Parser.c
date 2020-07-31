@@ -1390,18 +1390,11 @@ void parse_RETURN_STMT_TAG() {
 	expected_token_types = expected_tokens;
 	expected_token_types_size = 6;
 	current_token = next_token();
-	table_entry id;
 	fprintf(parser_output_file, "Rule {RETURN_STMT' -> EXPR | Epsilon}\n");
 
 	switch (current_token->kind)
 	{
 	case ID_tok:
-		/* Semantic */
-		id = find(current_token->lexeme);
-		if (id == not_exists)
-			//TODO add line number
-			semantic_error("ID is not declared\n");
-		/* Semantic */
 	case INT_NUM_tok:
 	case FLOAT_NUM_tok:
 	case PARENTHESIS_OPEN_tok:
@@ -1820,6 +1813,7 @@ Expr* parse_FACTOR() {
 		table_entry id = find(current_token->lexeme);
 		if (id != not_exists) { // we do not print error to check what kind of id is it in parse_VAR_OR_CALL_TAG
 			expr->type = get_id_type(id);
+			//TODO - do we need to add check for id_type?
 			expr->Valueable = 0;
 		}
 		else

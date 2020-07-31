@@ -68,8 +68,8 @@ SYMBOL_TABLE_ENTRY* create_new_symbol_table_entry()
 {
 	SYMBOL_TABLE_ENTRY* entry = (SYMBOL_TABLE_ENTRY*)calloc(1, sizeof(SYMBOL_TABLE_ENTRY));
 	entry->ListSize = 0;
-	//entry->ListOfParameterTypes = NULL;
-	//entry->ListOfArrayDimensions = NULL;
+	entry->ListOfParameterTypes = NULL;
+	entry->ListOfArrayDimensions = NULL;
 	return entry;
 }
 

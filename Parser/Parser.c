@@ -173,7 +173,7 @@ void parse_PROG()
 				else
 				{
 					if(entry->Role != PreDefinition)
-						semantic_error("Full definition of function already exists\n");
+						semantic_error("Full-definition of function already exists\n");
 				}
 			}
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
@@ -424,7 +424,7 @@ void parse_VAR_DEC_TAG(Type* type, ListNode** DimensionsList)
 		if (*type == Integer)
 			*type = IntArray;
 		else if (*type == Float)
-			*type == FloatArray;
+			*type = FloatArray;
 		/*SEMANTIC*/
 
 		break;
@@ -683,7 +683,7 @@ void parse_FUNC_WITH_BODY()
 	else
 	{
 		if (entry->Role != PreDefinition)
-			semantic_error("Full definition of function already exists\n");
+			semantic_error("Full-definition of function already exists\n");
 	}
 	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list, FullDefinition);
 	if (entry->Role == PreDefinition)  // there was a pre def for this function
@@ -807,7 +807,7 @@ ListNode* parse_PARAM_LIST(Role role_for_parameters_parser, ListNode* predef_typ
 	add_type_to_list_node(&Head, parse_PARAM(role_for_parameters_parser ,predef_types, 1));
 	ListNode* down_the_list = is_empty;
 	if (predef_types == is_empty)
-		down_the_list == is_empty;
+		down_the_list = is_empty;
 	else
 		if (predef_types->dimension != already_checked_as_error)
 			down_the_list = predef_types->next;
@@ -839,7 +839,7 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 		add_type_to_list_node(&Head, parse_PARAM(role_for_parameters_parser, predef_types, parameter_number+1));
 		ListNode* down_the_list = is_empty;
 		if (predef_types == is_empty)
-			down_the_list == is_empty;
+			down_the_list = is_empty;
 		else
 			if (predef_types->dimension != already_checked_as_error)
 				down_the_list = predef_types->next;
@@ -858,8 +858,8 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 				while (predef_types != is_empty)
 				{
 					semantic_error_line_number = error_potential_line_number;
-					char* str = (char*)malloc(sizeof("The #%d parameter doesn't appear in the predefinition but in full defenition he appear\n") + 11);
-					sprintf(str, "The #%d parameter doesn't appear in the predefinition but in full defenition he appear\n", parameter_number);
+					char* str = (char*)malloc(sizeof("The #%d parameter doesn't appear in the full-defenition but appears in predefinition\n") + 11);
+					sprintf(str, "The #%d parameter doesn't appear in the full-defenition but appears in predefinition\n", parameter_number);
 					semantic_error(str);
 					free(str);
 					predef_types = predef_types->next;
@@ -886,8 +886,8 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty/*TODO optional add a flag in order to print only once*/)
 	{
 		semantic_error_line_number = current_token->lineNumber;
-		char* str = (char*)malloc(sizeof("The #%d parameter doesn't appear in the full defenition but in predefinition he appear\n") + 11);
-		sprintf(str, "The #%d parameter doesn't appear in the full defenition but in predefinition he appear\n", parameter_number);
+		char* str = (char*)malloc(sizeof("The #%d parameter appear in the full-defenition but doesn't appear in predefinition\n") + 11);
+		sprintf(str, "The #%d parameter appear in the full-defenition but doesn't appear in predefinition\n", parameter_number);
 		semantic_error(str);
 		free(str);
 	}
@@ -990,7 +990,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 				if (!(predef_types->type == Integer) || (predef_types->type == Float))
 				{
 					semantic_error_line_number = potential_semantic_error_line_number;
-					semantic_error("param in predefinition is an array but in full definition is not\n");
+					semantic_error("param in predefinition is an array but in full-definition is not\n");
 				}
 			}
 			*dimList = is_empty;
@@ -1307,7 +1307,7 @@ int parse_Follow()
 	int flag = 0;
 	for (int i = 0; i < current_follow_size; i++)
 	{
-		flag += current_token->kind == current_follow[i];
+		flag += current_token->kind = current_follow[i];
 	}
 	return flag;
 }

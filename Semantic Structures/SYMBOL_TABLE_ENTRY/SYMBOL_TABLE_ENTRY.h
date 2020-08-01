@@ -39,8 +39,12 @@ typedef struct SYMBOL_TABLE_ENTRY
 		ListNode* ListOfParameterTypes;
 	};
 	int ListSize;
+	int lineNumber;
 } SYMBOL_TABLE_ENTRY;
 
+void set_line_number(SYMBOL_TABLE_ENTRY* entry, int lineNumber);
+
+void get_line_number(SYMBOL_TABLE_ENTRY* entry);
 
 void set_id_name(SYMBOL_TABLE_ENTRY* entry, const char* name);
 

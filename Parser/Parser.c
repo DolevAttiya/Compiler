@@ -857,8 +857,8 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 				while (predef_types != is_empty)
 				{
 					semantic_error_line_number = error_potential_line_number;
-					char* str = (char*)malloc(sizeof("The #%d parameter doesn't appear in the full definition but appears in predefinition\n") + 11);
-					sprintf(str, "The #%d parameter doesn't appear in the full definition but appears in predefinition\n", parameter_number+1);
+					char* str = (char*)malloc(sizeof("The #%d parameter from the function predefinition is missing\n") + 11);
+					sprintf(str, "The #%d parameter from the function predefinition is missing\n", parameter_number);
 					semantic_error(str);
 					free(str);
 					predef_types = predef_types->next;
@@ -1187,7 +1187,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 	{
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> (ARGS)}\n");
-		ListNode* down_the_tree;
+		ListNode* down_the_tree=is_empty;
 		/*Semantic*/
 		if (id == not_exists)
 		{
@@ -1438,8 +1438,8 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		/* Semantic */
 		if (list_of_params_types == is_empty)
 		{
-			char* str = (char*)malloc(sizeof("The #%d parameter in the function declaration is not used in the function call\n") + 11);
-			sprintf(str, "The #%d parameter in the function declaration is not used in the function call\n", arg_number);
+			char* str = (char*)malloc(sizeof("The #%d parameter in the function call was not declared in the function declaration\n") + 11);
+			sprintf(str, "The #%d parameter in the function call was not declared in the function declaration\n", arg_number);
 			semantic_error(str);
 			free(str);
 			
@@ -1568,8 +1568,9 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 				return TypeError;
 			if (id_type == FloatArray)
 				return Float;
-			else
+			else if ((id_type == IntArray))
 				return Integer;
+			else return TypeError;
 		
 	case SEMICOLON_tok:
 	case CURLY_BRACKET_CLOSE_tok:
@@ -1604,14 +1605,12 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	Expr* expr = parse_EXPR();
 	if (expr->type != Integer)
 		semantic_error("The dimension's type is not an integer\n");
-	else
+	else if (expr->Valueable)
 	{
 		if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
 			semantic_error("The specified dimension is out of range compared to the declaration\n"); //TODO: Added dimension number
-		//else if (list_of_dimensions == is_empty) 
-		//	semantic_error("Trying to reach a non array variable \n");
 	}
-	ListNode* down_the_tree;
+	ListNode* down_the_tree=is_empty;
 	if (list_of_dimensions == is_empty || list_of_dimensions == already_checked_as_error)
 		down_the_tree = list_of_dimensions;
 	else
@@ -1641,13 +1640,12 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		Expr* expr = parse_EXPR();
 		if (expr->type != Integer)
 			semantic_error("Type of expr in array must be integer\n");
-		else 
-			//if (expr->Valueable)
+		else if (expr->Valueable)
 		{
 			if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
 				semantic_error("The specified dimension is out of range compared to the declaration\n"); //TODO: Added dimension number
 		}
-		ListNode* down_the_tree;
+		ListNode* down_the_tree=is_empty;
 		if (list_of_dimensions == is_empty || list_of_dimensions == already_checked_as_error)
 			down_the_tree = list_of_dimensions;
 		else
@@ -1979,7 +1977,7 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 	switch (current_token->kind) {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS)}\n");
-		ListNode* down_the_tree;
+		ListNode* down_the_tree=is_empty;
 		if (id == not_exists)
 		{
 			semantic_error("The called function was not declared\n");

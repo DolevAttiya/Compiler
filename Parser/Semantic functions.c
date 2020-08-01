@@ -68,7 +68,7 @@ table_entry find(char* id_name)
 //INTERNAL FUNCTIONS
 void semantic_error(char *message)
 {
-	fprintf(semantic_analyzer_output_file, "line %2d : %s", semantic_error_line_number, message);
+	fprintf(semantic_analyzer_output_file, "Line %2d : %s", semantic_error_line_number, message);
 }
 
 table_ptr _get_current_table()
@@ -268,22 +268,50 @@ out :
 //	}
 //}
 
-void check_table_against_reality(Type table, Type reality) //TODO: Rotem - Map the reality types to printable strings
+void check_table_against_reality(Type table, Type reality)
 {
+	char* RealityTypeStringMap[7] = {
+		"integer",
+		"float",
+		"integer array",
+		"float array",
+		"void",
+		"type error",
+		"dupplicate error"
+	};
+
 	if (table == FloatArray)
 		if (!(reality == FloatArray || reality == IntArray))
-			semantic_error("Expected type FloatArray, got %s", reality);
+		{
+			char* str = (char*)malloc(sizeof("Expected type FloatArray, got %s\n") + 16);
+			sprintf(str, "Expected type float array, instead got %s\n", RealityTypeStringMap[reality]);
+			semantic_error(str);
+			free(str);
+		}
 	if (table == IntArray)
 		if (!reality == IntArray)
-			semantic_error("Expected type IntArray, got %s", reality);
+		{
+			char* str = (char*)malloc(sizeof("Expected type IntArray, got %s\n") + 16);
+			sprintf(str, "Expected type integer array, instead got %s\n", RealityTypeStringMap[reality]);
+			semantic_error(str);
+			free(str);
+		}
 	if (table == Integer)
 		if (!reality == Integer)
 		{
-			semantic_error("Expected type Integer, got %s", reality);
+			char* str = (char*)malloc(sizeof("Expected type Integer, got %s\n") + 16);
+			sprintf(str, "Expected type integer, instead got %s\n", RealityTypeStringMap[reality]);
+			semantic_error(str);
+			free(str);
 		}
 	if (table == Float)
 		if (!(reality == Float || reality == Integer))
 		{
-			semantic_error("Expected type Float, got %s", reality);
+			char* str = (char*)malloc(sizeof("Expected type Float, got %s\n") + 16);
+			sprintf(str, "Expected type float, instead got %s\n", RealityTypeStringMap[reality]);
+			semantic_error(str);
+			free(str);
 		}
 }
+
+

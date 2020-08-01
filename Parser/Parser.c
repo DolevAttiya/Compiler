@@ -546,7 +546,7 @@ void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** 
 
 	/*SEMANTIC*/
 	ParsingSucceeded = 1;
-	if (*function_type = parse_RETURN_TYPE() == TypeError)
+	if ((*function_type = parse_RETURN_TYPE()) == TypeError)
 	{
 		ParsingSucceeded = 0;
 	}
@@ -733,8 +733,7 @@ Type parse_RETURN_TYPE() {
 	case FLOAT_tok:
 		fprintf(parser_output_file, "Rule {RETURN_TYPE -> TYPE}\n");
 		back_token();
-		parse_TYPE();
-		break;
+		return parse_TYPE();
 	case VOID_tok:
 		fprintf(parser_output_file, "Rule {RETURN_TYPE -> void}\n");
 		back_token();

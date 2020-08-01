@@ -1909,8 +1909,6 @@ Expr* parse_FACTOR() {
 		table_entry id = find(current_token->lexeme);
 		if (id != not_exists) { // we do not print error to check what kind of id is it in parse_VAR_OR_CALL_TAG
 			expr->type = get_id_type(id);
-			if (expr->type == Integer)
-				expr->Valueable = 1;
 			//TODO - do we need to add check for id_type? Did I lied here? Maybe
 		}
 		else

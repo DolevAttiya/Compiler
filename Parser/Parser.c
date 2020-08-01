@@ -854,7 +854,6 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 		{
 			if (role_for_parameters_parser == FullDefinition && predef_types != is_empty && predef_types->dimension != already_checked_as_error) {
 				
-				back_token();
 				while (predef_types != is_empty)
 				{
 					semantic_error_line_number = error_potential_line_number;
@@ -886,8 +885,8 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty/*TODO optional add a flag in order to print only once*/)
 	{
 		semantic_error_line_number = current_token->lineNumber;
-		char* str = (char*)malloc(sizeof("The #%d parameter doesn't appear in the full defenition but in predefinition he appear\n") + 11);
-		sprintf(str, "The #%d parameter doesn't appear in the full defenition but in predefinition he appear\n", parameter_number);
+		char* str = (char*)malloc(sizeof("The #%d parameter appear in the full defenition but doesn't appear in predefinition\n") + 11);
+		sprintf(str, "The #%d parameter appear in the full defenition but doesn't appear in predefinition\n", parameter_number);
 		semantic_error(str);
 		free(str);
 	}

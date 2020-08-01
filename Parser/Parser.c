@@ -919,18 +919,48 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 		if (role_for_parameters_parser == FullDefinition)
 		{
 			semantic_error_line_number = error_line_number;
-			table_entry id = insert(current_param);
+			table_entry id;
+			id = find(current_param);
 			if (id != not_exists)
 			{
-				set_id_role(id, Variable);
-				set_dimensions_list(id, dimList);
-				set_id_type(id, param_type);
-				return get_id_type(id);
+				//if (id->Role != FullDefinition && id->Role != PreDefinition)
+				//{
+				//	id = insert(current_param);
+				//	if (id != not_exists) // maybe did not succeded 
+				//	{
+				//		set_id_role(id, Variable);
+				//		set_dimensions_list(id, dimList);
+				//		set_id_type(id, param_type);
+				//		return get_id_type(id);
+				//	}
+				//	else
+				//	{
+				//		return DupplicateError;
+				//	}
+				//}
+				//else
+				if (id->Role == FullDefinition|| id->Role == PreDefinition)
+
+				{
+					semantic_error("The parameter has the same name as a function");
+					free_list(&dimList);
+				}
 			}
-			else
-			{
-				return DupplicateError;
-			}
+			//else {
+
+				id = insert(current_param);
+				if (id != not_exists) // maybe did not succeded 
+				{
+					set_id_role(id, Variable);
+					set_dimensions_list(id, dimList);
+					set_id_type(id, param_type);
+					return get_id_type(id);
+				}
+				else
+				{
+					return DupplicateError;
+				}
+			//}
 		}
 		else {
 			free_list(&dimList);

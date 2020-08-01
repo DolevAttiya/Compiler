@@ -68,7 +68,7 @@ table_entry find(char* id_name)
 //INTERNAL FUNCTIONS
 void semantic_error(char *message)
 {
-	fprintf(semantic_analyzer_output_file, "line %2d : %s", semantic_error_line_number, message);
+	fprintf(semantic_analyzer_output_file, "Line %2d : %s", semantic_error_line_number, message);
 }
 
 table_ptr _get_current_table()

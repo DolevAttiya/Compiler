@@ -857,8 +857,8 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 				while (predef_types != is_empty)
 				{
 					semantic_error_line_number = error_potential_line_number;
-					char* str = (char*)malloc(sizeof("The #%d parameter doesn't appear in the full definition but appears in predefinition\n") + 11);
-					sprintf(str, "The #%d parameter doesn't appear in the full definition but appears in predefinition\n", parameter_number+1);
+					char* str = (char*)malloc(sizeof("The #%d parameter from the function predefinition is missing\n") + 11);
+					sprintf(str, "The #%d parameter from the function predefinition is missing\n", parameter_number);
 					semantic_error(str);
 					free(str);
 					predef_types = predef_types->next;
@@ -1435,8 +1435,8 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		/* Semantic */
 		if (list_of_params_types == is_empty)
 		{
-			char* str = (char*)malloc(sizeof("The #%d parameter in the function declaration is not used in the function call\n") + 11);
-			sprintf(str, "The #%d parameter in the function declaration is not used in the function call\n", arg_number);
+			char* str = (char*)malloc(sizeof("The #%d parameter in the function call was not declared in the function declaration\n") + 11);
+			sprintf(str, "The #%d parameter in the function call was not declared in the function declaration\n", arg_number);
 			semantic_error(str);
 			free(str);
 			

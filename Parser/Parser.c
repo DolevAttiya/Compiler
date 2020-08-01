@@ -781,8 +781,8 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser, ListNode* predef_types) 
 				while (predef_types != is_empty)
 				{
 					semantic_error_line_number = error_potential_line_number;
-					char* str = (char*)malloc(sizeof("The #%d  parameter less then in declered predefinition\n") + 11);
-					sprintf(str, "The #%d  parameter less then in declered predefinition\n", parameter_number);
+					char* str = (char*)malloc(sizeof("The #%d  parameter less then in declared predefinition\n") + 11);
+					sprintf(str, "The #%d  parameter less then in declared predefinition\n", parameter_number);
 					semantic_error(str);
 					free(str);
 					predef_types = predef_types->next;
@@ -911,7 +911,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 		if (param_type != predef_types->type && param_type != TypeError && predef_types->type != TypeError && (!((param_type == Integer && predef_types->type ==IntArray)|| (param_type == IntArray && predef_types->type == Integer) || (param_type == Float && predef_types->type == FloatArray) || (param_type == FloatArray && predef_types->type == Float) )))
 		{
 			semantic_error_line_number = potential_error_type;
-			semantic_error("Parameter type mismatch between decleration and implementation\n");
+			semantic_error("Parameter type mismatch between declaration and implementation\n");
 		}
 	}
 	if (param_type != TypeError && dimList != already_checked_as_error)
@@ -1526,7 +1526,7 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 			if (id != already_checked_as_error)
 				down_the_tree = id->ListOfArrayDimensions;
 			else
-				down_the_tree = already_checked_as_error; //because the id is not declered so we need not to check really the exprestions 
+				down_the_tree = already_checked_as_error; //because the id is not declared so we need not to check really the exprestions 
 		}
 			parse_EXPR_LIST(down_the_tree);
 			current_follow = follow;

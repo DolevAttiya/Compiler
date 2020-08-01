@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "Semantic functions.h"
 #define symbol_table value
 

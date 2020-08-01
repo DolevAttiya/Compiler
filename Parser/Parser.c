@@ -129,6 +129,7 @@ void parse_PROG()
 			table_entry entry = insert(function_name);
 			if (entry != not_exists)
 			{
+				set_line_number(entry, local_line_number);
 				set_id_role(entry, PreDefinition);
 				set_id_type(entry, function_type);
 				set_parameters_list(entry, parameters_list);
@@ -160,6 +161,7 @@ void parse_PROG()
 			{
 				entry = insert(current_function_name);
 				set_id_role(entry, PreDefinition);
+				set_line_number(entry, local_line_number);
 			}
 			else
 			{
@@ -294,13 +296,11 @@ void parse_PROG()
 	{
 		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> epsilon}\n");
 
-		find_predefinitions();
-
 		/*SEMANTIC*/
 		parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);
 		/*SEMANTIC*/
 	}
-	scope = 0;
+	find_predefinitions();
 }
 
 void parse_GLOBAL_VARS()
@@ -2004,6 +2004,7 @@ void init_semantic_analyzer()
 
 void clean_semantic_analyzer()
 {
+	scope = 0;
 	//TODO: Add a freeing function for the symbolTableList
 }
 

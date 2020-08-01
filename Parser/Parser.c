@@ -1463,7 +1463,6 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		/* Semantic */
 		if (list_of_params_types != is_empty && list_of_params_types != already_checked_as_error)
 		{
-			int arg_number = 1;
 			semantic_error_line_number = current_token->lineNumber;
 			while (list_of_params_types != is_empty)
 			{

@@ -1907,15 +1907,11 @@ Expr* parse_FACTOR() {
 		fprintf(parser_output_file, "Rule {FACTOR -> id VAR_OR_CALL'}\n");
 		/* Semantic */
 		table_entry id = find(current_token->lexeme);
-		if (id != not_exists) { // we do not print error to check what kind of id is it in parse_VAR_OR_CALL_TAG
+		if (id != not_exists)  // we do not print error to check what kind of id is it in parse_VAR_OR_CALL_TAG
 			expr->type = get_id_type(id);
-			//TODO - do we need to add check for id_type? Did I lied here? Maybe
-		}
 		else
-		{
 			expr->type = TypeError;
-			expr->Valueable = 0;
-		}
+		expr->Valueable = 0;
 		/* Semantic */
 		Type result = parse_VAR_OR_CALL_TAG(id);
 		return expr;

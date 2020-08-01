@@ -161,7 +161,7 @@ void parse_PROG()
 			{
 				entry = insert(current_function_name);
 				set_id_role(entry, PreDefinition);
-				set_line_number(entry, local_line_number);
+				set_line_number(entry, semantic_error_line_number);
 			}
 			else
 			{
@@ -253,7 +253,7 @@ void parse_PROG()
 	free(temp_buffer);
 	temp_buffer = NULL;
 
-	/*SEMANTIC*/ //TODO: May need to remove
+	/*SEMANTIC*/
 	//table_entry entry = find(function_name);
 	//if (entry != NULL)
 	//{
@@ -1399,7 +1399,7 @@ void parse_ARG_LIST(ListNode* list_of_params_types) { //funcs
 	int current_line_number = current_token->lineNumber;
 	semantic_error_line_number = current_line_number;
 	if (list_of_params_types == is_empty)// there is at list one argument but not in the func with body
-		semantic_error("The #1 parameter in the function call is not declared in the function declaration\n");// TODO: Handle a call without a definition (maybe not relevant)
+		semantic_error("The #1 parameter in the function call is not declared in the function declaration\n");
 	Expr* expr = parse_EXPR();
 	ListNode* down_the_list = is_empty;
 	//if (list_of_params_types == is_empty)
@@ -2034,7 +2034,6 @@ void init_semantic_analyzer()
 void clean_semantic_analyzer()
 {
 	scope = 0;
-	//TODO: Add a freeing function for the symbolTableList
 }
 
 void parse_BB()

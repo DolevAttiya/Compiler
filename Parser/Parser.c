@@ -1409,8 +1409,9 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 			sprintf(str, "The #%d parameter in the function declaration is not used in the function call\n", arg_number);
 			semantic_error(str);
 			free(str);
-			arg_number++;
+			
 		}
+		arg_number++;
 		Expr* expr = parse_EXPR();
 		if (list_of_params_types != is_empty)
 			if(list_of_params_types != already_checked_as_error)

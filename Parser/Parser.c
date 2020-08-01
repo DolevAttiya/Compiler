@@ -868,7 +868,7 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 			}
 			fprintf(parser_output_file, "Rule {PARAMS_LIST' -> epsilon}\n");
 			back_token();
-			parameter_number = 1;
+			parameter_number = 2;
 			break;
 			
 		}

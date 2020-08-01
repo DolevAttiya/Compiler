@@ -914,8 +914,6 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 	/*Semantic*/
 	if (param_type != TypeError && dimList != already_checked_as_error)
 	{
-		back_token();
-		current_token = next_token();
 		table_entry id = insert(current_param);
 		if (id != not_exists)
 		{
@@ -1309,7 +1307,7 @@ int parse_Follow()
 	int flag = 0;
 	for (int i = 0; i < current_follow_size; i++)
 	{
-		flag += current_token->kind = current_follow[i];
+		flag += current_token->kind == current_follow[i];
 	}
 	return flag;
 }

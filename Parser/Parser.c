@@ -49,7 +49,7 @@ void parse_PROG()
 	current_follow_size = 1;
 
 	/*SEMANTIC*/
-	parse_BB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", ++scope);
+	parse_BB();
 	/*SEMANTIC*/
 
 	fprintf(parser_output_file, "Rule {PROG -> GLOBAL_VARS FUNC_PREDEFS FUNC_FULL_DEFS}\n");
@@ -121,7 +121,7 @@ void parse_PROG()
 
 	if (match(SEMICOLON_tok))
 	{
-		parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);	/*For the parameters scope*/ //TODO: Remove prints when finished
+		parse_FB();	/*For the parameters scope*/
 		/*SEMANTIC*/
 		if (ParsingSucceeded)
 		{
@@ -187,7 +187,7 @@ void parse_PROG()
 			/*SEMANTIC*/
 			if (current_token->kind == SEMICOLON_tok)
 			{
-				parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);	/*For the parameters scope*/
+				parse_FB();	/*For the parameters scope*/
 				if (ParsingSucceeded)
 				{
 					semantic_error_line_number = local_line_number;
@@ -281,7 +281,7 @@ void parse_PROG()
 	parse_COMP_STMT();
 
 	/*SEMANTIC*/
-	parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope); // For the parameters scope
+	parse_FB(); // For the parameters scope
 	/*SEMANTIC*/
 
 	fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> FUNC_FULL_DEFS | epsilon}\n");
@@ -297,7 +297,7 @@ void parse_PROG()
 		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> epsilon}\n");
 
 		/*SEMANTIC*/
-		parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);
+		parse_FB();
 		/*SEMANTIC*/
 	}
 	find_predefinitions();
@@ -580,7 +580,7 @@ void parse_FUNC_PROTOTYPE(char** function_name, Type* function_type ,ListNode** 
 
 	/*SEMANTIC*/
 	table_entry entry = lookup(*function_name);
-	parse_BB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", ++scope);
+	parse_BB();
 	/*SEMANTIC*/
 	if (role_for_parameters_parser == FullDefinition && entry!=not_exists && entry->ListOfParameterTypes!=is_empty && entry->ListOfParameterTypes->dimension != already_checked_as_error)
 	{ /* for full def with pre definition (with or without parameters)*/
@@ -710,8 +710,8 @@ void parse_FUNC_WITH_BODY()
 	
 	parse_COMP_STMT();
 
-	/*SEMANTIC*/ //TODO: Remove prints when finished testing
-	parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope); // For the parameters scope
+	/*SEMANTIC*/ 
+	parse_FB(); // For the parameters scope
 	/*SEMANTIC*/
 }
 
@@ -1050,7 +1050,7 @@ void parse_COMP_STMT() {
 	if (!match(CURLY_BRACKET_OPEN_tok))
 		return;
 	/*Semantic*/
-	parse_BB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", ++scope);
+	parse_BB();
 	/*Semantic*/
 	parse_VAR_DEC_LIST();
 	parse_STMT_LIST();
@@ -1059,7 +1059,7 @@ void parse_COMP_STMT() {
 	if (!match(CURLY_BRACKET_CLOSE_tok))
 		return;
 	/*Semantic*/
-	parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);
+	parse_FB();
 	/*Semantic*/
 }
 

@@ -1196,13 +1196,16 @@ void parse_VAR_OR_CALL(table_entry id) {
 			down_the_tree = already_checked_as_error;
 		}
 		else {
-			if (id->Role != FullDefinition)
+			if (id->Role != FullDefinition && id->Role != PreDefinition)
 			{
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("The called function has no implementation\n");
+				semantic_error("The referred ID was not declared as a function\n");
+				down_the_tree = already_checked_as_error;
 			}
-			down_the_tree = id->ListOfParameterTypes;
-
+			else
+			{
+				down_the_tree = id->ListOfParameterTypes;
+			}
 		}
 
 		parse_ARGS(down_the_tree);
@@ -1217,16 +1220,16 @@ void parse_VAR_OR_CALL(table_entry id) {
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL -> VAR' = EXPR}\n");
 		back_token();
 		/*Semantic*/
+		semantic_error_line_number = potential_error_line_number;
 		if (id == not_exists)
-		{
-			semantic_error_line_number = potential_error_line_number;
+		{	
 			semantic_error("Undeclared variable\n");
 			id = already_checked_as_error;
 		}
 		else if (id->Role != Variable)
 		{
-			semantic_error_line_number = potential_error_line_number;
 			semantic_error("The id is not a variable\n");
+			id = already_checked_as_error;
 		}
 
 		Type leftSide = parse_VAR_TAG(id);
@@ -1470,6 +1473,7 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 				semantic_error(str);
 				free(str);
 				arg_number++;
+				list_of_params_types = list_of_params_types->next;
 			}
 		}
 		/* Semantic */

@@ -1542,10 +1542,10 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	Expr* expr = parse_EXPR();
 	if (expr->type != Integer)
 		semantic_error("EXPR type must be Integer\n");
-	else if(expr->Valueable)
+	else
 	{
 		if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-			semantic_error("If expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
+			semantic_error("Tring to access non allocated dimension\n");
 		else if (list_of_dimensions == is_empty) 
 			semantic_error("Trying to reach a non array variable \n");
 	}

@@ -1581,14 +1581,8 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		Expr* expr = parse_EXPR();
 		if (expr->type != Integer)
 			semantic_error("Type of expr in array must be integer\n");
-		else if (expr->Valueable)
-		{
-			if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-				semantic_error("If expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
-			else if (list_of_dimensions == is_empty)
-				semantic_error("Trying to reach a non array variable \n");
-			
-		}
+		else if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
+				semantic_error("If expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");			
 		ListNode* down_the_tree;
 		if (list_of_dimensions == is_empty || list_of_dimensions == already_checked_as_error)
 			down_the_tree = list_of_dimensions;

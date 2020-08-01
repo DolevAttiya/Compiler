@@ -1656,7 +1656,7 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");
 		back_token();
 		if (list_of_dimensions != is_empty)
-			semantic_error("Trying to pass the array dimintion size\n");
+			semantic_error("There is a mismatch between the number of dimensions used in the assignment than in the declaration of the array\n");
 		break;
 	default:
 		error();

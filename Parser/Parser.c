@@ -1351,7 +1351,8 @@ char* get_tokens_names()
 
 void parse_ARG_LIST(ListNode* list_of_params_types) { //funcs
 	fprintf(parser_output_file, "Rule {ARG_LIST -> EXPR ARG_LIST'}\n");
-	int current_token_line = current_token->lineNumber;
+	int current_line_number = current_token->lineNumber;
+	semantic_error_line_number = current_line_number;
 	if (list_of_params_types == is_empty)// there is at list one argument but not in the func with body
 		semantic_error("difference between definitions\n");// TODO: Handle a call without a definition
 	Expr* expr = parse_EXPR();
@@ -1380,6 +1381,8 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 	current_token = next_token();
 	fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST' | Epsilon}\n");
 	ListNode* down_the_tree = is_empty;
+	int current_line_number = current_token->lineNumber;
+	semantic_error_line_number = current_line_number;
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
@@ -1469,6 +1472,8 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 	expected_token_types_size = 15;
 	current_token = next_token();
 	Type id_type;
+	int current_line_number = current_token->lineNumber;
+	semantic_error_line_number = current_line_number;
 	fprintf(parser_output_file, "Rule {VAR' -> [EXPR_LIST] | Epsilon}\n"); 
 	if (id==already_checked_as_error)
 		id_type = TypeError;
@@ -1480,7 +1485,6 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		ListNode* down_the_tree = is_empty;
 		if (id != already_checked_as_error && id->ListOfArrayDimensions == is_empty && id_type != TypeError)
 		{
-			//TODO add line number
 			semantic_error("id is not declared as array");
 			//down_the_tree = NULL; is already NULL 
 		}
@@ -1488,7 +1492,6 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		{
 			
 			if (id_type != FloatArray && id_type != IntArray)
-				//TODO add line number
 				semantic_error("The id must be declared as array\n");
 			if (id != already_checked_as_error)
 				down_the_tree = id->ListOfArrayDimensions;
@@ -1521,7 +1524,6 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
 		if (id!=already_checked_as_error && id->ListOfArrayDimensions != is_empty)
-			//TODO add line number
 			semantic_error("not equeivalent number of params\n");
 		return id_type;
 	default:
@@ -1531,20 +1533,18 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 }
 void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	fprintf(parser_output_file, "Rule {EXPR_LIST -> EXPR EXPR_LIST'}\n");
+	int current_line_number = current_token->lineNumber;
+	semantic_error_line_number = current_line_number;
 	if (list_of_dimensions == is_empty)
-		//TODO add line number
 		semantic_error("List of EXPR must include values\n");
 	Expr* expr = parse_EXPR();
 	if (expr->type != Integer)
-		//TODO add line number
 		semantic_error("EXPR type must be Integer\n");
 	else if(expr->Valueable)
 	{
 		if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-			//TODO add line number
 			semantic_error("If expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
 		else if (list_of_dimensions == is_empty) 
-			//TODO add line number
 			semantic_error("Trying to reach a non array variable \n");
 	}
 	ListNode* down_the_tree;
@@ -1565,26 +1565,23 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 	expected_token_types_size = 2;
 	current_token = next_token();
 	fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST' | Epsilon}\n");
-
+	int current_line_number = current_token->lineNumber;
+	semantic_error_line_number = current_line_number;
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}\n");
 		/* Semantic */
 		if (list_of_dimensions == is_empty)
-			//TODO add line number
 			semantic_error("different num of dimensions\n");
 		Expr* expr = parse_EXPR();
 		if (expr->type != Integer)
-			//TODO add line number
 			semantic_error("Type of expr in array must be integer\n");
 		else if (expr->Valueable)
 		{
 			if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-				//TODO add line number
 				semantic_error("If expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
 			else if (list_of_dimensions == is_empty)
-				//TODO add line number
 				semantic_error("Trying to reach a non array variable \n");
 			
 		}
@@ -1601,7 +1598,6 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");
 		back_token();
 		if (list_of_dimensions != is_empty)
-			//TODO add line number
 			semantic_error("Trying to pass the array dimintion size\n");
 		break;
 	default:
@@ -1911,15 +1907,15 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 	expected_token_types_size = 15;
 	current_token = next_token();
 	Type type;
+	int current_line_number = current_token->lineNumber;
 	fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS) | VAR'}\n");
-
+	semantic_error_line_number = current_line_number;
 	switch (current_token->kind) {
 	case PARENTHESIS_OPEN_tok:
 		fprintf(parser_output_file, "Rule {VAR_OR_CALL' -> (ARGS)}\n");
 		ListNode* down_the_tree;
 		if (id == not_exists)
 		{
-			// Line Number
 			semantic_error("a non implementated or declered function\n");
 			down_the_tree = already_checked_as_error;
 			type = TypeError;

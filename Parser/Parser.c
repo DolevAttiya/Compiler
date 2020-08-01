@@ -893,6 +893,17 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 	}
 	Type param_type = parse_TYPE();
 
+	
+	ListNode* dimList = is_empty;
+	/*Semantic*/
+	current_follow = follow;
+	current_follow_size = 2;
+	
+	if (!match(ID_tok))
+		return TypeError;
+	char* current_param = current_token->lexeme;
+	int error_line_number = current_token->lineNumber;
+	parse_PARAM_TAG(&param_type, &dimList, role_for_parameters_parser, predef_types);
 	if (role_for_parameters_parser == FullDefinition && predef_types != is_empty && predef_types->dimension != already_checked_as_error) // already_checked_as_error means there is no pre def so there is nothing to check on
 	{
 		if (param_type != predef_types->type && param_type != TypeError && predef_types->type != TypeError)
@@ -901,20 +912,12 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 			semantic_error("Param type from decleration and implementation does not match\n");
 		}
 	}
-	ListNode* dimList = is_empty;
-	/*Semantic*/
-	current_follow = follow;
-	current_follow_size = 2;
-	if (!match(ID_tok))
-		return TypeError;
-	int error_line_number = current_token->lineNumber;
-	parse_PARAM_TAG(&param_type, &dimList, role_for_parameters_parser, predef_types);
 	/*Semantic*/
 	if (param_type != TypeError && dimList != already_checked_as_error)
 	{
 		back_token();
 		current_token = next_token();
-		table_entry id = insert(current_token->lexeme);
+		table_entry id = insert(current_param);
 		if (id != not_exists)
 		{
 			set_id_role(id, Variable);
@@ -985,9 +988,9 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 		{
 			fprintf(parser_output_file, "Rule {PARAM' -> epsilon}\n");
 			/*Semantic*/
-			if (role_for_parameters_parser == FullDefinition && predef_types != is_empty && predef_types->dimension != already_checked_as_error)
+			if (role_for_parameters_parser == FullDefinition && predef_types != is_empty && predef_types->dimension != already_checked_as_error)//full definition  with predefinition and there was'nt an error befor on the type
 			{ 
-				if (!(predef_types->type == Integer) || (predef_types->type == Float))
+				if (!((predef_types->type == Integer) || (predef_types->type == Float)))
 				{
 					semantic_error_line_number = potential_semantic_error_line_number;
 					semantic_error("param in predefinition is an array but in full definition is not\n");

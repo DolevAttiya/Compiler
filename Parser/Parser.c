@@ -1606,7 +1606,7 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	else if (expr->Valueable)
 	{
 		if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-			semantic_error("The specified dimension is out of range compared to the declaration\n"); //TODO: Added dimension number
+			semantic_error("The #1 dimension is out of range compared to the declaration\n");
 	}
 	ListNode* down_the_tree=is_empty;
 	if (list_of_dimensions == is_empty || list_of_dimensions == already_checked_as_error)
@@ -1618,6 +1618,7 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 }
 void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 	// Follow of EXPR_LIST' - ]
+	static int expr_number = 2;
 	eTOKENS follow[] = { BRACKET_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -1641,7 +1642,13 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		else if (expr->Valueable)
 		{
 			if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-				semantic_error("The specified dimension is out of range compared to the declaration\n"); //TODO: Added dimension number
+			{
+				char* str = (char*)malloc(sizeof("The #%d dimension is out of range compared to the declaration\n") + 11);
+				sprintf(str, "The #%d dimension is out of range compared to the declaration\n", expr_number);
+				semantic_error(str);
+				free(str);
+				
+			}
 		}
 		ListNode* down_the_tree=is_empty;
 		if (list_of_dimensions == is_empty || list_of_dimensions == already_checked_as_error)
@@ -1650,6 +1657,7 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 			down_the_tree = list_of_dimensions->next;
 		parse_EXPR_LIST_TAG(down_the_tree);
 		free(expr);
+		expr_number++;
 		break;
 		/* Semantic */
 	case BRACKET_CLOSE_tok:

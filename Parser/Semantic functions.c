@@ -126,7 +126,7 @@ void find_predefinitions()
 			if (currLink->value->Role == PreDefinition)
 			{
 				semantic_error_line_number = currLink->value->lineNumber;
-				semantic_error("Found a predefinition without a full definition\n"); //TODO: Assaf - need to add line number some how
+				semantic_error("Found a predefinition without a full definition\n");
 			}
 			currLink = nextLink;
 			if (currLink != 0)

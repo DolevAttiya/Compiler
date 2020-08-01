@@ -883,7 +883,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 	fprintf(parser_output_file, "Rule {PARAM -> TYPE id PARAM'}\n");
 	/*Semantic*/
 																			  
-	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty/*TODO optional add a flag in order to print only once*/)
+	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty)
 	{
 		semantic_error_line_number = current_token->lineNumber;
 		char* str = (char*)malloc(sizeof("The #%d parameter that appears in the full definition wasn't declared in the predefinition\n") + 11);

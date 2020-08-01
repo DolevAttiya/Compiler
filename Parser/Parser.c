@@ -887,8 +887,8 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty/*TODO optional add a flag in order to print only once*/)
 	{
 		semantic_error_line_number = current_token->lineNumber;
-		char* str = (char*)malloc(sizeof("The #%d parameter appear in the full definition but doesn't appear in predefinition\n") + 11);
-		sprintf(str, "The #%d parameter appear in the full definition but doesn't appear in predefinition\n", parameter_number);
+		char* str = (char*)malloc(sizeof("The #%d parameter that appears in the full definition wasn't declared in the predefinition\n") + 11);
+		sprintf(str, "The #%d parameter that appears in the full definition wasn't declared in the predefinition\n", parameter_number);
 		semantic_error(str);
 		free(str);
 	}

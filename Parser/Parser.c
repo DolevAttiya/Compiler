@@ -819,7 +819,7 @@ ListNode* parse_PARAM_LIST(Role role_for_parameters_parser, ListNode* predef_typ
 }
 
 void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListNode* predef_types) {
-	static int parameter_number = 0;
+	static int parameter_number = 2;
 	eTOKENS follow[] = { PARENTHESIS_CLOSE_tok };
 	current_follow = follow;
 	current_follow_size = 1;
@@ -836,7 +836,7 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 	case COMMA_tok:
 		fprintf(parser_output_file, "Rule {PARAMS_LIST' -> , PARAM PARAMS_LIST'}\n");
 		/*Semantic*/
-		add_type_to_list_node(&Head, parse_PARAM(role_for_parameters_parser, predef_types, parameter_number+1));
+		add_type_to_list_node(&Head, parse_PARAM(role_for_parameters_parser, predef_types, parameter_number));
 		ListNode* down_the_list = is_empty;
 		if (predef_types == is_empty)
 			down_the_list = is_empty;
@@ -853,22 +853,24 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 		if (parse_Follow() != 0)
 		{
 			if (role_for_parameters_parser == FullDefinition && predef_types != is_empty && predef_types->dimension != already_checked_as_error) {
-				
+
 				while (predef_types != is_empty)
 				{
 					semantic_error_line_number = error_potential_line_number;
 					char* str = (char*)malloc(sizeof("The #%d parameter doesn't appear in the full-defenition but appears in predefinition\n") + 11);
-					sprintf(str, "The #%d parameter doesn't appear in the full-defenition but appears in predefinition\n", parameter_number);
+					sprintf(str, "The #%d parameter doesn't appear in the full-defenition but appears in predefinition\n", parameter_number+1);
 					semantic_error(str);
 					free(str);
 					predef_types = predef_types->next;
 					parameter_number++;
 				}
-				parameter_number = 1;
+				
 			}
 			fprintf(parser_output_file, "Rule {PARAMS_LIST' -> epsilon}\n");
 			back_token();
+			parameter_number = 1;
 			break;
+			
 		}
 		error();
 		break;
@@ -906,7 +908,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 	/*Semantic*/
 	if (role_for_parameters_parser == FullDefinition && predef_types != is_empty && predef_types->dimension != already_checked_as_error) // already_checked_as_error means there is no pre def so there is nothing to check on
 	{
-		if (param_type != predef_types->type && param_type != TypeError && predef_types->type != TypeError)
+		if (param_type != predef_types->type && param_type != TypeError && predef_types->type != TypeError && (!((param_type == Integer && predef_types->type ==IntArray)|| (param_type == IntArray && predef_types->type == Integer) || (param_type == Float && predef_types->type == FloatArray) || (param_type == FloatArray && predef_types->type == Float) )))
 		{
 			semantic_error_line_number = potential_error_type;
 			semantic_error("Param type from decleration and implementation does not match\n");

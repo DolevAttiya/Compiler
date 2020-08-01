@@ -173,7 +173,7 @@ void parse_PROG()
 				else
 				{
 					if(entry->Role != PreDefinition)
-						semantic_error("Full-definition of function already exists\n");
+						semantic_error("Full definition of function already exists\n");
 				}
 			}
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
@@ -683,7 +683,7 @@ void parse_FUNC_WITH_BODY()
 	else
 	{
 		if (entry->Role != PreDefinition)
-			semantic_error("Full-definition of function already exists\n");
+			semantic_error("Full definition of function already exists\n");
 	}
 	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list, FullDefinition);
 	if (entry->Role == PreDefinition)  // there was a pre def for this function
@@ -883,7 +883,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {PARAM -> TYPE id PARAM'}\n");
 	/*Semantic*/
-
+																			  
 	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty/*TODO optional add a flag in order to print only once*/)
 	{
 		semantic_error_line_number = current_token->lineNumber;
@@ -911,7 +911,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 		if (param_type != predef_types->type && param_type != TypeError && predef_types->type != TypeError && (!((param_type == Integer && predef_types->type ==IntArray)|| (param_type == IntArray && predef_types->type == Integer) || (param_type == Float && predef_types->type == FloatArray) || (param_type == FloatArray && predef_types->type == Float) )))
 		{
 			semantic_error_line_number = potential_error_type;
-			semantic_error("Param type from decleration and implementation does not match\n");
+			semantic_error("Parameter type mismatch between decleration and implementation\n");
 		}
 	}
 	if (param_type != TypeError && dimList != already_checked_as_error)
@@ -966,7 +966,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 			if ((predef_types->type == Integer) || (predef_types->type == Float))
 			{
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("The parameter is not an array as mentioned in predefinition\n");
+				semantic_error("The parameter is not an array as declared in the predefinition\n");
 			}
 		parse_DIM_SIZES(dimList);
 		if (*param_type == Integer)
@@ -995,7 +995,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 				if (!((predef_types->type == Integer) || (predef_types->type == Float)))
 				{
 					semantic_error_line_number = potential_semantic_error_line_number;
-					semantic_error("param in predefinition is an array but in full-definition is not\n");
+					semantic_error("Parameter in predefinition is declared as an array but in full definition is not\n");
 				}
 			}
 			*dimList = is_empty;
@@ -1162,14 +1162,14 @@ void parse_VAR_OR_CALL(table_entry id) {
 		if (id == not_exists)
 		{
 			semantic_error_line_number = potential_error_line_number;
-			semantic_error("Undeclered function\n");
+			semantic_error("Undeclared function\n");
 			down_the_tree = already_checked_as_error;
 		}
 		else {
 			if (id->Role != FullDefinition)
 			{
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("Calling args on not a Function var or not declared\n");
+				semantic_error("The called function has no implementation\n");
 			}
 			down_the_tree = id->ListOfParameterTypes;
 
@@ -1190,7 +1190,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 		if (id == not_exists)
 		{
 			semantic_error_line_number = potential_error_line_number;
-			semantic_error("Undeclered variable\n");
+			semantic_error("Undeclared variable\n");
 			id = already_checked_as_error;
 		}
 		else if (id->Role != Variable)
@@ -1213,10 +1213,10 @@ void parse_VAR_OR_CALL(table_entry id) {
 			return;
 		/*Semantic*/
 		Expr* rightSide = parse_EXPR();
-		if (IntArray == rightSide->type || FloatArray == rightSide->type)
+		if (IntArray == rightSide->type || FloatArray == rightSide->type || IntArray == leftSide || FloatArray == leftSide)
 		{
 			semantic_error_line_number = current_token->lineNumber;
-			semantic_error("trying accsses a wrong type from the real type on the right side\n");
+			semantic_error("Refering an entire array is forbidden\n");
 		}
 		if (rightSide->type != TypeError && leftSide != TypeError)
 		{
@@ -1224,7 +1224,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 			if (!((leftSide == Integer && rightSide->type == Integer) || (leftSide == Float && (rightSide->type == Integer || rightSide->type == Float))))
 			{
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("Right side's type does not match left side's type\n");
+				semantic_error("Type mismatch\n");
 			}
 		}
 		else
@@ -1285,7 +1285,7 @@ void parse_ARGS(ListNode* list_of_params_types) {
 			if (list_of_params_types != is_empty && list_of_params_types != already_checked_as_error)
 			{
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("there are less params then expected\n");
+				semantic_error("There are less parameters then expected\n");
 			}
 			/*Semantic*/
 			back_token();
@@ -1359,12 +1359,12 @@ void parse_ARG_LIST(ListNode* list_of_params_types) { //funcs
 	int current_line_number = current_token->lineNumber;
 	semantic_error_line_number = current_line_number;
 	if (list_of_params_types == is_empty)// there is at list one argument but not in the func with body
-		semantic_error("difference between definitions\n");// TODO: Handle a call without a definition
+		semantic_error("Difference between parameters in the function call and the function declaration\n");// TODO: Handle a call without a definition (maybe not relevant)
 	Expr* expr = parse_EXPR();
 	ListNode* down_the_list = is_empty;
-	if (list_of_params_types == is_empty)
-		semantic_error("Less argumments then expected");
-	else {
+	//if (list_of_params_types == is_empty)
+	//	semantic_error("Less argumments then expected");
+	if (list_of_params_types != is_empty) {
 		if (list_of_params_types != already_checked_as_error)
 		{
 			check_table_against_reality(list_of_params_types->type, expr->type);
@@ -1395,11 +1395,9 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST'}\n");
 		/* Semantic */
 		if (list_of_params_types == is_empty)
-			semantic_error("difference between definitions\n");
+			semantic_error("Difference between parameters in the function call and the function declaration\n");
 		Expr* expr = parse_EXPR();
-		if (list_of_params_types == is_empty)// because we are already in type error lets print it
-			semantic_error("not equeinvalent number of params\n");// TODO SEMANTIC ERROR
-		else
+		if (list_of_params_types != is_empty)
 			if(list_of_params_types != already_checked_as_error)
 				check_table_against_reality(list_of_params_types->type, expr->type);
 		if (list_of_params_types == is_empty || list_of_params_types == already_checked_as_error)

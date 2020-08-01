@@ -1799,6 +1799,10 @@ Expr* parse_TERM() {
 	Expr* factor_expr = parse_FACTOR();
 	Expr* term_tag_expr = parse_TERM_TAG();
 	Expr* expr = (Expr*)malloc(sizeof(Expr));
+	if (factor_expr->type == IntArray)
+		factor_expr->type = Integer;
+	if (term_tag_expr->type == FloatArray)
+		term_tag_expr->type = Float;
 	if (factor_expr->type == Integer && term_tag_expr->type == Integer)
 	{
 		expr->type = Integer;
@@ -1815,7 +1819,7 @@ Expr* parse_TERM() {
 		expr->type = TypeError;
 		expr->Valueable = 0;
 	}
-	else
+	else 
 	{
 		expr->type = Float;
 		expr->Valueable = 0;
@@ -1921,6 +1925,10 @@ Expr* parse_FACTOR() {
 		expr->Valueable = 0;
 		/* Semantic */
 		Type result = parse_VAR_OR_CALL_TAG(id);
+		if (result == IntArray)
+			expr->type = Integer;
+		else if (result == FloatArray)
+			expr->type = Float;
 		return expr;
 	case INT_NUM_tok:
 		fprintf(parser_output_file, "Rule {FACTOR -> int_num}\n");

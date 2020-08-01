@@ -1284,8 +1284,16 @@ void parse_ARGS(ListNode* list_of_params_types) {
 			/*Semantic*/
 			if (list_of_params_types != is_empty && list_of_params_types != already_checked_as_error)
 			{
+				int arg_number = 1;
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("There are less parameters then expected\n");
+				while (list_of_params_types != is_empty)
+				{
+					char* str = (char*)malloc(sizeof("The #%d parameter in the function declaration is not used in the function call\n") + 11);
+					sprintf(str, "The #%d parameter in the function declaration is not used in the function call\n",  arg_number);
+					semantic_error(str);
+					free(str);
+					arg_number++;
+				}
 			}
 			/*Semantic*/
 			back_token();
@@ -1359,7 +1367,7 @@ void parse_ARG_LIST(ListNode* list_of_params_types) { //funcs
 	int current_line_number = current_token->lineNumber;
 	semantic_error_line_number = current_line_number;
 	if (list_of_params_types == is_empty)// there is at list one argument but not in the func with body
-		semantic_error("Difference between parameters in the function call and the function declaration\n");// TODO: Handle a call without a definition (maybe not relevant)
+		semantic_error("The #1 parameter in the function call is not declared in the function declaration\n");// TODO: Handle a call without a definition (maybe not relevant)
 	Expr* expr = parse_EXPR();
 	ListNode* down_the_list = is_empty;
 	//if (list_of_params_types == is_empty)
@@ -1388,6 +1396,7 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 	ListNode* down_the_tree = is_empty;
 	int current_line_number = current_token->lineNumber;
 	semantic_error_line_number = current_line_number;
+	static int arg_number = 2;
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
@@ -1395,7 +1404,13 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST'}\n");
 		/* Semantic */
 		if (list_of_params_types == is_empty)
-			semantic_error("Difference between parameters in the function call and the function declaration\n");
+		{
+			char* str = (char*)malloc(sizeof("The #%d parameter in the function declaration is not used in the function call\n") + 11);
+			sprintf(str, "The #%d parameter in the function declaration is not used in the function call\n", arg_number);
+			semantic_error(str);
+			free(str);
+			arg_number++;
+		}
 		Expr* expr = parse_EXPR();
 		if (list_of_params_types != is_empty)
 			if(list_of_params_types != already_checked_as_error)
@@ -1410,10 +1425,22 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		break;
 	case PARENTHESIS_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> Epsilon}\n");
+
 		back_token();
 		/* Semantic */
-		if(is_empty !=list_of_params_types)
-			semantic_error("not equeinvalent number of params\n");
+		if (list_of_params_types != is_empty && list_of_params_types != already_checked_as_error)
+		{
+			int arg_number = 1;
+			semantic_error_line_number = current_token->lineNumber;
+			while (list_of_params_types != is_empty)
+			{
+				char* str = (char*)malloc(sizeof("The #%d parameter in the function declaration is not used in the function call\n") + 11);
+				sprintf(str, "The #%d parameter in the function declaration is not used in the function call\n", arg_number);
+				semantic_error(str);
+				free(str);
+				arg_number++;
+			}
+		}
 		/* Semantic */
 		break;
 	default:

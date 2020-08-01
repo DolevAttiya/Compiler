@@ -1490,7 +1490,6 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		}
 		else
 		{
-			
 			if (id_type != FloatArray && id_type != IntArray)
 				semantic_error("The id must be declared as array\n");
 			if (id != already_checked_as_error)
@@ -1524,7 +1523,7 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
 		if (id!=already_checked_as_error && id->ListOfArrayDimensions != is_empty)
-			semantic_error("not equeivalent number of params\n");
+			semantic_error("Not similar to array's definition, expected values\n");
 		return id_type;
 	default:
 		error();
@@ -1850,8 +1849,12 @@ Expr* parse_FACTOR() {
 		table_entry id = find(current_token->lexeme);
 		if (id != not_exists) { // we do not print error to check what kind of id is it in parse_VAR_OR_CALL_TAG
 			expr->type = get_id_type(id);
-			//TODO - do we need to add check for id_type?
-			expr->Valueable = 0;
+			if (expr->type == Integer)
+			{
+				expr->Valueable = 1;
+			}
+			else expr->Valueable = 0;
+			//TODO - do we need to add check for id_type? Did I lied here? Maybe
 		}
 		else
 		{

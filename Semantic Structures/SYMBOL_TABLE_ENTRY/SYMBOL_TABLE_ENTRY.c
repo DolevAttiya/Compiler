@@ -6,6 +6,16 @@
 
 #include <stdlib.h>
 
+void set_line_number(SYMBOL_TABLE_ENTRY* entry, int lineNumber)
+{
+	entry->lineNumber = lineNumber;
+}
+
+void get_line_number(SYMBOL_TABLE_ENTRY* entry)
+{
+	return entry->lineNumber;
+}
+
 void set_id_name(SYMBOL_TABLE_ENTRY* entry, const char* name)
 {
 	entry->Name = _strdup(name);

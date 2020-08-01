@@ -129,6 +129,7 @@ void parse_PROG()
 			table_entry entry = insert(function_name);
 			if (entry != not_exists)
 			{
+				set_line_number(entry, local_line_number);
 				set_id_role(entry, PreDefinition);
 				set_id_type(entry, function_type);
 				set_parameters_list(entry, parameters_list);
@@ -160,6 +161,7 @@ void parse_PROG()
 			{
 				entry = insert(current_function_name);
 				set_id_role(entry, PreDefinition);
+				set_line_number(entry, local_line_number);
 			}
 			else
 			{
@@ -294,13 +296,11 @@ void parse_PROG()
 	{
 		fprintf(parser_output_file, "Rule {FUNC_FULL_DEFS' -> epsilon}\n");
 
-		find_predefinitions();
-
 		/*SEMANTIC*/
 		parse_FB();	printf("from scope : %d ", scope);	printf("to scope : %d\n", --scope);
 		/*SEMANTIC*/
 	}
-	scope = 0;
+	find_predefinitions();
 }
 
 void parse_GLOBAL_VARS()
@@ -781,8 +781,8 @@ ListNode* parse_PARAMS(Role role_for_parameters_parser, ListNode* predef_types) 
 				while (predef_types != is_empty)
 				{
 					semantic_error_line_number = error_potential_line_number;
-					char* str = (char*)malloc(sizeof("The #%d  parameter less then in declered predefinition\n") + 11);
-					sprintf(str, "The #%d  parameter less then in declered predefinition\n", parameter_number);
+					char* str = (char*)malloc(sizeof("The #%d  parameter less then in declared predefinition\n") + 11);
+					sprintf(str, "The #%d  parameter less then in declared predefinition\n", parameter_number);
 					semantic_error(str);
 					free(str);
 					predef_types = predef_types->next;
@@ -857,8 +857,8 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 				while (predef_types != is_empty)
 				{
 					semantic_error_line_number = error_potential_line_number;
-					char* str = (char*)malloc(sizeof("The #%d parameter doesn't appear in the full-defenition but appears in predefinition\n") + 11);
-					sprintf(str, "The #%d parameter doesn't appear in the full-defenition but appears in predefinition\n", parameter_number+1);
+					char* str = (char*)malloc(sizeof("The #%d parameter doesn't appear in the full definition but appears in predefinition\n") + 11);
+					sprintf(str, "The #%d parameter doesn't appear in the full definition but appears in predefinition\n", parameter_number+1);
 					semantic_error(str);
 					free(str);
 					predef_types = predef_types->next;
@@ -868,7 +868,7 @@ void parse_PARAM_LIST_TAG(ListNode* Head, Role role_for_parameters_parser, ListN
 			}
 			fprintf(parser_output_file, "Rule {PARAMS_LIST' -> epsilon}\n");
 			back_token();
-			parameter_number = 1;
+			parameter_number = 2;
 			break;
 			
 		}
@@ -887,8 +887,8 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty/*TODO optional add a flag in order to print only once*/)
 	{
 		semantic_error_line_number = current_token->lineNumber;
-		char* str = (char*)malloc(sizeof("The #%d parameter appear in the full-defenition but doesn't appear in predefinition\n") + 11);
-		sprintf(str, "The #%d parameter appear in the full-defenition but doesn't appear in predefinition\n", parameter_number);
+		char* str = (char*)malloc(sizeof("The #%d parameter that appears in the full definition wasn't declared in the predefinition\n") + 11);
+		sprintf(str, "The #%d parameter that appears in the full definition wasn't declared in the predefinition\n", parameter_number);
 		semantic_error(str);
 		free(str);
 	}
@@ -911,7 +911,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 		if (param_type != predef_types->type && param_type != TypeError && predef_types->type != TypeError && (!((param_type == Integer && predef_types->type ==IntArray)|| (param_type == IntArray && predef_types->type == Integer) || (param_type == Float && predef_types->type == FloatArray) || (param_type == FloatArray && predef_types->type == Float) )))
 		{
 			semantic_error_line_number = potential_error_type;
-			semantic_error("Parameter type mismatch between decleration and implementation\n");
+			semantic_error("Parameter type mismatch between declaration and implementation\n");
 		}
 	}
 	if (param_type != TypeError && dimList != already_checked_as_error)
@@ -919,18 +919,48 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 		if (role_for_parameters_parser == FullDefinition)
 		{
 			semantic_error_line_number = error_line_number;
-			table_entry id = insert(current_param);
+			table_entry id;
+			id = find(current_param);
 			if (id != not_exists)
 			{
-				set_id_role(id, Variable);
-				set_dimensions_list(id, dimList);
-				set_id_type(id, param_type);
-				return get_id_type(id);
+				//if (id->Role != FullDefinition && id->Role != PreDefinition)
+				//{
+				//	id = insert(current_param);
+				//	if (id != not_exists) // maybe did not succeded 
+				//	{
+				//		set_id_role(id, Variable);
+				//		set_dimensions_list(id, dimList);
+				//		set_id_type(id, param_type);
+				//		return get_id_type(id);
+				//	}
+				//	else
+				//	{
+				//		return DupplicateError;
+				//	}
+				//}
+				//else
+				if (id->Role == FullDefinition|| id->Role == PreDefinition)
+
+				{
+					semantic_error("The parameter has the same name as a function");
+					free_list(&dimList);
+				}
 			}
-			else
-			{
-				return DupplicateError;
-			}
+			//else {
+
+				id = insert(current_param);
+				if (id != not_exists) // maybe did not succeded 
+				{
+					set_id_role(id, Variable);
+					set_dimensions_list(id, dimList);
+					set_id_type(id, param_type);
+					return get_id_type(id);
+				}
+				else
+				{
+					return DupplicateError;
+				}
+			//}
 		}
 		else {
 			free_list(&dimList);
@@ -1526,7 +1556,7 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 			if (id != already_checked_as_error)
 				down_the_tree = id->ListOfArrayDimensions;
 			else
-				down_the_tree = already_checked_as_error; //because the id is not declered so we need not to check really the exprestions 
+				down_the_tree = already_checked_as_error; //because the id is not declared so we need not to check really the exprestions 
 		}
 			parse_EXPR_LIST(down_the_tree);
 			current_follow = follow;
@@ -1602,7 +1632,7 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> , EXPR EXPR_LIST'}\n");
 		/* Semantic */
 		if (list_of_dimensions == is_empty)
-			semantic_error("different num of dimensions\n");
+			semantic_error("There is a mismatch between the number of dimensions used in the assignment than in the declaration of the array\n");
 		Expr* expr = parse_EXPR();
 		if (expr->type != Integer)
 			semantic_error("Type of expr in array must be integer\n");
@@ -2002,6 +2032,7 @@ void init_semantic_analyzer()
 
 void clean_semantic_analyzer()
 {
+	scope = 0;
 	//TODO: Add a freeing function for the symbolTableList
 }
 

@@ -68,7 +68,7 @@ table_entry find(char* id_name)
 //INTERNAL FUNCTIONS
 void semantic_error(char *message)
 {
-	fprintf(semantic_analyzer_output_file, "line %4d : %s", semantic_error_line_number, message);
+	fprintf(semantic_analyzer_output_file, "line %2d : %s", semantic_error_line_number, message);
 }
 
 table_ptr _get_current_table()
@@ -124,7 +124,10 @@ void find_predefinitions()
 			nextLink = currLink->next;
 		while (currLink != 0) {
 			if (currLink->value->Role == PreDefinition)
-				semantic_error("Found a predefinition without a full definition\n"); //TODO: Assaf - need to add line number some how
+			{
+				semantic_error_line_number = currLink->value->lineNumber;
+				semantic_error("Found a predefinition without a full definition\n");
+			}
 			currLink = nextLink;
 			if (currLink != 0)
 				nextLink = currLink->next;

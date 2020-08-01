@@ -1651,7 +1651,7 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 			down_the_tree = list_of_dimensions->next;
 		parse_EXPR_LIST_TAG(down_the_tree);
 		free(expr);
-
+		break;
 		/* Semantic */
 	case BRACKET_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {EXPR_LIST' -> Epsilon}\n");

@@ -173,7 +173,7 @@ void parse_PROG()
 				else
 				{
 					if(entry->Role != PreDefinition)
-						semantic_error("Full-definition of function already exists\n");
+						semantic_error("Full definition of function already exists\n");
 				}
 			}
 			fprintf(parser_output_file, "Rule {FUNC_PREDEFS' -> FUNC_PROTYTYPE; FUNC_PREDEFS' | epsilon}\n");
@@ -683,7 +683,7 @@ void parse_FUNC_WITH_BODY()
 	else
 	{
 		if (entry->Role != PreDefinition)
-			semantic_error("Full-definition of function already exists\n");
+			semantic_error("Full definition of function already exists\n");
 	}
 	parse_FUNC_PROTOTYPE(&function_name,&function_type, &parameters_list, FullDefinition);
 	if (entry->Role == PreDefinition)  // there was a pre def for this function
@@ -883,7 +883,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 	current_follow_size = 2;
 	fprintf(parser_output_file, "Rule {PARAM -> TYPE id PARAM'}\n");
 	/*Semantic*/
-
+																			  
 	if (role_for_parameters_parser == FullDefinition && predef_types == is_empty/*TODO optional add a flag in order to print only once*/)
 	{
 		semantic_error_line_number = current_token->lineNumber;
@@ -911,7 +911,7 @@ Type parse_PARAM(Role role_for_parameters_parser, ListNode* predef_types, int pa
 		if (param_type != predef_types->type && param_type != TypeError && predef_types->type != TypeError && (!((param_type == Integer && predef_types->type ==IntArray)|| (param_type == IntArray && predef_types->type == Integer) || (param_type == Float && predef_types->type == FloatArray) || (param_type == FloatArray && predef_types->type == Float) )))
 		{
 			semantic_error_line_number = potential_error_type;
-			semantic_error("Param type from decleration and implementation does not match\n");
+			semantic_error("Parameter type mismatch between decleration and implementation\n");
 		}
 	}
 	if (param_type != TypeError && dimList != already_checked_as_error)
@@ -966,7 +966,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 			if ((predef_types->type == Integer) || (predef_types->type == Float))
 			{
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("The parameter is not an array as mentioned in predefinition\n");
+				semantic_error("The parameter is not an array as declared in the predefinition\n");
 			}
 		parse_DIM_SIZES(dimList);
 		if (*param_type == Integer)
@@ -995,7 +995,7 @@ void parse_PARAM_TAG(Type* param_type, ListNode** dimList, Role role_for_paramet
 				if (!((predef_types->type == Integer) || (predef_types->type == Float)))
 				{
 					semantic_error_line_number = potential_semantic_error_line_number;
-					semantic_error("param in predefinition is an array but in full-definition is not\n");
+					semantic_error("Parameter in predefinition is declared as an array but in full definition is not\n");
 				}
 			}
 			*dimList = is_empty;
@@ -1162,14 +1162,14 @@ void parse_VAR_OR_CALL(table_entry id) {
 		if (id == not_exists)
 		{
 			semantic_error_line_number = potential_error_line_number;
-			semantic_error("Undeclered function\n");
+			semantic_error("Undeclared function\n");
 			down_the_tree = already_checked_as_error;
 		}
 		else {
 			if (id->Role != FullDefinition)
 			{
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("Calling args on not a Function var or not declared\n");
+				semantic_error("The called function has no implementation\n");
 			}
 			down_the_tree = id->ListOfParameterTypes;
 
@@ -1190,7 +1190,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 		if (id == not_exists)
 		{
 			semantic_error_line_number = potential_error_line_number;
-			semantic_error("Undeclered variable\n");
+			semantic_error("Undeclared variable\n");
 			id = already_checked_as_error;
 		}
 		else if (id->Role != Variable)
@@ -1213,10 +1213,10 @@ void parse_VAR_OR_CALL(table_entry id) {
 			return;
 		/*Semantic*/
 		Expr* rightSide = parse_EXPR();
-		if (IntArray == rightSide->type || FloatArray == rightSide->type)
+		if (IntArray == rightSide->type || FloatArray == rightSide->type || IntArray == leftSide || FloatArray == leftSide)
 		{
 			semantic_error_line_number = current_token->lineNumber;
-			semantic_error("trying accsses a wrong type from the real type on the right side\n");
+			semantic_error("Refering an entire array is forbidden\n");
 		}
 		if (rightSide->type != TypeError && leftSide != TypeError)
 		{
@@ -1224,7 +1224,7 @@ void parse_VAR_OR_CALL(table_entry id) {
 			if (!((leftSide == Integer && rightSide->type == Integer) || (leftSide == Float && (rightSide->type == Integer || rightSide->type == Float))))
 			{
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("Right side's type does not match left side's type\n");
+				semantic_error("Type mismatch\n");
 			}
 		}
 		else
@@ -1284,8 +1284,16 @@ void parse_ARGS(ListNode* list_of_params_types) {
 			/*Semantic*/
 			if (list_of_params_types != is_empty && list_of_params_types != already_checked_as_error)
 			{
+				int arg_number = 1;
 				semantic_error_line_number = current_token->lineNumber;
-				semantic_error("there are less params then expected\n");
+				while (list_of_params_types != is_empty)
+				{
+					char* str = (char*)malloc(sizeof("The #%d parameter in the function declaration is not used in the function call\n") + 11);
+					sprintf(str, "The #%d parameter in the function declaration is not used in the function call\n",  arg_number);
+					semantic_error(str);
+					free(str);
+					arg_number++;
+				}
 			}
 			/*Semantic*/
 			back_token();
@@ -1359,12 +1367,12 @@ void parse_ARG_LIST(ListNode* list_of_params_types) { //funcs
 	int current_line_number = current_token->lineNumber;
 	semantic_error_line_number = current_line_number;
 	if (list_of_params_types == is_empty)// there is at list one argument but not in the func with body
-		semantic_error("difference between definitions\n");// TODO: Handle a call without a definition
+		semantic_error("The #1 parameter in the function call is not declared in the function declaration\n");// TODO: Handle a call without a definition (maybe not relevant)
 	Expr* expr = parse_EXPR();
 	ListNode* down_the_list = is_empty;
-	if (list_of_params_types == is_empty)
-		semantic_error("Less argumments then expected");
-	else {
+	//if (list_of_params_types == is_empty)
+	//	semantic_error("Less argumments then expected");
+	if (list_of_params_types != is_empty) {
 		if (list_of_params_types != already_checked_as_error)
 		{
 			check_table_against_reality(list_of_params_types->type, expr->type);
@@ -1388,6 +1396,7 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 	ListNode* down_the_tree = is_empty;
 	int current_line_number = current_token->lineNumber;
 	semantic_error_line_number = current_line_number;
+	static int arg_number = 2;
 	switch (current_token->kind)
 	{
 	case COMMA_tok:
@@ -1395,11 +1404,15 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> , EXPR ARG_LIST'}\n");
 		/* Semantic */
 		if (list_of_params_types == is_empty)
-			semantic_error("difference between definitions\n");
+		{
+			char* str = (char*)malloc(sizeof("The #%d parameter in the function declaration is not used in the function call\n") + 11);
+			sprintf(str, "The #%d parameter in the function declaration is not used in the function call\n", arg_number);
+			semantic_error(str);
+			free(str);
+			arg_number++;
+		}
 		Expr* expr = parse_EXPR();
-		if (list_of_params_types == is_empty)// because we are already in type error lets print it
-			semantic_error("not equeinvalent number of params\n");// TODO SEMANTIC ERROR
-		else
+		if (list_of_params_types != is_empty)
 			if(list_of_params_types != already_checked_as_error)
 				check_table_against_reality(list_of_params_types->type, expr->type);
 		if (list_of_params_types == is_empty || list_of_params_types == already_checked_as_error)
@@ -1412,10 +1425,22 @@ void parse_ARG_LIST_TAG(ListNode* list_of_params_types) {
 		break;
 	case PARENTHESIS_CLOSE_tok:
 		fprintf(parser_output_file, "Rule {ARG_LIST' -> Epsilon}\n");
+
 		back_token();
 		/* Semantic */
-		if(is_empty !=list_of_params_types)
-			semantic_error("not equeinvalent number of params\n");
+		if (list_of_params_types != is_empty && list_of_params_types != already_checked_as_error)
+		{
+			int arg_number = 1;
+			semantic_error_line_number = current_token->lineNumber;
+			while (list_of_params_types != is_empty)
+			{
+				char* str = (char*)malloc(sizeof("The #%d parameter in the function declaration is not used in the function call\n") + 11);
+				sprintf(str, "The #%d parameter in the function declaration is not used in the function call\n", arg_number);
+				semantic_error(str);
+				free(str);
+				arg_number++;
+			}
+		}
 		/* Semantic */
 		break;
 	default:
@@ -1490,13 +1515,13 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		ListNode* down_the_tree = is_empty;
 		if (id != already_checked_as_error && id->ListOfArrayDimensions == is_empty && id_type != TypeError)
 		{
-			semantic_error("id is not declared as array");
+			semantic_error("ID was not declared as an array\n");
 			//down_the_tree = NULL; is already NULL 
 		}
 		else
 		{
 			if (id_type != FloatArray && id_type != IntArray)
-				semantic_error("The id must be declared as array\n");
+				semantic_error("ID was not declared as an array\n");
 			if (id != already_checked_as_error)
 				down_the_tree = id->ListOfArrayDimensions;
 			else
@@ -1528,7 +1553,7 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
 		if (id!=already_checked_as_error && id->ListOfArrayDimensions != is_empty)
-			semantic_error("Not similar to array's definition, expected dimention\n");
+			semantic_error("Refering an entire array is forbidden\n");
 		return id_type;
 	default:
 		error();
@@ -1540,16 +1565,16 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	int current_line_number = current_token->lineNumber;
 	semantic_error_line_number = current_line_number;
 	if (list_of_dimensions == is_empty)
-		semantic_error("List of EXPR must include values\n");
+		semantic_error("The ID cannot be used as an array\n");
 	Expr* expr = parse_EXPR();
 	if (expr->type != Integer)
-		semantic_error("EXPR type must be Integer\n");
+		semantic_error("The dimension's type is not an integer\n");
 	else
 	{
 		if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-			semantic_error("Tring to access non allocated dimension\n");
-		else if (list_of_dimensions == is_empty) 
-			semantic_error("Trying to reach a non array variable \n");
+			semantic_error("The specified dimension is out of range compared to the declaration\n"); //TODO: Added dimension number
+		//else if (list_of_dimensions == is_empty) 
+		//	semantic_error("Trying to reach a non array variable \n");
 	}
 	ListNode* down_the_tree;
 	if (list_of_dimensions == is_empty || list_of_dimensions == already_checked_as_error)
@@ -1581,8 +1606,12 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		Expr* expr = parse_EXPR();
 		if (expr->type != Integer)
 			semantic_error("Type of expr in array must be integer\n");
-		else if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-				semantic_error("If expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");			
+		else 
+			//if (expr->Valueable)
+		{
+			if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
+				semantic_error("The specified dimension is out of range compared to the declaration\n"); //TODO: Added dimension number
+		}
 		ListNode* down_the_tree;
 		if (list_of_dimensions == is_empty || list_of_dimensions == already_checked_as_error)
 			down_the_tree = list_of_dimensions;
@@ -1918,7 +1947,7 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 		ListNode* down_the_tree;
 		if (id == not_exists)
 		{
-			semantic_error("a non implementated or declered function\n");
+			semantic_error("The called function was not declared\n");
 			down_the_tree = already_checked_as_error;
 			type = TypeError;
 		}

@@ -1516,13 +1516,13 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		ListNode* down_the_tree = is_empty;
 		if (id != already_checked_as_error && id->ListOfArrayDimensions == is_empty && id_type != TypeError)
 		{
-			semantic_error("id is not declared as array");
+			semantic_error("ID was not declared as an array\n");
 			//down_the_tree = NULL; is already NULL 
 		}
 		else
 		{
 			if (id_type != FloatArray && id_type != IntArray)
-				semantic_error("The id must be declared as array\n");
+				semantic_error("ID was not declared as an array\n");
 			if (id != already_checked_as_error)
 				down_the_tree = id->ListOfArrayDimensions;
 			else
@@ -1554,7 +1554,7 @@ Type parse_VAR_TAG(table_entry id) { // arrays
 		fprintf(parser_output_file, "Rule {VAR' -> Epsilon}\n");
 		back_token();
 		if (id!=already_checked_as_error && id->ListOfArrayDimensions != is_empty)
-			semantic_error("Not similar to array's definition, expected dimention\n");
+			semantic_error("Refering an entire array is forbidden\n");
 		return id_type;
 	default:
 		error();
@@ -1566,16 +1566,16 @@ void parse_EXPR_LIST(ListNode* list_of_dimensions) {
 	int current_line_number = current_token->lineNumber;
 	semantic_error_line_number = current_line_number;
 	if (list_of_dimensions == is_empty)
-		semantic_error("List of EXPR must include values\n");
+		semantic_error("The ID cannot be used as an array\n");
 	Expr* expr = parse_EXPR();
 	if (expr->type != Integer)
-		semantic_error("EXPR type must be Integer\n");
+		semantic_error("The dimension's type is not an integer\n");
 	else
 	{
 		if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-			semantic_error("Tring to access non allocated dimension\n");
-		else if (list_of_dimensions == is_empty) 
-			semantic_error("Trying to reach a non array variable \n");
+			semantic_error("The specified dimension is out of range compared to the declaration\n"); //TODO: Added dimension number
+		//else if (list_of_dimensions == is_empty) 
+		//	semantic_error("Trying to reach a non array variable \n");
 	}
 	ListNode* down_the_tree;
 	if (list_of_dimensions == is_empty || list_of_dimensions == already_checked_as_error)
@@ -1607,13 +1607,11 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 		Expr* expr = parse_EXPR();
 		if (expr->type != Integer)
 			semantic_error("Type of expr in array must be integer\n");
-		else if (expr->Valueable)
+		else 
+			//if (expr->Valueable)
 		{
 			if (list_of_dimensions != already_checked_as_error && list_of_dimensions != is_empty && expr->Value >= list_of_dimensions->dimension)
-				semantic_error("If expr_i is a token of kind int_num, value should not exceed the size of i - th dimension of the array\n");
-			else if (list_of_dimensions == is_empty)
-				semantic_error("Trying to reach a non array variable \n");
-			
+				semantic_error("The specified dimension is out of range compared to the declaration\n"); //TODO: Added dimension number
 		}
 		ListNode* down_the_tree;
 		if (list_of_dimensions == is_empty || list_of_dimensions == already_checked_as_error)
@@ -1950,7 +1948,7 @@ Type parse_VAR_OR_CALL_TAG(table_entry id) {
 		ListNode* down_the_tree;
 		if (id == not_exists)
 		{
-			semantic_error("a non implementated or declered function\n");
+			semantic_error("The called function was not declared\n");
 			down_the_tree = already_checked_as_error;
 			type = TypeError;
 		}

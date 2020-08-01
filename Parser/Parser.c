@@ -1655,9 +1655,9 @@ void parse_EXPR_LIST_TAG(ListNode* list_of_dimensions) {
 			down_the_tree = list_of_dimensions;
 		else
 			down_the_tree = list_of_dimensions->next;
+		expr_number++;
 		parse_EXPR_LIST_TAG(down_the_tree);
 		free(expr);
-		expr_number++;
 		break;
 		/* Semantic */
 	case BRACKET_CLOSE_tok:
